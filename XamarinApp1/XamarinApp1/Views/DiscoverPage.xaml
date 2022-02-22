@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.DiscoverPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    Shell.NavBarIsVisible="False">
+    <ContentPage.Resources>
+        <Color x:Key="SearchBackgroundColor">#202020</Color>
+    </ContentPage.Resources>
+    <ContentPage.BindingContext>
+        <vm:DiscoverViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Content>
+        <ScrollView>
+            <StackLayout Orientation="Vertical">
+                <material:MaterialCard
+                    x:Name="SearchArea"
+                    Margin="8"
+                    Padding="0"
+                    BackgroundColor="{StaticResource SearchBackgroundColor}"
+                    BorderColor="Transparent"
+                    CornerRadius="24"
+                    HeightRequest="48"
+                    IsClickable="True">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+
+                        <material:MaterialCard
+                            Margin="4"
+                            Padding="0"
+                            BackgroundColor="Transparent"
+                            BorderColor="Transparent"
+                            Clicked="Menu_Clicked"
+                            CornerRadius="28"
+                            HeightRequest="40"
+                            IsClickable="True"
+                            WidthRequest="40">
+                            <Label
+                                FontFamily="{DynamicResource MaterialFontFamily}"
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="&#xF035C;"
+                                VerticalOptions="Center" />
+                        </material:MaterialCard>
+
+                        <Label
+                            Grid.Column="1"
+                            FontSize="Body"
+                            Text="検索"
+                            VerticalOptions="Center" />
+
+                        <material:MaterialCard
+                            Grid.Column="2"
+                            Margin="4"
+                            Padding="0"
+                            BackgroundColor="Transparent"
+                            BorderColor="Transparent"
+                            Clicked="Settings_Clicked"
+                            CornerRadius="28"
+                            HeightRequest="40"
+                            IsClickable="True"
+                            WidthRequest="40">
+                            <Label
+                                FontFamily="{DynamicResource MaterialFontFamily}"
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="&#xF08BB;"
+                                VerticalOptions="Center" />
+                        </material:MaterialCard>
+                    </Grid>
+                </material:MaterialCard>
+                <RefreshView Refreshing="RefreshView_Refreshing">
+                    <StackLayout>
+                        <!--  次の授業  -->
+                        <material:MaterialCard
+                            x:Name="NextLessonCard"
+                            IsVisible="{Binding IsNextLessonVisible.Value}"
+                            Margin="8"
+                            CornerRadius="24"
+                            HeightRequest="100"
+                            IsClickable="True">
+                            <StackLayout>
+                                <Grid ColumnDefinitions="Auto,Auto,*">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Subtitle"
+                                        Text="Next" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Margin="16,0,0,0"
+                                        Text="XX/XX XX:XX" />
+                                </Grid>
+                            </StackLayout>
+                        </material:MaterialCard>
+                    </StackLayout>
+                </RefreshView>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>
