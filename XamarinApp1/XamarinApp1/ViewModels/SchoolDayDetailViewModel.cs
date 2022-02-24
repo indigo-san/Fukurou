@@ -54,6 +54,24 @@ public class SchoolDayDetailViewModel : BaseViewModel
 
     public ReactiveCommand Refresh { get; } = new();
 
+    public async void UpdateDate(DateOnly date)
+    {
+        try
+        {
+            IsBusy = true;
+            var item = SchoolDay.Value with
+            {
+                Date = date
+            };
+            await SchoolDayDataStore.UpdateItemAsync(item);
+            SchoolDay.Value = item;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     public async void LoadItemId(string itemId)
     {
         IsBusy = true;

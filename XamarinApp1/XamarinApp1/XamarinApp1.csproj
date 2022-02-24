@@ -15,14 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Views\ReportDetailPage.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Views\SchoolDayDetailPage.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Views\SchoolDaysPage.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
+    <Compile Update="Views\NewReportPage.xaml.cs">
+      <DependentUpon>NewReportPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
+
 </Project>

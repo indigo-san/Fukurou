@@ -4,7 +4,6 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:XamarinApp1.Views"
-    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
     Title="XamarinApp1"
     FlyoutBackgroundColor="{StaticResource PageBackgroundColor}">
 

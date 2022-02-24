@@ -78,13 +78,11 @@
                         <!--  次の授業  -->
                         <material:MaterialCard
                             x:Name="NextLessonCard"
+                            ClickCommand="{Binding GoToSchoolDays}"
                             CornerRadius="24"
                             IsClickable="True">
                             <StackLayout>
                                 <Grid ColumnDefinitions="*,Auto">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DiscoverViewModel}}, Path=GoToSchoolDays}" NumberOfTapsRequired="1" />
-                                    </Grid.GestureRecognizers>
                                     <Label FontSize="Body" Text="次の授業" />
 
                                     <Label
@@ -144,6 +142,7 @@
                         <!--  レポート  -->
                         <material:MaterialCard
                             Padding="0"
+                            ClickCommand="{Binding GoToReports}"
                             CornerRadius="24"
                             IsClickable="True">
                             <material:MaterialCard.Triggers>
@@ -156,9 +155,6 @@
                             </material:MaterialCard.Triggers>
                             <StackLayout>
                                 <Grid Margin="16,16,16,0" ColumnDefinitions="*,Auto">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DiscoverViewModel}}, Path=GoToReports}" NumberOfTapsRequired="1" />
-                                    </Grid.GestureRecognizers>
                                     <Label FontSize="Body" Text="レポート" />
 
                                     <Label
@@ -174,7 +170,7 @@
                                     ItemsSource="{Binding Reports}"
                                     RowHeight="64"
                                     SelectionMode="None"
-                                    SeparatorColor="#37474f"
+                                    SeparatorColor="Transparent"
                                     VerticalScrollBarVisibility="Never">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
@@ -186,13 +182,44 @@
                                                             CommandParameter="{Binding .}"
                                                             NumberOfTapsRequired="1" />
                                                     </Grid.GestureRecognizers>
-                                                    <Label
-                                                        Margin="8,0"
-                                                        FontAttributes="Bold"
-                                                        FontSize="Body"
-                                                        HorizontalOptions="End"
-                                                        Text="{Binding Name}"
-                                                        VerticalOptions="Center" />
+                                                    <StackLayout>
+                                                        <Label
+                                                            Margin="8,0"
+                                                            FontAttributes="Bold"
+                                                            FontSize="Body"
+                                                            HorizontalOptions="End"
+                                                            Text="{Binding Name}"
+                                                            VerticalOptions="Center">
+                                                            <Label.Triggers>
+                                                                <DataTrigger
+                                                                    Binding="{Binding IsExpirationOfTerm}"
+                                                                    TargetType="Label"
+                                                                    Value="True">
+                                                                    <Setter Property="TextColor" Value="#ff6d00" />
+                                                                </DataTrigger>
+                                                            </Label.Triggers>
+                                                        </Label>
+
+                                                        <Label
+                                                            Margin="8,0"
+                                                            FontSize="Micro"
+                                                            TextColor="DarkGray">
+                                                            <Label.Triggers>
+                                                                <DataTrigger
+                                                                    Binding="{Binding IsNotSubmitted}"
+                                                                    TargetType="Label"
+                                                                    Value="True">
+                                                                    <Setter Property="Text" Value="・未提出" />
+                                                                </DataTrigger>
+                                                                <DataTrigger
+                                                                    Binding="{Binding IsExpirationOfTerm}"
+                                                                    TargetType="Label"
+                                                                    Value="True">
+                                                                    <Setter Property="Text" Value="・期限切れ" />
+                                                                </DataTrigger>
+                                                            </Label.Triggers>
+                                                        </Label>
+                                                    </StackLayout>
                                                     <Label
                                                         Grid.Column="1"
                                                         Margin="8,0"
@@ -200,7 +227,16 @@
                                                         FontSize="Body"
                                                         HorizontalOptions="End"
                                                         Text="{Binding Subject.SubjectName}"
-                                                        VerticalOptions="Center" />
+                                                        VerticalOptions="Center">
+                                                        <Label.Triggers>
+                                                            <DataTrigger
+                                                                Binding="{Binding IsExpirationOfTerm}"
+                                                                TargetType="Label"
+                                                                Value="True">
+                                                                <Setter Property="TextColor" Value="#ff6d00" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
 
                                                     <Ellipse
                                                         Grid.Column="2"
@@ -209,6 +245,29 @@
                                                         HorizontalOptions="End"
                                                         VerticalOptions="Center"
                                                         WidthRequest="24" />
+
+                                                    <Label
+                                                        Grid.Column="2"
+                                                        FontFamily="{DynamicResource MaterialFontFamily}"
+                                                        FontSize="16"
+                                                        HorizontalOptions="Center"
+                                                        HorizontalTextAlignment="Center"
+                                                        IsVisible="{Binding IsSubmitted}"
+                                                        Text="&#xF012C;"
+                                                        VerticalOptions="Center"
+                                                        VerticalTextAlignment="Center" />
+
+                                                    <Label
+                                                        Grid.Column="2"
+                                                        Margin="0,1,0,0"
+                                                        FontFamily="{DynamicResource MaterialFontFamily}"
+                                                        FontSize="24"
+                                                        HorizontalOptions="Center"
+                                                        HorizontalTextAlignment="Center"
+                                                        IsVisible="{Binding IsExpirationOfTerm}"
+                                                        Text="&#xF05D6;"
+                                                        VerticalOptions="Center"
+                                                        VerticalTextAlignment="Center" />
                                                 </Grid>
                                             </ViewCell>
                                         </DataTemplate>

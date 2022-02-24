@@ -11,7 +11,7 @@ public class MockReportDataStore : IDataStore<Report>
 {
     private readonly List<Report> _items = new()
     {
-        new Report(MockSubjectDataStore.AASubject, DateOnly.FromDateTime(DateTime.Now), "第一回レポート", Guid.NewGuid(), ReportState.ExpirationOfTerm),
+        new Report(MockSubjectDataStore.AASubject, DateOnly.FromDateTime(DateTime.Now).AddDays(-1), "第一回レポート", Guid.NewGuid(), ReportState.NotSubmitted),
         new Report(MockSubjectDataStore.MathSubject, DateOnly.FromDateTime(DateTime.Now), "第一回レポート", Guid.NewGuid(), ReportState.NotSubmitted),
         new Report(MockSubjectDataStore.JapaneseSubject, DateOnly.FromDateTime(DateTime.Now), "第一回レポート", Guid.NewGuid(), ReportState.Submitted),
         new Report(MockSubjectDataStore.AASubject, DateOnly.FromDateTime(DateTime.Now).AddDays(7), "第二回レポート", Guid.NewGuid(), ReportState.NotSubmitted),

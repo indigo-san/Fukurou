@@ -71,7 +71,7 @@ namespace XamarinApp1.ViewModels
 
         private async void OnAddItem(object obj)
         {
-            await Shell.Current.GoToAsync(nameof(NewItemPage));
+            await Shell.Current.GoToAsync(nameof(NewReportPage));
         }
 
         async void OnItemSelected(SchoolDay item)

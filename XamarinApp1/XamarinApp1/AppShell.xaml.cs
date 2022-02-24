@@ -15,9 +15,10 @@ namespace XamarinApp1
             InitializeComponent();
 
             Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
-            Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
+            Routing.RegisterRoute(nameof(NewReportPage), typeof(NewReportPage));
             Routing.RegisterRoute(nameof(SchoolDaysPage), typeof(SchoolDaysPage));
             Routing.RegisterRoute(nameof(SchoolDayDetailPage), typeof(SchoolDayDetailPage));
+            Routing.RegisterRoute(nameof(ReportsPage), typeof(ReportsPage));
             Routing.RegisterRoute(nameof(ReportDetailPage), typeof(ReportDetailPage));
         }
 

@@ -9,6 +9,16 @@
     <ContentPage.BindingContext>
         <vm:ReportDetailViewModel />
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding GoToEdit}" Text="編集">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF0CB6;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
     <ContentPage.Resources>
         <toolkitconverter:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
@@ -23,7 +33,7 @@
                         Fill="{Binding Report.Value.Subject.Color}"
                         HeightRequest="24"
                         HorizontalOptions="Start"
-                        VerticalOptions="Start"
+                        VerticalOptions="End"
                         WidthRequest="24" />
 
                     <Label

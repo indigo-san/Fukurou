@@ -10,14 +10,11 @@ using XamarinApp1.ViewModels;
 
 namespace XamarinApp1.Views
 {
-    public partial class NewItemPage : ContentPage
+    public partial class NewReportPage : ContentPage
     {
-        public SchoolDay Item { get; set; }
-
-        public NewItemPage()
+        public NewReportPage()
         {
             InitializeComponent();
-            BindingContext = new NewItemViewModel();
         }
     }
 }

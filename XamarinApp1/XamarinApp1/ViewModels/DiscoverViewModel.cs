@@ -55,6 +55,11 @@ public class DiscoverViewModel : BaseViewModel
             }
         });
 
+        GoToReports.Subscribe(async () =>
+        {
+            await Shell.Current.GoToAsync(nameof(ReportsPage));
+        });
+
         GoToReportDetail.Subscribe(async item =>
         {
             if (item != null)

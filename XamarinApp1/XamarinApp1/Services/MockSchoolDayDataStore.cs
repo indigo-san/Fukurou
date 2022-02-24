@@ -15,7 +15,8 @@ public class MockSchoolDayDataStore : IDataStore<SchoolDay>
 {
     private readonly List<SchoolDay> _items = new()
     {
-        new SchoolDay(DateOnly.FromDateTime(DateTime.Now), Guid.NewGuid()),
+        new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), Guid.NewGuid()),
+        new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(0)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(1)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(2)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(3)), Guid.NewGuid()),

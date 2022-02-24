@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+
 using Reactive.Bindings;
 
 using Xamarin.Forms;
@@ -38,7 +40,7 @@ public class SchoolDaysViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var items = await SchoolDayDataStore.GetItemsAsync(forceRefresh);
+            var items = (await SchoolDayDataStore.GetItemsAsync(forceRefresh)).OrderBy(i => i.Date);
             Items.Clear();
             Items.AddRangeOnScheduler(items);
         }

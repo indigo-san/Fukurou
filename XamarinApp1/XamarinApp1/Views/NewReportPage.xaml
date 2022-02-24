@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.NewReportPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    Title="New Item">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior>
+            <BackButtonBehavior.IconOverride>
+                <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF0156;" />
+            </BackButtonBehavior.IconOverride>
+        </BackButtonBehavior>
+    </Shell.BackButtonBehavior>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding SaveCommand}" Text="保存">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{DynamicResource MaterialFontFamily}"
+                    Glyph="&#xF012C;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <ContentPage.BindingContext>
+        <vm:NewReportViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <Grid
+            Margin="16"
+            ColumnDefinitions="32,*"
+            RowDefinitions="Auto,Auto,16,Auto">
+
+            <Ellipse
+                Fill="{Binding SelectedSubject.Value.Color}"
+                HeightRequest="24"
+                HorizontalOptions="Start"
+                VerticalOptions="Center"
+                WidthRequest="24" />
+
+            <Picker
+                Grid.Column="1"
+                FontSize="Title"
+                ItemDisplayBinding="{Binding SubjectName}"
+                ItemsSource="{Binding Subjects.Value}"
+                SelectedItem="{Binding SelectedSubject.Value, Mode=TwoWay}" />
+
+            <Entry
+                Grid.Row="1"
+                Grid.Column="1"
+                FontAttributes="Bold"
+                FontSize="Title"
+                Placeholder="1文字以上"
+                Text="{Binding Name.Value, Mode=TwoWay}" />
+
+            <Label
+                Grid.Row="3"
+                FontFamily="{DynamicResource MaterialFontFamily}"
+                FontSize="24"
+                Text="&#xF00F6;"
+                VerticalOptions="Center" />
+
+            <DatePicker
+                Grid.Row="3"
+                Grid.Column="1"
+                Date="{Binding SelectedDate.Value, Mode=TwoWay}"
+                FontSize="Body" />
+
+            <!--<StackLayout Padding="15" Spacing="3">
+                <Label FontSize="Medium" Text="Name" />
+
+                <Entry
+                    FontSize="Medium"
+                    Placeholder="1文字以上"
+                    Text="{Binding Name.Value, Mode=TwoWay}" />
+                <Label FontSize="Medium" Text="Subject" />
+                <Picker
+                    ItemDisplayBinding="{Binding SubjectName}"
+                    ItemsSource="{Binding Subjects.Value}"
+                    SelectedItem="{Binding SelectedSubject.Value, Mode=TwoWay}" />
+                <Label FontSize="Medium" Text="Date" />
+                <DatePicker Date="{Binding SelectedDate.Value, Mode=TwoWay}" />
+            </StackLayout>-->
+        </Grid>
+    </ContentPage.Content>
+
+</ContentPage>

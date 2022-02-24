@@ -30,8 +30,8 @@
                 OnSurface="#FFFFFF"
                 Primary="#FFFFFF"
                 PrimaryVariant="#FFFFFF"
-                Secondary="#063852"
-                SecondaryVariant="#FFFFFF"
+                Secondary="{StaticResource Primary}"
+                SecondaryVariant="{StaticResource PageBackgroundColor}"
                 Surface="{StaticResource CardBackgroundColor}" />
 
             <mtrl:MaterialConfiguration x:Key="Material.Configuration" ColorConfiguration="{StaticResource Material.Color}" />

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Xamarin.Forms;
 
 using XamarinApp1.Models;
+using XamarinApp1.Views;
 
 namespace XamarinApp1.ViewModels;
 
@@ -40,6 +41,17 @@ public class ReportDetailViewModel : BaseViewModel
             }
         });
 
+        GoToEdit.Subscribe(async () =>
+        {
+            if (Report.Value != null)
+            {
+                var date = Uri.EscapeDataString(Report.Value.Date.ToString());
+                var name = Uri.EscapeDataString(Report.Value.Name);
+
+                await Shell.Current.GoToAsync($"{nameof(NewReportPage)}?SelectedSubject={Report.Value.Subject.Id}&Id={Report.Value.Id}&SelectedDate={date}&Name={name}");
+            }
+        });
+
         Refresh.Subscribe(() => LoadItemId(itemId));
     }
 
@@ -54,6 +66,8 @@ public class ReportDetailViewModel : BaseViewModel
     }
 
     public ReactiveCommand Refresh { get; } = new();
+
+    public ReactiveCommand GoToEdit { get; } = new();
 
     public ReactiveCommand MarkAsSubmitted { get; } = new();
 
