@@ -20,6 +20,7 @@ namespace XamarinApp1
             Routing.RegisterRoute(nameof(SchoolDayDetailPage), typeof(SchoolDayDetailPage));
             Routing.RegisterRoute(nameof(ReportsPage), typeof(ReportsPage));
             Routing.RegisterRoute(nameof(ReportDetailPage), typeof(ReportDetailPage));
+            Routing.RegisterRoute(nameof(LessonDetailPage), typeof(LessonDetailPage));
         }
 
         private async void OnMenuItemClicked(object sender, EventArgs e)

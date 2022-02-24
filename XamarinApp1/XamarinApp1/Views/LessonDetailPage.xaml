@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.LessonDetailPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    <ContentPage.BindingContext>
+        <vm:LessonDetailViewModel />
+    </ContentPage.BindingContext>
+    <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <StackLayout
+                x:Name="Stack"
+                Margin="8"
+                Spacing="8">
+                <material:MaterialCard
+                    Padding="16"
+                    CornerRadius="24"
+                    IsClickable="True">
+                    <StackLayout>
+                        <Label FontSize="Body" Text="教科" />
+
+                        <StackLayout Orientation="Horizontal" Spacing="16">
+
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="24"
+                                HorizontalOptions="End"
+                                Text="{Binding Lesson.Value.Subject.SubjectName}"
+                                VerticalOptions="Center" />
+
+                            <Ellipse
+                                Fill="{Binding Lesson.Value.Subject.Color}"
+                                HeightRequest="24"
+                                HorizontalOptions="End"
+                                VerticalOptions="Center"
+                                WidthRequest="24">
+                                <Ellipse.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding Lesson.Value.IsDuring}"
+                                        TargetType="Ellipse"
+                                        Value="True">
+                                        <Setter Property="Stroke" Value="White" />
+                                        <Setter Property="StrokeThickness" Value="2" />
+                                    </DataTrigger>
+                                </Ellipse.Triggers>
+                            </Ellipse>
+                        </StackLayout>
+                    </StackLayout>
+                </material:MaterialCard>
+
+                <!--  日付  -->
+                <material:MaterialCard Padding="16" CornerRadius="24">
+                    <StackLayout>
+                        <StackLayout>
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="ChangeDate_Tapped" />
+                            </StackLayout.GestureRecognizers>
+                            <Label FontSize="Body" Text="日付" />
+
+                            <StackLayout Orientation="Horizontal">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="32"
+                                    Text="{Binding Lesson.Value.DateHeader}" />
+
+                                <Label
+                                    Margin="0,0,0,4"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    Text="{Binding Lesson.Value.DateHeaderSuffix}"
+                                    VerticalOptions="End" />
+                            </StackLayout>
+
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="Large"
+                                Text="{Binding Lesson.Value.Date}" />
+                        </StackLayout>
+
+                        <Label
+                            Margin="0,8,0,0"
+                            FontSize="Body"
+                            Text="時刻" />
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto">
+
+                            <Label
+                                Grid.Column="0"
+                                FontAttributes="Bold"
+                                FontSize="24"
+                                Text="{Binding Lesson.Value.Start}"
+                                VerticalOptions="End" />
+
+                            <Label
+                                Grid.Column="1"
+                                FontSize="24"
+                                Text="-"
+                                VerticalOptions="End" />
+                            <Label
+                                Grid.Column="2"
+                                Margin="0,0,0,2"
+                                FontSize="16"
+                                Text="{Binding Lesson.Value.End}"
+                                VerticalOptions="End" />
+                        </Grid>
+                    </StackLayout>
+                </material:MaterialCard>
+
+                <!--  状態  -->
+                <material:MaterialCard Padding="0" CornerRadius="24">
+                    <StackLayout Margin="16">
+                        <Label FontSize="Body" Text="出欠" />
+
+                        <RadioButton
+                            Content="出席"
+                            IsChecked="{Binding IsAttendChecked.Value}"
+                            IsEnabled="{Binding Lesson.Value.IsCompleted}" />
+                        <RadioButton
+                            Content="欠席"
+                            IsChecked="{Binding IsAbsentChecked.Value}"
+                            IsEnabled="{Binding Lesson.Value.IsCompleted}" />
+                    </StackLayout>
+                </material:MaterialCard>
+            </StackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

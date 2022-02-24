@@ -48,7 +48,7 @@ public class ReportDetailViewModel : BaseViewModel
                 var date = Uri.EscapeDataString(Report.Value.Date.ToString());
                 var name = Uri.EscapeDataString(Report.Value.Name);
 
-                await Shell.Current.GoToAsync($"{nameof(NewReportPage)}?SelectedSubject={Report.Value.Subject.Id}&Id={Report.Value.Id}&SelectedDate={date}&Name={name}");
+                await Shell.Current.GoToAsync($"{nameof(NewReportPage)}?SelectedSubject={Report.Value.Subject?.Id ?? Guid.Empty}&Id={Report.Value.Id}&SelectedDate={date}&Name={name}");
             }
         });
 

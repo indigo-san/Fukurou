@@ -10,23 +10,19 @@
         <vm:SchoolDaysViewModel />
     </ContentPage.BindingContext>
     <ListView
+        x:Name="ListView1"
         IsPullToRefreshEnabled="True"
         IsRefreshing="{Binding IsBusy}"
+        ItemSelected="ListView_ItemSelected"
         ItemsSource="{Binding Items}"
         RefreshCommand="{Binding Refresh}"
         RowHeight="80"
-        SelectionMode="None"
+        SelectionMode="Single"
         SeparatorColor="#37474f">
         <ListView.ItemTemplate>
             <DataTemplate>
                 <ViewCell>
                     <StackLayout Margin="8" Spacing="8">
-                        <StackLayout.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchoolDaysViewModel}}, Path=ItemTapped}"
-                                CommandParameter="{Binding .}"
-                                NumberOfTapsRequired="1" />
-                        </StackLayout.GestureRecognizers>
                         <Label
                             FontAttributes="Bold"
                             FontSize="Large"

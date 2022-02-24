@@ -39,6 +39,11 @@ public class MockSubjectDataStore : IDataStore<Subject>
         return await Task.FromResult(true);
     }
 
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        return Task.FromResult(_items.Select(i => i.Id).Contains(id));
+    }
+
     public async Task<Subject> GetItemAsync(Guid id)
     {
         return await Task.FromResult(_items.FirstOrDefault(s => s.Id == id));

@@ -56,7 +56,7 @@ namespace XamarinApp1.Views
                         WidthRequest = 24,
                         HeightRequest = 24,
                         Margin = new Thickness(0, 0),
-                        Fill = item.Subject.Color
+                        Fill = item.Subject?.Color ?? default
                     };
 
                     if (item.IsDuring)
@@ -77,6 +77,15 @@ namespace XamarinApp1.Views
         private void Menu_Clicked(object sender, EventArgs e)
         {
             Shell.Current.FlyoutIsPresented = true;
+        }
+
+        private void ReportListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            if (BindingContext is DiscoverViewModel vm && e.SelectedItem is Report report)
+            {
+                ReportListView.SelectedItem = null;
+                vm.GoToReportDetail.Execute(report);
+            }
         }
     }
 }

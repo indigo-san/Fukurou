@@ -9,7 +9,6 @@ using XamarinApp1.Models;
 using XamarinApp1.Views;
 
 namespace XamarinApp1.ViewModels;
-
 public class SchoolDaysViewModel : BaseViewModel
 {
     public SchoolDaysViewModel()

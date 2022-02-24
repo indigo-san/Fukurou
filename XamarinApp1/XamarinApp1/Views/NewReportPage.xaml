@@ -66,22 +66,6 @@
                 Grid.Column="1"
                 Date="{Binding SelectedDate.Value, Mode=TwoWay}"
                 FontSize="Body" />
-
-            <!--<StackLayout Padding="15" Spacing="3">
-                <Label FontSize="Medium" Text="Name" />
-
-                <Entry
-                    FontSize="Medium"
-                    Placeholder="1文字以上"
-                    Text="{Binding Name.Value, Mode=TwoWay}" />
-                <Label FontSize="Medium" Text="Subject" />
-                <Picker
-                    ItemDisplayBinding="{Binding SubjectName}"
-                    ItemsSource="{Binding Subjects.Value}"
-                    SelectedItem="{Binding SelectedSubject.Value, Mode=TwoWay}" />
-                <Label FontSize="Medium" Text="Date" />
-                <DatePicker Date="{Binding SelectedDate.Value, Mode=TwoWay}" />
-            </StackLayout>-->
         </Grid>
     </ContentPage.Content>
 

@@ -12,6 +12,8 @@ public interface IDataStore<T>
 
     Task<bool> DeleteItemAsync(Guid id);
 
+    Task<bool> ExistsAsync(Guid id);
+
     Task<T> GetItemAsync(Guid id);
 
     Task<IEnumerable<T>> GetItemsAsync(bool forceRefresh = false);

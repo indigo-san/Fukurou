@@ -10,9 +10,57 @@ public record Subject(string SubjectName, Guid Id, Color Color);
 
 public record Teacher(string Name, Subject[] Subjects, Guid Id);
 
-public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly End, Guid Id)
+public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly End, Guid Id, LessonState State = LessonState.None)
 {
     public Teacher[] Teachers { get; init; } = Array.Empty<Teacher>();
+
+    public string DateHeader
+    {
+        get
+        {
+            var nowDateOnly = DateOnly.FromDateTime(DateTime.Now);
+            if (nowDateOnly == Date)
+            {
+                return "本日";
+            }
+            else if (nowDateOnly < Date)
+            {
+                return (Date.DayNumber - nowDateOnly.DayNumber).ToString();
+            }
+            else if (nowDateOnly > Date)
+            {
+                return (nowDateOnly.DayNumber - Date.DayNumber).ToString();
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+
+    public string DateHeaderSuffix
+    {
+        get
+        {
+            var nowDateOnly = DateOnly.FromDateTime(DateTime.Now);
+            if (nowDateOnly == Date)
+            {
+                return "";
+            }
+            else if (nowDateOnly < Date)
+            {
+                return "日後";
+            }
+            else if (nowDateOnly > Date)
+            {
+                return "日前";
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
 
     public bool IsCompleted
     {
@@ -35,6 +83,13 @@ public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly En
                 now < End;
         }
     }
+}
+
+public enum LessonState
+{
+    None,
+    Attend,
+    Absent
 }
 
 public enum ReportState

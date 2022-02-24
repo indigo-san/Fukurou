@@ -49,7 +49,7 @@ public class DiscoverViewModel : BaseViewModel
 
         GoToSchoolDayDetail.Subscribe(async item =>
         {
-            if (item != null)
+            if (item != null && await SchoolDayDataStore.ExistsAsync(item.Id))
             {
                 await Shell.Current.GoToAsync($"{nameof(SchoolDayDetailPage)}?{nameof(SchoolDayDetailViewModel.ItemId)}={item.Id}");
             }
@@ -62,7 +62,7 @@ public class DiscoverViewModel : BaseViewModel
 
         GoToReportDetail.Subscribe(async item =>
         {
-            if (item != null)
+            if (item != null && await ReportDataStore.ExistsAsync(item.Id))
             {
                 await Shell.Current.GoToAsync($"{nameof(ReportDetailPage)}?{nameof(ReportDetailViewModel.ItemId)}={item.Id}");
             }
@@ -74,8 +74,7 @@ public class DiscoverViewModel : BaseViewModel
     public ReactiveCommand Refresh { get; } = new();
 
     public ReactiveCommand GoToSchoolDays { get; } = new();
-    
-    // Todo
+
     public ReactiveCommand GoToReports { get; } = new();
 
     public ReactiveCommand<SchoolDay> GoToSchoolDayDetail { get; } = new();

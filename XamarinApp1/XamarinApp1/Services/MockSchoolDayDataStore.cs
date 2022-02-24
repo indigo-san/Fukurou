@@ -53,10 +53,15 @@ public class MockSchoolDayDataStore : IDataStore<SchoolDay>
         return await Task.FromResult(true);
     }
 
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        return Task.FromResult(_items.Select(i => i.Id).Contains(id));
+    }
+
     public async Task<SchoolDay> GetItemAsync(Guid id)
     {
         var item = _items.FirstOrDefault(s => s.Id == id);
-        var lessons = (await _lessonStore.GetItemsAsync()).Where(i => i.Date == item.Date).ToArray();
+        var lessons = (await _lessonStore.GetItemsAsync()).Where(i => i.Date == item.Date).OrderBy(i => i.Start).ToArray();
         var reports = (await _reportStore.GetItemsAsync()).Where(i => i.Date == item.Date).ToArray();
 
         return await Task.FromResult(item with
@@ -72,7 +77,7 @@ public class MockSchoolDayDataStore : IDataStore<SchoolDay>
 
         foreach (var item in _items.Select(async item =>
         {
-            var lessons = (await _lessonStore.GetItemsAsync(true)).Where(i => i.Date == item.Date).ToArray();
+            var lessons = (await _lessonStore.GetItemsAsync(true)).Where(i => i.Date == item.Date).OrderBy(i => i.Start).ToArray();
             var reports = (await _reportStore.GetItemsAsync(true)).Where(i => i.Date == item.Date).ToArray();
             return item with
             {

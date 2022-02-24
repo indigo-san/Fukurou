@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Xamarin.Forms;
+
 using XamarinApp1.Models;
 
 namespace XamarinApp1.Services;
@@ -25,6 +27,7 @@ public class MockLessonDataStore : IDataStore<Lesson>
                     DateOnly.FromDateTime(DateTime.Now.AddDays(1)), new TimeOnly(10, 0), new TimeOnly(10, 50),
                     Guid.NewGuid())
     };
+    private readonly IDataStore<Subject> _subjectStore = DependencyService.Get<IDataStore<Subject>>();
 
     public async Task<bool> AddItemAsync(Lesson item)
     {
@@ -41,14 +44,38 @@ public class MockLessonDataStore : IDataStore<Lesson>
         return await Task.FromResult(true);
     }
 
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        return Task.FromResult(_items.Select(i => i.Id).Contains(id));
+    }
+
     public async Task<Lesson> GetItemAsync(Guid id)
     {
-        return await Task.FromResult(_items.FirstOrDefault(s => s.Id == id));
+        var item = _items.FirstOrDefault(s => s.Id == id);
+        item = item with
+        {
+            Subject = await _subjectStore.GetItemAsync(item.Subject.Id)
+        };
+
+        return await Task.FromResult(item);
     }
 
     public async Task<IEnumerable<Lesson>> GetItemsAsync(bool forceRefresh = false)
     {
-        return await Task.FromResult(_items);
+        var list = new List<Lesson>();
+
+        foreach (var item in _items.Select(async item =>
+        {
+            return item with
+            {
+                Subject = await _subjectStore.GetItemAsync(item.Subject.Id)
+            };
+        }))
+        {
+            list.Add(await item);
+        }
+
+        return list;
     }
 
     public async Task<bool> UpdateItemAsync(Lesson item)

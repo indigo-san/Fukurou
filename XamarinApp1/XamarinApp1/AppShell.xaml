@@ -95,6 +95,12 @@
         </FlyoutItem.Icon>
         <ShellContent ContentTemplate="{DataTemplate local:DiscoverPage}" Route="Discover" />
     </FlyoutItem>
+    <FlyoutItem Title="Subjects">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF00BA;" />
+        </FlyoutItem.Icon>
+        <ShellContent ContentTemplate="{DataTemplate local:SubjectsPage}" Route="Subjects" />
+    </FlyoutItem>
     <FlyoutItem Title="About">
         <FlyoutItem.Icon>
             <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF02FD;" />

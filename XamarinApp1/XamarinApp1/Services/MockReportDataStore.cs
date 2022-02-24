@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Xamarin.Forms;
+
 using XamarinApp1.Models;
 
 namespace XamarinApp1.Services;
@@ -18,6 +20,7 @@ public class MockReportDataStore : IDataStore<Report>
         new Report(MockSubjectDataStore.JapaneseSubject, DateOnly.FromDateTime(DateTime.Now), "第二回レポート", Guid.NewGuid(), ReportState.NotSubmitted),
         new Report(MockSubjectDataStore.MathSubject, DateOnly.FromDateTime(DateTime.Now).AddDays(7), "第二回レポート", Guid.NewGuid(), ReportState.NotSubmitted),
     };
+    private readonly IDataStore<Subject> _subjectStore = DependencyService.Get<IDataStore<Subject>>();
 
     public async Task<bool> AddItemAsync(Report item)
     {
@@ -34,14 +37,38 @@ public class MockReportDataStore : IDataStore<Report>
         return await Task.FromResult(true);
     }
 
+    public Task<bool> ExistsAsync(Guid id)
+    {
+        return Task.FromResult(_items.Select(i => i.Id).Contains(id));
+    }
+
     public async Task<Report> GetItemAsync(Guid id)
     {
-        return await Task.FromResult(_items.FirstOrDefault(s => s.Id == id));
+        var item = _items.FirstOrDefault(s => s.Id == id);
+        item = item with
+        {
+            Subject = await _subjectStore.GetItemAsync(item.Subject.Id)
+        };
+
+        return await Task.FromResult(item);
     }
 
     public async Task<IEnumerable<Report>> GetItemsAsync(bool forceRefresh = false)
     {
-        return await Task.FromResult(_items);
+        var list = new List<Report>();
+
+        foreach (var task in _items.Select(async item =>
+        {
+            return item with
+            {
+                Subject = await _subjectStore.GetItemAsync(item.Subject.Id)
+            };
+        }))
+        {
+            list.Add(await task);
+        }
+
+        return list;
     }
 
     public async Task<bool> UpdateItemAsync(Report item)

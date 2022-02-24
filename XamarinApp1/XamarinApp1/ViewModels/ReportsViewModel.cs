@@ -59,7 +59,7 @@ public class ReportsViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var items = (await ReportDataStore.GetItemsAsync(forceRefresh)).GroupBy(i => i.Date).Select(i => new ReportGroup(i.Key, i));
+            var items = (await ReportDataStore.GetItemsAsync(forceRefresh)).GroupBy(i => i.Date).OrderBy(i => i.Key).Select(i => new ReportGroup(i.Key, i));
             Items.Clear();
             Items.AddRangeOnScheduler(items);
         }

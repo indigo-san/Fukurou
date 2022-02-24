@@ -30,6 +30,13 @@ public class SchoolDayDetailViewModel : BaseViewModel
                 await Shell.Current.GoToAsync($"{nameof(ReportDetailPage)}?{nameof(ReportDetailViewModel.ItemId)}={item.Id}");
             }
         });
+        GoToLessonDetail.Subscribe(async item =>
+        {
+            if (item != null)
+            {
+                await Shell.Current.GoToAsync($"{nameof(LessonDetailPage)}?{nameof(LessonDetailViewModel.ItemId)}={item.Id}");
+            }
+        });
         IsLessonsEmpty = SchoolDay.Select(i => i?.Lessons.Any() ?? true).ToReadOnlyReactivePropertySlim();
         IsReportsEmpty = SchoolDay.Select(i => i?.Reports.Any() ?? true).ToReadOnlyReactivePropertySlim();
     }
@@ -52,9 +59,11 @@ public class SchoolDayDetailViewModel : BaseViewModel
 
     public ReactiveCommand<Report> GoToReportDetail { get; } = new();
 
+    public ReactiveCommand<Lesson> GoToLessonDetail { get; } = new();
+
     public ReactiveCommand Refresh { get; } = new();
 
-    public async void UpdateDate(DateOnly date)
+    public async void UpdateDate(DateOnly date, bool updateLessons, bool updateReports)
     {
         try
         {
@@ -63,7 +72,37 @@ public class SchoolDayDetailViewModel : BaseViewModel
             {
                 Date = date
             };
+
+            if (updateLessons)
+            {
+                for (int i = 0; i < item.Lessons.Length; i++)
+                {
+                    Lesson lesson = item.Lessons[i];
+                    item.Lessons[i] = lesson = lesson with
+                    {
+                        Date = date
+                    };
+
+                    await LessonDataStore.UpdateItemAsync(lesson);
+                }
+            }
+            
+            if (updateReports)
+            {
+                for (int i = 0; i < item.Reports.Length; i++)
+                {
+                    Report report = item.Reports[i];
+                    item.Reports[i] = report = report with
+                    {
+                        Date = date
+                    };
+
+                    await ReportDataStore.UpdateItemAsync(report);
+                }
+            }
+
             await SchoolDayDataStore.UpdateItemAsync(item);
+
             SchoolDay.Value = item;
         }
         finally

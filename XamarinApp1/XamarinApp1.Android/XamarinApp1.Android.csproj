@@ -32,4 +32,5 @@
   <ItemGroup>
     <ProjectReference Include="..\XamarinApp1\XamarinApp1.csproj" />
   </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadUnhandledDeviceExceptionXamarinApp1AndroidHideInfoBar="True" /></VisualStudio></ProjectExtensions>
 </Project>

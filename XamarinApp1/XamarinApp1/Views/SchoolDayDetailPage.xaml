@@ -81,10 +81,12 @@
                             FontSize="Body"
                             Text="授業" />
                         <ListView
+                            x:Name="LessonListView"
                             IsVisible="{Binding IsLessonsEmpty.Value}"
+                            ItemSelected="LessonListView_ItemSelected"
                             ItemsSource="{Binding SchoolDay.Value.Lessons}"
                             RowHeight="64"
-                            SelectionMode="None"
+                            SelectionMode="Single"
                             SeparatorColor="#37474f"
                             VerticalScrollBarVisibility="Never">
                             <ListView.ItemTemplate>
@@ -194,22 +196,18 @@
                             FontSize="Body"
                             Text="レポート" />
                         <ListView
+                            x:Name="ReportListView"
                             IsVisible="{Binding IsReportsEmpty.Value}"
+                            ItemSelected="ReportListView_ItemSelected"
                             ItemsSource="{Binding SchoolDay.Value.Reports}"
                             RowHeight="72"
-                            SelectionMode="None"
+                            SelectionMode="Single"
                             SeparatorColor="#37474f"
                             VerticalScrollBarVisibility="Never">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <ViewCell>
                                         <Grid Margin="16" ColumnDefinitions="Auto,*,Auto">
-                                            <Grid.GestureRecognizers>
-                                                <TapGestureRecognizer
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchoolDayDetailViewModel}}, Path=GoToReportDetail}"
-                                                    CommandParameter="{Binding .}"
-                                                    NumberOfTapsRequired="1" />
-                                            </Grid.GestureRecognizers>
                                             <StackLayout>
                                                 <Label
                                                     Margin="8,0"

@@ -10,6 +10,7 @@ using Xamarin.Forms.Shapes;
 using Xamarin.Forms.Xaml;
 
 using XamarinApp1.Models;
+using XamarinApp1.ViewModels;
 
 namespace XamarinApp1.Views;
 
@@ -41,7 +42,7 @@ public class LessonsBehavior : Behavior<StackLayout>
                 WidthRequest = 24,
                 HeightRequest = 24,
                 Margin = new Thickness(0, 0),
-                Fill = item.Subject.Color
+                Fill = item.Subject?.Color ?? default
             };
 
             if (item.IsDuring)
@@ -69,5 +70,14 @@ public partial class SchoolDaysPage : ContentPage
     public SchoolDaysPage()
     {
         InitializeComponent();
+    }
+
+    private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+    {
+        if (BindingContext is SchoolDaysViewModel vm && e.SelectedItem is SchoolDay sc)
+        {
+            ListView1.SelectedItem = null;
+            vm.ItemTapped.Execute(sc);
+        }
     }
 }

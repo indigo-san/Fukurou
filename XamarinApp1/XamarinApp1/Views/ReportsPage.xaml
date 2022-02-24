@@ -9,7 +9,7 @@
     <ContentPage.BindingContext>
         <vm:ReportsViewModel />
     </ContentPage.BindingContext>
-    <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+    <Grid>
         <RefreshView
             Padding="8"
             Command="{Binding Refresh}"
@@ -122,17 +122,18 @@
         </RefreshView>
 
         <material:MaterialButton
-            AbsoluteLayout.LayoutBounds=".97,.97,AutoSize,64"
-            AbsoluteLayout.LayoutFlags="PositionProportional"
+            Margin="0,0,8,16"
             BackgroundColor="{StaticResource Primary}"
             Command="{Binding NewReport}"
             CornerRadius="16"
             HeightRequest="64"
+            HorizontalOptions="End"
             Text="レポートを登録"
-            TextColor="White">
+            TextColor="White"
+            VerticalOptions="End">
             <material:MaterialButton.ImageSource>
                 <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF0415;" />
             </material:MaterialButton.ImageSource>
         </material:MaterialButton>
-    </AbsoluteLayout>
+    </Grid>
 </ContentPage>
