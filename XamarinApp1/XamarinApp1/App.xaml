@@ -17,21 +17,22 @@
 
             <Color x:Key="TextColor">#FFFFFF</Color>
             <Color x:Key="PageBackgroundColor">#263238</Color>
+            <Color x:Key="CardBackgroundColor">#37474f</Color>
 
             <mtrl:MaterialColorConfiguration
                 x:Key="Material.Color"
-                Background="#37474f"
+                Background="{StaticResource CardBackgroundColor}"
                 Error="#B00020"
                 OnBackground="#FFFFFF"
-                OnError="#37474f"
-                OnPrimary="#37474f"
-                OnSecondary="#37474f"
+                OnError="{StaticResource CardBackgroundColor}"
+                OnPrimary="{StaticResource CardBackgroundColor}"
+                OnSecondary="{StaticResource CardBackgroundColor}"
                 OnSurface="#FFFFFF"
                 Primary="#FFFFFF"
                 PrimaryVariant="#FFFFFF"
                 Secondary="#063852"
                 SecondaryVariant="#FFFFFF"
-                Surface="#37474f" />
+                Surface="{StaticResource CardBackgroundColor}" />
 
             <mtrl:MaterialConfiguration x:Key="Material.Configuration" ColorConfiguration="{StaticResource Material.Color}" />
 

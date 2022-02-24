@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.ReportDetailPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    <ContentPage.BindingContext>
+        <vm:ReportDetailViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <toolkitconverter:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    </ContentPage.Resources>
+    <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <Grid RowDefinitions="*,Auto">
+                <Grid
+                    Margin="16"
+                    ColumnDefinitions="32,*"
+                    RowDefinitions="Auto,Auto,16,Auto">
+                    <Ellipse
+                        Fill="{Binding Report.Value.Subject.Color}"
+                        HeightRequest="24"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Start"
+                        WidthRequest="24" />
+
+                    <Label
+                        Grid.Column="1"
+                        FontSize="Title"
+                        Text="{Binding Report.Value.Subject.SubjectName}" />
+
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        FontAttributes="Bold"
+                        FontSize="Title"
+                        Text="{Binding Report.Value.Name}" />
+
+                    <Label
+                        Grid.Row="3"
+                        FontFamily="{DynamicResource MaterialFontFamily}"
+                        FontSize="24"
+                        Text="&#xF00F6;" />
+
+                    <Label
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        FontSize="Body"
+                        Text="{Binding Report.Value.Date}" />
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.Resources>
+                        <Style TargetType="material:MaterialButton">
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                        </Style>
+                    </Grid.Resources>
+
+                    <material:MaterialCard
+                        BackgroundColor="Transparent"
+                        ClickCommand="{Binding MarkAsSubmitted}"
+                        IsClickable="True"
+                        IsVisible="{Binding Report.Value.IsSubmitted, Converter={StaticResource InvertedBoolConverter}}">
+                        <StackLayout Orientation="Horizontal">
+                            <Label
+                                FontFamily="{DynamicResource MaterialFontFamily}"
+                                FontSize="24"
+                                Text="&#xF012C;"
+                                VerticalOptions="Center" />
+                            <Label Text="提出済みとしてマーク" VerticalOptions="Center" />
+                        </StackLayout>
+                    </material:MaterialCard>
+
+                    <material:MaterialCard
+                        BackgroundColor="Transparent"
+                        ClickCommand="{Binding MarkAsNotSubmitted}"
+                        IsClickable="True"
+                        IsVisible="{Binding Report.Value.IsSubmitted}">
+                        <StackLayout Orientation="Horizontal">
+                            <Label
+                                FontFamily="{DynamicResource MaterialFontFamily}"
+                                FontSize="24"
+                                Text="&#xF12ED;"
+                                VerticalOptions="Center" />
+                            <Label Text="未提出としてマーク" VerticalOptions="Center" />
+                        </StackLayout>
+                    </material:MaterialCard>
+                </Grid>
+            </Grid>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

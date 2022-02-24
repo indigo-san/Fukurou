@@ -12,7 +12,7 @@ namespace XamarinApp1.Views
 {
     public partial class NewItemPage : ContentPage
     {
-        public Item Item { get; set; }
+        public SchoolDay Item { get; set; }
 
         public NewItemPage()
         {

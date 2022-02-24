@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.SchoolDaysPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:XamarinApp1.Views"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    <ContentPage.BindingContext>
+        <vm:SchoolDaysViewModel />
+    </ContentPage.BindingContext>
+    <ListView
+        IsPullToRefreshEnabled="True"
+        IsRefreshing="{Binding IsBusy}"
+        ItemsSource="{Binding Items}"
+        RefreshCommand="{Binding Refresh}"
+        RowHeight="80"
+        SelectionMode="None"
+        SeparatorColor="#37474f">
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell>
+                    <StackLayout Margin="8" Spacing="8">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchoolDaysViewModel}}, Path=ItemTapped}"
+                                CommandParameter="{Binding .}"
+                                NumberOfTapsRequired="1" />
+                        </StackLayout.GestureRecognizers>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="Large"
+                            Text="{Binding Date}" />
+
+                        <StackLayout BindingContext="{Binding Lessons}" Orientation="Horizontal">
+                            <StackLayout.Behaviors>
+                                <local:LessonsBehavior />
+                            </StackLayout.Behaviors>
+                        </StackLayout>
+                    </StackLayout>
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
+</ContentPage>

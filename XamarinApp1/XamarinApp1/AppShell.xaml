@@ -5,7 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:XamarinApp1.Views"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
-    Title="XamarinApp1">
+    Title="XamarinApp1"
+    FlyoutBackgroundColor="{StaticResource PageBackgroundColor}">
 
     <!--
         The overall app visual hierarchy is defined here, along with navigation.
@@ -25,11 +26,16 @@
                 <Setter Property="Shell.TabBarForegroundColor" Value="White" />
                 <Setter Property="Shell.TabBarUnselectedColor" Value="#95FFFFFF" />
                 <Setter Property="Shell.TabBarTitleColor" Value="White" />-->
+                <Setter Property="Shell.BackgroundColor" Value="{StaticResource PageBackgroundColor}" />
+                <Setter Property="Shell.NavBarHasShadow" Value="False" />
             </Style>
             <Style BasedOn="{StaticResource BaseStyle}" TargetType="TabBar" />
             <Style BasedOn="{StaticResource BaseStyle}" TargetType="FlyoutItem" />
             <Style ApplyToDerivedTypes="True" TargetType="ContentPage">
                 <Setter Property="BackgroundColor" Value="{StaticResource PageBackgroundColor}" />
+            </Style>
+            <Style ApplyToDerivedTypes="True" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
             </Style>
 
             <Style Class="FlyoutItemLabelStyle" TargetType="Label">
@@ -45,12 +51,13 @@
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
                                     <Setter Property="BackgroundColor" Value="{x:OnPlatform UWP=Transparent, iOS=White}" />
-                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Primary}" />
+                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="White" />
+                                    <!--<Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Primary}" />-->
                                 </VisualState.Setters>
                             </VisualState>
                             <VisualState x:Name="Selected">
                                 <VisualState.Setters>
-                                    <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                    <Setter Property="BackgroundColor" Value="#37474f" />
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>
@@ -67,7 +74,8 @@
                         <VisualStateGroup x:Name="CommonStates">
                             <VisualState x:Name="Normal">
                                 <VisualState.Setters>
-                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Primary}" />
+                                    <Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="White" />
+                                    <!--<Setter TargetName="FlyoutItemLabel" Property="Label.TextColor" Value="{StaticResource Primary}" />-->
                                 </VisualState.Setters>
                             </VisualState>
                         </VisualStateGroup>

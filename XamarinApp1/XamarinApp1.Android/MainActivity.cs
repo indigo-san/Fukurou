@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.OS;
 using Xamarin.Forms;
 using AndroidX.AppCompat.App;
+using Android.Content;
 
 namespace XamarinApp1.Droid
 {

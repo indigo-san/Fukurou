@@ -12,20 +12,20 @@ namespace XamarinApp1.ViewModels
 {
     public class ItemsViewModel : BaseViewModel
     {
-        private Item _selectedItem;
+        private SchoolDay _selectedItem;
 
-        public ObservableCollection<Item> Items { get; }
+        public ObservableCollection<SchoolDay> Items { get; }
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
-        public Command<Item> ItemTapped { get; }
+        public Command<SchoolDay> ItemTapped { get; }
 
         public ItemsViewModel()
         {
             Title = "Browse";
-            Items = new ObservableCollection<Item>();
+            Items = new ObservableCollection<SchoolDay>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
-            ItemTapped = new Command<Item>(OnItemSelected);
+            ItemTapped = new Command<SchoolDay>(OnItemSelected);
 
             AddItemCommand = new Command(OnAddItem);
         }
@@ -37,7 +37,7 @@ namespace XamarinApp1.ViewModels
             try
             {
                 Items.Clear();
-                var items = await DataStore.GetItemsAsync(true);
+                var items = await SchoolDayDataStore.GetItemsAsync(true);
                 foreach (var item in items)
                 {
                     Items.Add(item);
@@ -59,7 +59,7 @@ namespace XamarinApp1.ViewModels
             SelectedItem = null;
         }
 
-        public Item SelectedItem
+        public SchoolDay SelectedItem
         {
             get => _selectedItem;
             set
@@ -74,7 +74,7 @@ namespace XamarinApp1.ViewModels
             await Shell.Current.GoToAsync(nameof(NewItemPage));
         }
 
-        async void OnItemSelected(Item item)
+        async void OnItemSelected(SchoolDay item)
         {
             if (item == null)
                 return;
