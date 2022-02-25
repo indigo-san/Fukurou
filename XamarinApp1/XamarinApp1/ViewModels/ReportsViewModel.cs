@@ -31,7 +31,7 @@ public class ReportsViewModel : BaseViewModel
     {
         Refresh.Subscribe(() => LoadItems(true));
 
-        NewReport.Subscribe(() => Shell.Current.GoToAsync(nameof(NewReportPage)));
+        NewReport.Subscribe(() => Shell.Current.GoToAsync($"{nameof(ReportDetailPage)}?NewAction=true"));
 
         ItemTapped.Subscribe(OnItemTapped);
 

@@ -4,24 +4,24 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
-    xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
-    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
     <ContentPage.BindingContext>
         <vm:ReportDetailViewModel />
     </ContentPage.BindingContext>
+    <ContentPage.Resources>
+        <xct:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    </ContentPage.Resources>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Command="{Binding GoToEdit}" Text="編集">
+        <ToolbarItem Command="{Binding Save}" Text="保存">
             <ToolbarItem.IconImageSource>
                 <FontImageSource
                     FontFamily="{StaticResource MaterialFontFamily}"
-                    Glyph="&#xF0CB6;"
+                    Glyph="&#xF012C;"
                     Size="24" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
-    <ContentPage.Resources>
-        <toolkitconverter:InvertedBoolConverter x:Key="InvertedBoolConverter" />
-    </ContentPage.Resources>
     <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
         <ScrollView>
             <Grid RowDefinitions="*,Auto">
@@ -29,54 +29,64 @@
                     Margin="16"
                     ColumnDefinitions="32,*"
                     RowDefinitions="Auto,Auto,16,Auto">
+
                     <Ellipse
-                        Fill="{Binding Report.Value.Subject.Color}"
+                        Fill="{Binding SelectedSubject.Value.Color}"
                         HeightRequest="24"
                         HorizontalOptions="Start"
-                        VerticalOptions="End"
+                        VerticalOptions="Center"
                         WidthRequest="24" />
 
-                    <Label
+                    <Picker
                         Grid.Column="1"
                         FontSize="Title"
-                        Text="{Binding Report.Value.Subject.SubjectName}" />
+                        ItemDisplayBinding="{Binding SubjectName}"
+                        ItemsSource="{Binding Subjects.Value}"
+                        SelectedItem="{Binding SelectedSubject.Value, Mode=TwoWay}">
+                        <Picker.Effects>
+                            <xct:RemoveBorderEffect />
+                        </Picker.Effects>
+                    </Picker>
 
-                    <Label
+                    <Entry
                         Grid.Row="1"
                         Grid.Column="1"
                         FontAttributes="Bold"
                         FontSize="Title"
-                        Text="{Binding Report.Value.Name}" />
+                        Placeholder="1文字以上"
+                        Text="{Binding Name.Value, Mode=TwoWay}">
+                        <Entry.Effects>
+                            <xct:RemoveBorderEffect />
+                        </Entry.Effects>
+                    </Entry>
 
                     <Label
                         Grid.Row="3"
                         FontFamily="{DynamicResource MaterialFontFamily}"
                         FontSize="24"
-                        Text="&#xF00F6;" />
+                        Text="&#xF00F6;"
+                        VerticalOptions="Center" />
 
-                    <Label
+                    <DatePicker
                         Grid.Row="3"
                         Grid.Column="1"
-                        FontSize="Body"
-                        Text="{Binding Report.Value.Date}" />
+                        Date="{Binding SelectedDate.Value, Mode=TwoWay}"
+                        FontSize="Body">
+                        <DatePicker.Effects>
+                            <xct:RemoveBorderEffect />
+                        </DatePicker.Effects>
+                    </DatePicker>
                 </Grid>
 
-                <Grid Grid.Row="1">
-                    <Grid.Resources>
-                        <Style TargetType="material:MaterialButton">
-                            <Setter Property="BackgroundColor" Value="Transparent" />
-                        </Style>
-                    </Grid.Resources>
+                <Grid Grid.Row="1" IsVisible="{Binding NewAction, Converter={StaticResource InvertedBoolConverter}}">
 
                     <material:MaterialCard
-                        BackgroundColor="Transparent"
                         ClickCommand="{Binding MarkAsSubmitted}"
                         IsClickable="True"
-                        IsVisible="{Binding Report.Value.IsSubmitted, Converter={StaticResource InvertedBoolConverter}}">
+                        IsVisible="{Binding Report.Value.IsNotSubmitted}">
                         <StackLayout Orientation="Horizontal">
                             <Label
-                                FontFamily="{DynamicResource MaterialFontFamily}"
-                                FontSize="24"
+                                StyleClass="IconLabel"
                                 Text="&#xF012C;"
                                 VerticalOptions="Center" />
                             <Label Text="提出済みとしてマーク" VerticalOptions="Center" />
@@ -84,14 +94,12 @@
                     </material:MaterialCard>
 
                     <material:MaterialCard
-                        BackgroundColor="Transparent"
                         ClickCommand="{Binding MarkAsNotSubmitted}"
                         IsClickable="True"
                         IsVisible="{Binding Report.Value.IsSubmitted}">
                         <StackLayout Orientation="Horizontal">
                             <Label
-                                FontFamily="{DynamicResource MaterialFontFamily}"
-                                FontSize="24"
+                                StyleClass="IconLabel"
                                 Text="&#xF12ED;"
                                 VerticalOptions="Center" />
                             <Label Text="未提出としてマーク" VerticalOptions="Center" />

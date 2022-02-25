@@ -4,6 +4,7 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:XamarinApp1.Views"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
     Title="XamarinApp1"
     FlyoutBackgroundColor="{StaticResource PageBackgroundColor}">
 
@@ -34,6 +35,19 @@
                 <Setter Property="BackgroundColor" Value="{StaticResource PageBackgroundColor}" />
             </Style>
             <Style ApplyToDerivedTypes="True" TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+            </Style>
+            <Style ApplyToDerivedTypes="True" TargetType="Picker">
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+            </Style>
+            <Style ApplyToDerivedTypes="True" TargetType="Entry">
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+                <Setter Property="PlaceholderColor" Value="DarkGray" />
+            </Style>
+            <Style ApplyToDerivedTypes="True" TargetType="DatePicker">
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+            </Style>
+            <Style ApplyToDerivedTypes="True" TargetType="TimePicker">
                 <Setter Property="TextColor" Value="{StaticResource TextColor}" />
             </Style>
 
@@ -106,9 +120,6 @@
             <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF02FD;" />
         </FlyoutItem.Icon>
         <ShellContent ContentTemplate="{DataTemplate local:AboutPage}" Route="AboutPage" />
-    </FlyoutItem>
-    <FlyoutItem Title="Browse">
-        <ShellContent ContentTemplate="{DataTemplate local:ItemsPage}" Route="ItemsPage" />
     </FlyoutItem>
 
     <!--  When the Flyout is visible this will be a menu item you can tie a click behavior to  -->

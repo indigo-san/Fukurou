@@ -17,6 +17,8 @@ namespace XamarinApp1.ViewModels
         protected static IDataStore<Report> ReportDataStore => DependencyService.Get<IDataStore<Report>>();
 
         protected static IDataStore<Lesson> LessonDataStore => DependencyService.Get<IDataStore<Lesson>>();
+        
+        protected static IDataStore<Subject> SubjectDataStore => DependencyService.Get<IDataStore<Subject>>();
 
         bool isBusy = false;
         public bool IsBusy

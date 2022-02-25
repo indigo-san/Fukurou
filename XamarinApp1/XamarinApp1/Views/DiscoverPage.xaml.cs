@@ -20,7 +20,6 @@ namespace XamarinApp1.Views
         public DiscoverPage()
         {
             InitializeComponent();
-
         }
 
         protected override void OnBindingContextChanged()

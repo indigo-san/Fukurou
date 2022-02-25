@@ -73,12 +73,12 @@
         <material:MaterialButton
             Margin="0,0,8,16"
             BackgroundColor="{StaticResource Primary}"
+            Clicked="NewSubject_Clicked"
             CornerRadius="16"
             HeightRequest="64"
-            Clicked="NewSubject_Clicked"
             HorizontalOptions="End"
             Text="教科を追加"
-            TextColor="White"
+            TextColor="{StaticResource TextColor}"
             VerticalOptions="End">
             <material:MaterialButton.ImageSource>
                 <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF0415;" />

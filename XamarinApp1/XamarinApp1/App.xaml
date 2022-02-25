@@ -19,6 +19,14 @@
             <Color x:Key="PageBackgroundColor">#263238</Color>
             <Color x:Key="CardBackgroundColor">#37474f</Color>
 
+            <Style
+                CanCascade="True"
+                Class="IconLabel"
+                TargetType="Label">
+                <Setter Property="FontFamily" Value="{DynamicResource MaterialFontFamily}" />
+                <Setter Property="FontSize" Value="24" />
+            </Style>
+
             <mtrl:MaterialColorConfiguration
                 x:Key="Material.Color"
                 Background="{StaticResource CardBackgroundColor}"

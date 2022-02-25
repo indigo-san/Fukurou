@@ -1,21 +1,15 @@
-﻿
-using Android.App;
+﻿using Android.App;
 
 using System;
 using System.Linq;
 
 using Xamarin.Forms;
-using Xamarin.Forms.Platform.Android;
-using Xamarin.Forms.Xaml;
 
 using XamarinApp1.Models;
 using XamarinApp1.ViewModels;
 
 namespace XamarinApp1.Views;
 
-
-
-//[XamlCompilation(XamlCompilationOptions.Skip)]
 public partial class SchoolDayDetailPage : ContentPage
 {
     public SchoolDayDetailPage()

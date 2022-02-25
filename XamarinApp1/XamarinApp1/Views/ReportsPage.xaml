@@ -22,7 +22,7 @@
                             FontAttributes="Bold"
                             FontSize="Body"
                             Text="{Binding Name}"
-                            TextColor="White" />
+                            TextColor="{StaticResource TextColor}" />
                     </DataTemplate>
                 </CollectionView.GroupHeaderTemplate>
                 <CollectionView.ItemTemplate>
@@ -129,7 +129,7 @@
             HeightRequest="64"
             HorizontalOptions="End"
             Text="レポートを登録"
-            TextColor="White"
+            TextColor="{StaticResource TextColor}"
             VerticalOptions="End">
             <material:MaterialButton.ImageSource>
                 <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF0415;" />
