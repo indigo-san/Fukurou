@@ -81,6 +81,14 @@
                             ClickCommand="{Binding GoToSchoolDays}"
                             CornerRadius="24"
                             IsClickable="True">
+                            <material:MaterialCard.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsNextSchoolDayVisible.Value}"
+                                    TargetType="material:MaterialCard"
+                                    Value="False">
+                                    <Setter Property="BackgroundColor" Value="#0091ea" />
+                                </DataTrigger>
+                            </material:MaterialCard.Triggers>
                             <StackLayout>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <Label FontSize="Body" Text="次の授業" />
@@ -136,6 +144,12 @@
                                         Margin="0,16,0,0"
                                         Orientation="Horizontal" />
                                 </Grid>
+
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="24"
+                                    IsVisible="{Binding IsNextSchoolDayVisible.Value, Converter={StaticResource InvertedBoolConverter}}"
+                                    Text="授業がありません" />
                             </StackLayout>
                         </material:MaterialCard>
 

@@ -1,21 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
-using XamarinApp1.Models;
 using XamarinApp1.ViewModels;
 
 namespace XamarinApp1.Views;
-[XamlCompilation(XamlCompilationOptions.Compile)]
+
 public partial class ReportsPage : ContentPage
 {
     public ReportsPage()
     {
         InitializeComponent();
+    }
+
+    private void ScrollToToday_Clicked(object sender, EventArgs e)
+    {
+        if (BindingContext is not ReportsViewModel vm) return;
+        var today = DateOnly.FromDateTime(DateTime.Now);
+
+        for (int i = 0; i < vm.Items.Count - 1; i++)
+        {
+            var current = vm.Items[i];
+            var next = vm.Items[i + 1];
+
+            if (current.Date <= today && today <= next.Date)
+            {
+                CollectionView1.ScrollTo(0, i + 1, ScrollToPosition.Start);
+                return;
+            }
+        }
     }
 }

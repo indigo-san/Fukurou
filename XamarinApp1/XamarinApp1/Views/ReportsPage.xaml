@@ -9,12 +9,25 @@
     <ContentPage.BindingContext>
         <vm:ReportsViewModel />
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="今日へ移動" Clicked="ScrollToToday_Clicked">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF00F6;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
     <Grid>
         <RefreshView
             Padding="8"
             Command="{Binding Refresh}"
             IsRefreshing="{Binding IsBusy}">
-            <CollectionView IsGrouped="True" ItemsSource="{Binding Items}">
+            <CollectionView
+                x:Name="CollectionView1"
+                IsGrouped="True"
+                ItemsSource="{Binding Items}">
                 <CollectionView.GroupHeaderTemplate>
                     <DataTemplate>
                         <Label

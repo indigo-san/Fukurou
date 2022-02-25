@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Android.App;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Xamarin.Forms;
-using Xamarin.Forms.Platform.Android;
 using Xamarin.Forms.Shapes;
-using Xamarin.Forms.Xaml;
 
 using XamarinApp1.Models;
+using XamarinApp1.Services;
 using XamarinApp1.ViewModels;
 
 namespace XamarinApp1.Views;
@@ -79,5 +78,41 @@ public partial class SchoolDaysPage : ContentPage
             ListView1.SelectedItem = null;
             vm.ItemTapped.Execute(sc);
         }
+    }
+
+    private void NewSchoolDay_Clicked(object sender, EventArgs e)
+    {
+        if (BindingContext is SchoolDaysViewModel vm)
+        {
+            var dialog = new DatePickerDialog(DependencyService.Get<Activity>(), async (s, e) =>
+            {
+                await Shell.Current.GoToAsync(await vm.NewSchoolDay(DateOnly.FromDateTime(e.Date)));
+
+            }, DateTime.Now.Year, DateTime.Now.Month - 1, DateTime.Now.Day);
+
+            dialog.SetTitle("登校日を追加");
+            dialog.Show();
+        }
+    }
+
+    private void ScrollToToday_Clicked(object sender, EventArgs e)
+    {
+        if (BindingContext is SchoolDaysViewModel vm)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Now);
+
+            for (int i = 0; i < vm.Items.Count - 1; i++)
+            {
+                var current = vm.Items[i];
+                var next = vm.Items[i + 1];
+
+                if (current.Date <= today && today <= next.Date)
+                {
+                    ListView1.ScrollTo(next, ScrollToPosition.Start, true);
+                    return;
+                }
+            }
+        }
+
     }
 }

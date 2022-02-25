@@ -13,16 +13,19 @@ public class MockSubjectDataStore : IDataStore<Subject>
 {
     private readonly List<Subject> _items = new()
     {
+#if ENABLE_MOCK
         AASubject,
         BBSubject,
         JapaneseSubject,
         MathSubject
+#endif
     };
-
+#if ENABLE_MOCK
     public static readonly Subject AASubject = new("AA", Guid.NewGuid(), Color.FromUint(0xff00e676));
     public static readonly Subject BBSubject = new("BB", Guid.NewGuid(), Color.FromUint(0xff00e676));
     public static readonly Subject JapaneseSubject = new("国語", Guid.NewGuid(), Color.FromUint(0xffff1744));
     public static readonly Subject MathSubject = new("数学", Guid.NewGuid(), Color.FromUint(0xff2979ff));
+#endif
 
     public async Task<bool> AddItemAsync(Subject item)
     {

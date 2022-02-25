@@ -14,6 +14,10 @@ public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly En
 {
     public Teacher[] Teachers { get; init; } = Array.Empty<Teacher>();
 
+    public string Room { get; init; } = string.Empty;
+    
+    public string Memo { get; init; } = string.Empty;
+
     public string DateHeader
     {
         get

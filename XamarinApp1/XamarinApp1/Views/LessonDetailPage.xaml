@@ -5,10 +5,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
     xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
-    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
     <ContentPage.BindingContext>
         <vm:LessonDetailViewModel />
     </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding Delete}" Text="削除">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{DynamicResource MaterialFontFamily}"
+                    Glyph="&#xF09E7;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
     <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
         <ScrollView>
             <StackLayout
@@ -17,6 +28,7 @@
                 Spacing="8">
                 <material:MaterialCard
                     Padding="16"
+                    Clicked="Subject_Clicked"
                     CornerRadius="24"
                     IsClickable="True">
                     <StackLayout>
@@ -79,48 +91,88 @@
                                 FontSize="Large"
                                 Text="{Binding Lesson.Value.Date}" />
                         </StackLayout>
-
-                        <Label
-                            Margin="0,8,0,0"
-                            FontSize="Body"
-                            Text="時刻" />
-                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto">
-
+                        <StackLayout>
+                            <StackLayout.GestureRecognizers>
+                                <TapGestureRecognizer NumberOfTapsRequired="1" Tapped="ChangeTime_Tapped" />
+                            </StackLayout.GestureRecognizers>
                             <Label
-                                Grid.Column="0"
-                                FontAttributes="Bold"
-                                FontSize="24"
-                                Text="{Binding Lesson.Value.Start}"
-                                VerticalOptions="End" />
+                                Margin="0,8,0,0"
+                                FontSize="Body"
+                                Text="時刻" />
+                            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto">
 
-                            <Label
-                                Grid.Column="1"
-                                FontSize="24"
-                                Text="-"
-                                VerticalOptions="End" />
-                            <Label
-                                Grid.Column="2"
-                                Margin="0,0,0,2"
-                                FontSize="16"
-                                Text="{Binding Lesson.Value.End}"
-                                VerticalOptions="End" />
-                        </Grid>
+                                <Label
+                                    Grid.Column="0"
+                                    FontAttributes="Bold"
+                                    FontSize="24"
+                                    Text="{Binding Lesson.Value.Start}"
+                                    VerticalOptions="End" />
+
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="24"
+                                    Text="-"
+                                    VerticalOptions="End" />
+                                <Label
+                                    Grid.Column="2"
+                                    Margin="0,0,0,2"
+                                    FontSize="16"
+                                    Text="{Binding Lesson.Value.End}"
+                                    VerticalOptions="End" />
+                            </Grid>
+                        </StackLayout>
+                    </StackLayout>
+                </material:MaterialCard>
+
+                <!--  部屋  -->
+                <material:MaterialCard Padding="16" CornerRadius="24">
+                    <StackLayout>
+                        <Label FontSize="Body" Text="教室" />
+
+                        <Entry
+                            x:Name="RoomEntry"
+                            Placeholder="授業を受ける教室名"
+                            Text="{Binding Lesson.Value.Room, Mode=OneWay}"
+                            Unfocused="RoomEntry_Unfocused">
+                            <Entry.Effects>
+                                <xct:RemoveBorderEffect />
+                            </Entry.Effects>
+                        </Entry>
+                    </StackLayout>
+                </material:MaterialCard>
+
+                <!--  メモ  -->
+                <material:MaterialCard Padding="16" CornerRadius="24">
+                    <StackLayout>
+                        <Label FontSize="Body" Text="メモ" />
+
+                        <Editor
+                            x:Name="MemoEditor"
+                            AutoSize="TextChanges"
+                            Placeholder="この授業についてのメモ"
+                            Text="{Binding Lesson.Value.Memo, Mode=OneWay}"
+                            Unfocused="MemoEditor_Unfocused">
+                            <Editor.Effects>
+                                <xct:RemoveBorderEffect />
+                            </Editor.Effects>
+                        </Editor>
                     </StackLayout>
                 </material:MaterialCard>
 
                 <!--  状態  -->
                 <material:MaterialCard Padding="0" CornerRadius="24">
-                    <StackLayout Margin="16">
-                        <Label FontSize="Body" Text="出欠" />
+                    <StackLayout>
+                        <Label
+                            Margin="16,16,16,0"
+                            FontSize="Body"
+                            Text="出欠" />
 
-                        <RadioButton
-                            Content="出席"
-                            IsChecked="{Binding IsAttendChecked.Value}"
-                            IsEnabled="{Binding Lesson.Value.IsCompleted}" />
-                        <RadioButton
-                            Content="欠席"
-                            IsChecked="{Binding IsAbsentChecked.Value}"
-                            IsEnabled="{Binding Lesson.Value.IsCompleted}" />
+                        <material:MaterialRadioButtonGroup
+                            x:Name="StateButtons"
+                            IsEnabled="{Binding Lesson.Value.IsCompleted}"
+                            SelectedIndex="{Binding StateIndex.Value}"
+                            TextColor="{StaticResource TextColor}"
+                            UnselectedColor="DarkGray" />
                     </StackLayout>
                 </material:MaterialCard>
             </StackLayout>

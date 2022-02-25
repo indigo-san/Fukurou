@@ -1,28 +1,31 @@
-﻿using System;
+﻿using Reactive.Bindings;
+
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Reactive.Bindings;
 
 using Xamarin.Forms;
 
 using XamarinApp1.Models;
 using XamarinApp1.Views;
 
-using static Android.Content.ClipData;
+using XF.Material.Forms.UI.Dialogs;
 
 namespace XamarinApp1.ViewModels;
 
+[QueryProperty(nameof(Reload), nameof(Reload))]
 public class ReportsViewModel : BaseViewModel
 {
     public class ReportGroup : List<Report>
     {
         public ReportGroup(DateOnly date, IEnumerable<Report> source) : base(source)
         {
+            Date = date;
             Name = date.ToString();
         }
+
+        public DateOnly Date { get; private set; }
 
         public string Name { get; private set; }
     }
@@ -38,6 +41,17 @@ public class ReportsViewModel : BaseViewModel
         LoadItems(false);
     }
 
+    public bool Reload
+    {
+        set
+        {
+            if (value)
+            {
+                LoadItems(true);
+            }
+        }
+    }
+
     public ReactiveCommand Refresh { get; } = new();
 
     public ReactiveCommand NewReport { get; } = new();
@@ -50,7 +64,14 @@ public class ReportsViewModel : BaseViewModel
     {
         if (item != null)
         {
-            await Shell.Current.GoToAsync($"{nameof(ReportDetailPage)}?{nameof(ReportDetailViewModel.ItemId)}={item.Id}");
+            if (await ReportDataStore.ExistsAsync(item.Id))
+            {
+                await Shell.Current.GoToAsync($"{nameof(ReportDetailPage)}?{nameof(ReportDetailViewModel.ItemId)}={item.Id}");
+            }
+            else
+            {
+                await MaterialDialog.Instance.SnackbarAsync("アイテムが存在しません");
+            }
         }
     }
 
@@ -61,7 +82,10 @@ public class ReportsViewModel : BaseViewModel
         {
             var items = (await ReportDataStore.GetItemsAsync(forceRefresh)).GroupBy(i => i.Date).OrderBy(i => i.Key).Select(i => new ReportGroup(i.Key, i));
             Items.Clear();
-            Items.AddRangeOnScheduler(items);
+            foreach (var item in items)
+            {
+                Items.Add(item);
+            }
         }
         finally
         {

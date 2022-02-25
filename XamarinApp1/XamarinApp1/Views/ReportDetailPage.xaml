@@ -13,6 +13,14 @@
         <xct:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding Delete}" Text="削除">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF09E7;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
         <ToolbarItem Command="{Binding Save}" Text="保存">
             <ToolbarItem.IconImageSource>
                 <FontImageSource

@@ -14,6 +14,7 @@ public class MockLessonDataStore : IDataStore<Lesson>
 {
     private readonly List<Lesson> _items = new()
     {
+#if ENABLE_MOCK
         new Lesson(MockSubjectDataStore.AASubject,
                     DateOnly.FromDateTime(DateTime.Now), new TimeOnly(9, 0), new TimeOnly(9, 50),
                     Guid.NewGuid()),
@@ -26,6 +27,7 @@ public class MockLessonDataStore : IDataStore<Lesson>
         new Lesson(MockSubjectDataStore.MathSubject,
                     DateOnly.FromDateTime(DateTime.Now.AddDays(1)), new TimeOnly(10, 0), new TimeOnly(10, 50),
                     Guid.NewGuid())
+#endif
     };
     private readonly IDataStore<Subject> _subjectStore = DependencyService.Get<IDataStore<Subject>>();
 

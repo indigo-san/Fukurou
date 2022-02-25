@@ -44,6 +44,10 @@
                 <Setter Property="TextColor" Value="{StaticResource TextColor}" />
                 <Setter Property="PlaceholderColor" Value="DarkGray" />
             </Style>
+            <Style ApplyToDerivedTypes="True" TargetType="Editor">
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+                <Setter Property="PlaceholderColor" Value="DarkGray" />
+            </Style>
             <Style ApplyToDerivedTypes="True" TargetType="DatePicker">
                 <Setter Property="TextColor" Value="{StaticResource TextColor}" />
             </Style>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace XamarinApp1.Views
     public partial class DiscoverPage : ContentPage
     {
         private IDisposable _disposable;
+        private DiscoverViewModel viewModel;
 
         public DiscoverPage()
         {
@@ -26,6 +28,11 @@ namespace XamarinApp1.Views
         {
             base.OnBindingContextChanged();
             _disposable?.Dispose();
+            if (viewModel != null)
+            {
+                (viewModel.Reports as INotifyPropertyChanged).PropertyChanged -= Reports_PropertyChanged;
+            }
+
             if (BindingContext is DiscoverViewModel vm)
             {
                 _disposable = vm.NextSchoolDay.Subscribe(d =>
@@ -39,6 +46,17 @@ namespace XamarinApp1.Views
                         UpdateLessonsIcons(d);
                     }
                 });
+                viewModel = vm;
+
+                (vm.Reports as INotifyPropertyChanged).PropertyChanged += Reports_PropertyChanged;
+            }
+        }
+
+        private void Reports_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Count")
+            {
+                ReportListView.NativeSizeChanged();
             }
         }
 

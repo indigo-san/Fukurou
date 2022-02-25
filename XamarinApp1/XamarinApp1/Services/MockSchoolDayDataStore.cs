@@ -15,12 +15,14 @@ public class MockSchoolDayDataStore : IDataStore<SchoolDay>
 {
     private readonly List<SchoolDay> _items = new()
     {
+#if ENABLE_MOCK
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(0)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(1)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(2)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(3)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(4)), Guid.NewGuid()),
+#endif
     };
     private readonly IDataStore<Lesson> _lessonStore = DependencyService.Get<IDataStore<Lesson>>();
     private readonly IDataStore<Report> _reportStore = DependencyService.Get<IDataStore<Report>>();

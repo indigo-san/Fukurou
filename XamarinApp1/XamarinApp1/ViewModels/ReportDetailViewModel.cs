@@ -1,5 +1,6 @@
 ﻿
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 using System;
 using System.Diagnostics;
@@ -24,7 +25,7 @@ public class ReportDetailViewModel : BaseViewModel
 
     public ReportDetailViewModel()
     {
-        Report.Subscribe(r => ItemId = r?.Id.ToString() ?? null);
+        Report.Subscribe(r => itemId = r?.Id.ToString() ?? null);
         SelectedSubject = Report.Select(i => i?.Subject).ToReactiveProperty();
         SelectedDate = Report.Select(i => (i?.Date.ToDateTime(default)) ?? DateTime.Now).ToReactiveProperty();
         Name = Report.Select(i => i?.Name ?? string.Empty).ToReactiveProperty();
@@ -97,6 +98,24 @@ public class ReportDetailViewModel : BaseViewModel
             }
         });
 
+        Delete = new ReactiveCommand(this.ObserveProperty(o => o.NewAction).Select(b => !b));
+        Delete.Subscribe(async () =>
+        {
+            if (Report.Value != null)
+            {
+                var oldValue = Report.Value;
+                await ReportDataStore.DeleteItemAsync(Report.Value.Id);
+                Report.Value = null;
+                await Shell.Current.GoToAsync("..");
+
+                // 元に戻す
+                if (await MaterialDialog.Instance.SnackbarAsync("アイテムが削除されました", "元に戻す"))
+                {
+                    await ReportDataStore.AddItemAsync(oldValue);
+                }
+            }
+        });
+
         Refresh.Subscribe(() => LoadItemId(itemId));
         Task.Run(async () =>
         {
@@ -132,7 +151,9 @@ public class ReportDetailViewModel : BaseViewModel
 
     public ReactiveCommand Refresh { get; } = new();
 
-    public ReactiveCommand Save { get; } = new();
+    public ReactiveCommand Save { get; }
+
+    public ReactiveCommand Delete { get; }
 
     public ReactiveProperty<Subject> SelectedSubject { get; }
 

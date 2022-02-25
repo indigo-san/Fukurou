@@ -1,12 +1,18 @@
-﻿using Reactive.Bindings;
+﻿using Java.Security.Cert;
+
+using Reactive.Bindings;
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 using Xamarin.Forms;
 
 using XamarinApp1.Models;
+
+using XF.Material.Forms.UI.Dialogs;
 
 namespace XamarinApp1.ViewModels;
 
@@ -17,34 +23,60 @@ public class LessonDetailViewModel : BaseViewModel
 
     public LessonDetailViewModel()
     {
-        GoToEdit.Subscribe(() =>
+        static int StateToIndex(LessonState? state)
         {
-            //if (Report.Value != null)
-            //{
-            //    var date = Uri.EscapeDataString(Report.Value.Date.ToString());
-            //    var name = Uri.EscapeDataString(Report.Value.Name);
-
-            //    await Shell.Current.GoToAsync($"{nameof(NewReportPage)}?SelectedSubject={Report.Value.Subject?.Id ?? Guid.Empty}&Id={Report.Value.Id}&SelectedDate={date}&Name={name}");
-            //}
-        });
-
+            return state switch
+            {
+                LessonState.Attend => 0,
+                LessonState.Absent => 1,
+                _ => -1,
+            };
+        }
         Refresh.Subscribe(() => LoadItemId(itemId));
 
-        IsAttendChecked = Lesson.Select(i => i?.State == LessonState.Attend).ToReactiveProperty();
-        IsAbsentChecked = Lesson.Select(i => i?.State == LessonState.Absent).ToReactiveProperty();
-
-        IsAttendChecked.Subscribe(v =>
+        Delete.Subscribe(async () =>
         {
-            if (v && Lesson.Value != null)
+            if (Lesson.Value != null)
             {
-                UpdateState(Lesson.Value, LessonState.Attend);
+                var oldValue = Lesson.Value;
+                await LessonDataStore.DeleteItemAsync(Lesson.Value.Id);
+
+                await Shell.Current.GoToAsync("..");
+
+                // 元に戻す
+                if (await MaterialDialog.Instance.SnackbarAsync("アイテムが削除されました", "元に戻す"))
+                {
+                    await LessonDataStore.AddItemAsync(oldValue);
+                }
             }
         });
-        IsAbsentChecked.Subscribe(v =>
+
+        StateIndex = Lesson.Select(i => StateToIndex(i?.State)).ToReactiveProperty();
+
+        StateIndex.Subscribe(idx =>
         {
-            if (v && Lesson.Value != null)
+            if (Lesson.Value != null && StateToIndex(Lesson.Value.State) != idx)
             {
-                UpdateState(Lesson.Value, LessonState.Absent);
+                UpdateState(Lesson.Value, idx switch
+                {
+                    0 => LessonState.Attend,
+                    1 => LessonState.Absent,
+                    _ => LessonState.None,
+                });
+            }
+        });
+
+        Task.Run(async () =>
+        {
+            IsBusy = true;
+
+            try
+            {
+                Subjects.Value = (await SubjectDataStore.GetItemsAsync(true)).ToArray();
+            }
+            finally
+            {
+                IsBusy = false;
             }
         });
     }
@@ -60,14 +92,14 @@ public class LessonDetailViewModel : BaseViewModel
     }
 
     public ReactiveCommand Refresh { get; } = new();
-
-    public ReactiveCommand GoToEdit { get; } = new();
+    
+    public ReactiveCommand Delete { get; } = new();
 
     public ReactivePropertySlim<Lesson> Lesson { get; } = new();
 
-    public ReactiveProperty<bool> IsAttendChecked { get; }
+    public ReactivePropertySlim<Subject[]> Subjects { get; } = new();
 
-    public ReactiveProperty<bool> IsAbsentChecked { get; }
+    public ReactiveProperty<int> StateIndex { get; }
 
     public async void UpdateState(Lesson lesson, LessonState state)
     {
@@ -78,11 +110,56 @@ public class LessonDetailViewModel : BaseViewModel
         await LessonDataStore.UpdateItemAsync(lesson);
     }
 
+    public async void UpdateSubject(Lesson lesson, Subject subject)
+    {
+        Lesson.Value = lesson = lesson with
+        {
+            Subject = subject
+        };
+        await LessonDataStore.UpdateItemAsync(lesson);
+    }
+
     public async void UpdateDate(Lesson lesson, DateOnly date)
     {
         Lesson.Value = lesson = lesson with
         {
             Date = date
+        };
+        await LessonDataStore.UpdateItemAsync(lesson);
+    }
+
+    public async void UpdateStart(Lesson lesson, TimeOnly start)
+    {
+        Lesson.Value = lesson = lesson with
+        {
+            Start = start
+        };
+        await LessonDataStore.UpdateItemAsync(lesson);
+    }
+
+    public async void UpdateEnd(Lesson lesson, TimeOnly end)
+    {
+        Lesson.Value = lesson = lesson with
+        {
+            End = end
+        };
+        await LessonDataStore.UpdateItemAsync(lesson);
+    }
+
+    public async void UpdateRoom(Lesson lesson, string room)
+    {
+        Lesson.Value = lesson = lesson with
+        {
+            Room = room
+        };
+        await LessonDataStore.UpdateItemAsync(lesson);
+    }
+
+    public async void UpdateMemo(Lesson lesson, string memo)
+    {
+        Lesson.Value = lesson = lesson with
+        {
+            Memo = memo
         };
         await LessonDataStore.UpdateItemAsync(lesson);
     }

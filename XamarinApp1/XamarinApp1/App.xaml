@@ -13,6 +13,9 @@
         </OnPlatform>
 
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <mtrl:MaterialSizes />
+            </ResourceDictionary.MergedDictionaries>
             <Color x:Key="Primary">#2196F3</Color>
 
             <Color x:Key="TextColor">#FFFFFF</Color>

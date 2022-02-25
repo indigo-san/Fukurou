@@ -9,33 +9,61 @@
     <ContentPage.BindingContext>
         <vm:SchoolDaysViewModel />
     </ContentPage.BindingContext>
-    <ListView
-        x:Name="ListView1"
-        IsPullToRefreshEnabled="True"
-        IsRefreshing="{Binding IsBusy}"
-        ItemSelected="ListView_ItemSelected"
-        ItemsSource="{Binding Items}"
-        RefreshCommand="{Binding Refresh}"
-        RowHeight="80"
-        SelectionMode="Single"
-        SeparatorColor="#37474f">
-        <ListView.ItemTemplate>
-            <DataTemplate>
-                <ViewCell>
-                    <StackLayout Margin="8" Spacing="8">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="Large"
-                            Text="{Binding Date}" />
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Clicked="ScrollToToday_Clicked" Text="今日へ移動">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF00F6;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <Grid>
+        <ListView
+            x:Name="ListView1"
+            CachingStrategy="RecycleElement"
+            IsPullToRefreshEnabled="True"
+            IsRefreshing="{Binding IsBusy}"
+            ItemSelected="ListView_ItemSelected"
+            ItemsSource="{Binding Items}"
+            RefreshCommand="{Binding Refresh}"
+            RowHeight="80"
+            SelectionMode="Single"
+            SeparatorColor="#37474f">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Margin="8" Spacing="8">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="Large"
+                                Text="{Binding Date}" />
 
-                        <StackLayout BindingContext="{Binding Lessons}" Orientation="Horizontal">
-                            <StackLayout.Behaviors>
-                                <local:LessonsBehavior />
-                            </StackLayout.Behaviors>
+                            <StackLayout BindingContext="{Binding Lessons}" Orientation="Horizontal">
+                                <StackLayout.Behaviors>
+                                    <local:LessonsBehavior />
+                                </StackLayout.Behaviors>
+                            </StackLayout>
                         </StackLayout>
-                    </StackLayout>
-                </ViewCell>
-            </DataTemplate>
-        </ListView.ItemTemplate>
-    </ListView>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <material:MaterialButton
+            Margin="0,0,8,16"
+            BackgroundColor="{StaticResource Primary}"
+            Clicked="NewSchoolDay_Clicked"
+            CornerRadius="16"
+            HeightRequest="64"
+            HorizontalOptions="End"
+            Text="登校日を追加"
+            TextColor="{StaticResource TextColor}"
+            VerticalOptions="End">
+            <material:MaterialButton.ImageSource>
+                <FontImageSource FontFamily="{DynamicResource MaterialFontFamily}" Glyph="&#xF0415;" />
+            </material:MaterialButton.ImageSource>
+        </material:MaterialButton>
+    </Grid>
 </ContentPage>

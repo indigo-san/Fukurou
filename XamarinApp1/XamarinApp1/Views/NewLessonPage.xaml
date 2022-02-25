@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.NewLessonPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
+    <ContentPage.BindingContext>
+        <vm:NewLessonViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding Save}" Text="保存">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF012C;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <ScrollView>
+        <Grid
+            Margin="16"
+            ColumnDefinitions="32,*"
+            RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+
+            <Ellipse
+                Fill="{Binding SelectedSubject.Value.Color}"
+                HeightRequest="24"
+                HorizontalOptions="Start"
+                VerticalOptions="Center"
+                WidthRequest="24" />
+
+            <Picker
+                Grid.Column="1"
+                FontSize="Title"
+                ItemDisplayBinding="{Binding SubjectName}"
+                ItemsSource="{Binding Subjects.Value}"
+                SelectedItem="{Binding SelectedSubject.Value, Mode=TwoWay}">
+                <Picker.Effects>
+                    <xct:RemoveBorderEffect />
+                </Picker.Effects>
+            </Picker>
+
+            <Label
+                Grid.Row="1"
+                StyleClass="IconLabel"
+                Text="&#xF0020;"
+                VerticalOptions="Center" />
+
+            <TimePicker
+                Grid.Row="1"
+                Grid.Column="1"
+                FontSize="Title"
+                Time="{Binding Start.Value}">
+                <TimePicker.Effects>
+                    <xct:RemoveBorderEffect />
+                </TimePicker.Effects>
+            </TimePicker>
+
+            <TimePicker
+                Grid.Row="2"
+                Grid.Column="1"
+                FontSize="Title"
+                Time="{Binding End.Value}">
+                <TimePicker.Effects>
+                    <xct:RemoveBorderEffect />
+                </TimePicker.Effects>
+            </TimePicker>
+
+            <Label
+                Grid.Row="3"
+                StyleClass="IconLabel"
+                Text="&#xF034E;"
+                VerticalOptions="Center" />
+
+            <Entry
+                Grid.Row="3"
+                Grid.Column="1"
+                FontSize="Title"
+                Placeholder="授業を受ける教室名"
+                Text="{Binding Room.Value}">
+                <Entry.Effects>
+                    <xct:RemoveBorderEffect />
+                </Entry.Effects>
+            </Entry>
+
+            <Label
+                Grid.Row="4"
+                StyleClass="IconLabel"
+                Text="&#xF14E6;"
+                VerticalOptions="Center" />
+
+            <Editor
+                Grid.Row="4"
+                Grid.Column="1"
+                AutoSize="TextChanges"
+                FontSize="Title"
+                Placeholder="この授業についてのメモ"
+                Text="{Binding Memo.Value}">
+                <Editor.Effects>
+                    <xct:RemoveBorderEffect />
+                </Editor.Effects>
+            </Editor>
+        </Grid>
+    </ScrollView>
+</ContentPage>
