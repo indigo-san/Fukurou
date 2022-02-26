@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 using Xamarin.Forms;
@@ -16,6 +18,9 @@ public class MockSchoolDayDataStore : IDataStore<SchoolDay>
     private readonly List<SchoolDay> _items = new()
     {
 #if ENABLE_MOCK
+        new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(-4)), Guid.NewGuid()),
+        new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(-3)), Guid.NewGuid()),
+        new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(-2)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(0)), Guid.NewGuid()),
         new SchoolDay(DateOnly.FromDateTime(DateTime.Now.AddDays(1)), Guid.NewGuid()),
@@ -63,34 +68,30 @@ public class MockSchoolDayDataStore : IDataStore<SchoolDay>
     public async Task<SchoolDay> GetItemAsync(Guid id)
     {
         var item = _items.FirstOrDefault(s => s.Id == id);
-        var lessons = (await _lessonStore.GetItemsAsync()).Where(i => i.Date == item.Date).OrderBy(i => i.Start).ToArray();
-        var reports = (await _reportStore.GetItemsAsync()).Where(i => i.Date == item.Date).ToArray();
+        var lessons = _lessonStore.GetItemsAsync().Where(i => i.Date == item.Date).OrderBy(i => i.Start).ToArrayAsync();
+        var reports = _reportStore.GetItemsAsync().Where(i => i.Date == item.Date).ToArrayAsync();
 
         return await Task.FromResult(item with
         {
-            Lessons = lessons,
-            Reports = reports
+            Lessons = await lessons,
+            Reports = await reports
         });
     }
 
-    public async Task<IEnumerable<SchoolDay>> GetItemsAsync(bool forceRefresh = false)
+    public async IAsyncEnumerable<SchoolDay> GetItemsAsync(bool forceRefresh = false)
     {
-        var list = new List<SchoolDay>();
-
         foreach (var item in _items.Select(async item =>
         {
-            var lessons = (await _lessonStore.GetItemsAsync(true)).Where(i => i.Date == item.Date).OrderBy(i => i.Start).ToArray();
-            var reports = (await _reportStore.GetItemsAsync(true)).Where(i => i.Date == item.Date).ToArray();
+            var lessons = _lessonStore.GetItemsAsync(true).Where(i => i.Date == item.Date).OrderBy(i => i.Start).ToArrayAsync();
+            var reports = _reportStore.GetItemsAsync(true).Where(i => i.Date == item.Date).ToArrayAsync();
             return item with
             {
-                Lessons = lessons,
-                Reports = reports
+                Lessons = await lessons,
+                Reports = await reports
             };
         }))
         {
-            list.Add(await item);
+            yield return await item;
         }
-
-        return list;
     }
 }

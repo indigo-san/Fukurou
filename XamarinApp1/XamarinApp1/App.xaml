@@ -21,6 +21,7 @@
             <Color x:Key="TextColor">#FFFFFF</Color>
             <Color x:Key="PageBackgroundColor">#263238</Color>
             <Color x:Key="CardBackgroundColor">#37474f</Color>
+            <Color x:Key="SearchBackgroundColor">#202020</Color>
 
             <Style
                 CanCascade="True"

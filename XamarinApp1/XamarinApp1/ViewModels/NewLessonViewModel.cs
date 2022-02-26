@@ -37,7 +37,7 @@ public class NewLessonViewModel : BaseViewModel
 
             try
             {
-                Subjects.Value = (await SubjectDataStore.GetItemsAsync(true)).ToArray();
+                Subjects.Value = await SubjectDataStore.GetItemsAsync(true).ToArrayAsync();
                 SelectedSubject.Value ??= Subjects.Value.FirstOrDefault();
             }
             finally

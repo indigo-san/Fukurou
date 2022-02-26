@@ -5,12 +5,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
     xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
-    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    Shell.NavBarHasShadow="True">
     <ContentPage.BindingContext>
         <vm:ReportsViewModel />
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="今日へ移動" Clicked="ScrollToToday_Clicked">
+        <ToolbarItem Clicked="ScrollToSpecDate_Clicked" Text="指定した日付に移動">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF094C;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+        <ToolbarItem Clicked="ScrollToToday_Clicked" Text="今日へ移動">
             <ToolbarItem.IconImageSource>
                 <FontImageSource
                     FontFamily="{StaticResource MaterialFontFamily}"
@@ -19,23 +28,33 @@
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
     </ContentPage.ToolbarItems>
+    <ContentPage.Resources>
+        <Color x:Key="GroupColor">#102027</Color>
+    </ContentPage.Resources>
     <Grid>
-        <RefreshView
-            Padding="8"
-            Command="{Binding Refresh}"
-            IsRefreshing="{Binding IsBusy}">
+        <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
             <CollectionView
                 x:Name="CollectionView1"
                 IsGrouped="True"
                 ItemsSource="{Binding Items}">
                 <CollectionView.GroupHeaderTemplate>
                     <DataTemplate>
-                        <Label
-                            Margin="0,8,0,0"
-                            FontAttributes="Bold"
-                            FontSize="Body"
-                            Text="{Binding Name}"
-                            TextColor="{StaticResource TextColor}" />
+                        <StackLayout
+                            Margin="4"
+                            BackgroundColor="{StaticResource GroupColor}"
+                            Orientation="Horizontal">
+                            <StackLayout.Resources>
+                                <Style TargetType="Label">
+                                    <Setter Property="FontAttributes" Value="Bold" />
+                                    <Setter Property="FontSize" Value="Body" />
+                                    <Setter Property="VerticalTextAlignment" Value="Center" />
+                                    <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+                                </Style>
+                            </StackLayout.Resources>
+                            <Label Text="{Binding Name}" />
+
+                            <Label Text="{Binding DayOfWeek}" />
+                        </StackLayout>
                     </DataTemplate>
                 </CollectionView.GroupHeaderTemplate>
                 <CollectionView.ItemTemplate>
@@ -52,7 +71,6 @@
                                     Margin="8,0"
                                     FontAttributes="Bold"
                                     FontSize="Body"
-                                    HorizontalOptions="End"
                                     Text="{Binding Name}"
                                     VerticalOptions="Center">
                                     <Label.Triggers>

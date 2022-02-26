@@ -16,5 +16,5 @@ public interface IDataStore<T>
 
     Task<T> GetItemAsync(Guid id);
 
-    Task<IEnumerable<T>> GetItemsAsync(bool forceRefresh = false);
+    IAsyncEnumerable<T> GetItemsAsync(bool forceRefresh = false);
 }

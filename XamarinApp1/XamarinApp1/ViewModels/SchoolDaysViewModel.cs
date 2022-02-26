@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Reactive.Bindings;
+
+using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-
-using Reactive.Bindings;
 
 using Xamarin.Forms;
 
@@ -10,8 +11,6 @@ using XamarinApp1.Models;
 using XamarinApp1.Views;
 
 using XF.Material.Forms.UI.Dialogs;
-
-using static Android.Content.ClipData;
 
 namespace XamarinApp1.ViewModels;
 public class SchoolDaysViewModel : BaseViewModel
@@ -29,11 +28,13 @@ public class SchoolDaysViewModel : BaseViewModel
 
     public ReactiveCommand<SchoolDay> ItemTapped { get; } = new();
 
-    public ReactiveCollection<SchoolDay> Items { get; } = new();
+    public ObservableCollection<SchoolDay> Items { get; } = new();
+
+    public ValueTask RefreshTask { get; private set; }
 
     public async Task<string> NewSchoolDay(DateOnly date)
     {
-        if ((await SchoolDayDataStore.GetItemsAsync()).FirstOrDefault(i => i.Date == date) is SchoolDay sd)
+        if (await SchoolDayDataStore.GetItemsAsync().FirstOrDefaultAsync(i => i.Date == date) is SchoolDay sd)
         {
             return $"{nameof(SchoolDayDetailPage)}?{nameof(SchoolDayDetailViewModel.ItemId)}={sd.Id}";
         }
@@ -63,14 +64,22 @@ public class SchoolDaysViewModel : BaseViewModel
     private async void LoadItems(bool forceRefresh)
     {
         IsBusy = true;
+        var tcs = new TaskCompletionSource();
+        RefreshTask = new ValueTask(tcs.Task);
         try
         {
-            var items = (await SchoolDayDataStore.GetItemsAsync(forceRefresh)).OrderBy(i => i.Date);
+            var items = SchoolDayDataStore.GetItemsAsync(forceRefresh).OrderBy(i => i.Date);
             Items.Clear();
-            foreach (var item in items)
+            await foreach (var item in items)
             {
                 Items.Add(item);
             }
+
+            tcs.SetResult();
+        }
+        catch (Exception ex)
+        {
+            tcs.SetException(ex);
         }
         finally
         {

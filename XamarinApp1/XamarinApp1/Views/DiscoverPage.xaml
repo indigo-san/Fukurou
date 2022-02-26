@@ -8,7 +8,6 @@
     xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
     Shell.NavBarIsVisible="False">
     <ContentPage.Resources>
-        <Color x:Key="SearchBackgroundColor">#202020</Color>
         <toolkitconverter:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
     <ContentPage.BindingContext>
@@ -197,7 +196,6 @@
                                                             Margin="8,0"
                                                             FontAttributes="Bold"
                                                             FontSize="Body"
-                                                            HorizontalOptions="End"
                                                             Text="{Binding Name}"
                                                             VerticalOptions="Center">
                                                             <Label.Triggers>

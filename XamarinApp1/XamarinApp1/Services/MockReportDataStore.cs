@@ -59,11 +59,9 @@ public class MockReportDataStore : IDataStore<Report>
         return await Task.FromResult(item);
     }
 
-    public async Task<IEnumerable<Report>> GetItemsAsync(bool forceRefresh = false)
+    public async IAsyncEnumerable<Report> GetItemsAsync(bool forceRefresh = false)
     {
-        var list = new List<Report>();
-
-        foreach (var task in _items.Select(async item =>
+        foreach (var item in _items.Select(async item =>
         {
             return item with
             {
@@ -71,10 +69,8 @@ public class MockReportDataStore : IDataStore<Report>
             };
         }))
         {
-            list.Add(await task);
+            yield return await item;
         }
-
-        return list;
     }
 
     public async Task<bool> UpdateItemAsync(Report item)

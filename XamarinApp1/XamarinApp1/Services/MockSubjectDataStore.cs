@@ -52,9 +52,9 @@ public class MockSubjectDataStore : IDataStore<Subject>
         return await Task.FromResult(_items.FirstOrDefault(s => s.Id == id));
     }
 
-    public async Task<IEnumerable<Subject>> GetItemsAsync(bool forceRefresh = false)
+    public IAsyncEnumerable<Subject> GetItemsAsync(bool forceRefresh = false)
     {
-        return await Task.FromResult(_items);
+        return _items.ToAsyncEnumerable();
     }
 
     public async Task<bool> UpdateItemAsync(Subject item)

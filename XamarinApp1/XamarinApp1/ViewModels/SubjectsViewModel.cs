@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 using Reactive.Bindings;
@@ -66,16 +67,19 @@ public class SubjectsViewModel : BaseViewModel
 
     public ReactiveCommand<(Subject, string)> UpdateName { get; } = new();
 
-    public ReactiveCollection<Subject> Items { get; } = new();
+    public ObservableCollection<Subject> Items { get; } = new();
 
     private async void LoadItems(bool forceRefresh)
     {
         IsBusy = true;
         try
         {
-            var items = (await DependencyService.Get<IDataStore<Subject>>().GetItemsAsync(forceRefresh)).OrderBy(i => i.SubjectName);
+            var items = (DependencyService.Get<IDataStore<Subject>>().GetItemsAsync(forceRefresh)).OrderBy(i => i.SubjectName);
             Items.Clear();
-            Items.AddRangeOnScheduler(items);
+            await foreach (var item in items)
+            {
+                Items.Add(item);
+            }
         }
         finally
         {

@@ -1,5 +1,7 @@
 ﻿using Android.App;
 
+using Com.Airbnb.Lottie.Model.Layer;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,8 @@ using Xamarin.Forms.Shapes;
 using XamarinApp1.Models;
 using XamarinApp1.Services;
 using XamarinApp1.ViewModels;
+
+using static Android.Graphics.ColorSpace;
 
 namespace XamarinApp1.Views;
 
@@ -66,9 +70,22 @@ public class LessonsBehavior : Behavior<StackLayout>
 
 public partial class SchoolDaysPage : ContentPage
 {
+    private bool isFirstLoading = true;
+
     public SchoolDaysPage()
     {
         InitializeComponent();
+        ListView1.ItemAppearing += ListView1_ItemAppearing;
+    }
+
+    private void ListView1_ItemAppearing(object sender, ItemVisibilityEventArgs e)
+    {
+        if (isFirstLoading)
+        {
+            isFirstLoading = true;
+            ScrollToToday_Clicked(null, EventArgs.Empty);
+            ListView1.ItemAppearing -= ListView1_ItemAppearing;
+        }
     }
 
     private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
@@ -95,11 +112,12 @@ public partial class SchoolDaysPage : ContentPage
         }
     }
 
-    private void ScrollToToday_Clicked(object sender, EventArgs e)
+    private async void ScrollToToday_Clicked(object sender, EventArgs e)
     {
         if (BindingContext is SchoolDaysViewModel vm)
         {
             var today = DateOnly.FromDateTime(DateTime.Now);
+            await vm.RefreshTask;
 
             for (int i = 0; i < vm.Items.Count - 1; i++)
             {
@@ -113,6 +131,5 @@ public partial class SchoolDaysPage : ContentPage
                 }
             }
         }
-
     }
 }

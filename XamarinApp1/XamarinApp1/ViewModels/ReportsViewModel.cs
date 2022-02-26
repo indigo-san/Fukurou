@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -26,6 +28,9 @@ public class ReportsViewModel : BaseViewModel
         }
 
         public DateOnly Date { get; private set; }
+
+        public string DayOfWeek
+            => CultureInfo.CurrentUICulture.DateTimeFormat.GetShortestDayName(Date.DayOfWeek);
 
         public string Name { get; private set; }
     }
@@ -58,7 +63,9 @@ public class ReportsViewModel : BaseViewModel
 
     public ReactiveCommand<Report> ItemTapped { get; } = new();
 
-    public ReactiveCollection<ReportGroup> Items { get; } = new();
+    public ObservableCollection<ReportGroup> Items { get; } = new();
+
+    public ValueTask RefreshTask { get; private set; }
 
     private async void OnItemTapped(Report item)
     {
@@ -78,14 +85,22 @@ public class ReportsViewModel : BaseViewModel
     private async void LoadItems(bool forceRefresh)
     {
         IsBusy = true;
+        var tcs = new TaskCompletionSource();
+        RefreshTask = new ValueTask(tcs.Task);
         try
         {
-            var items = (await ReportDataStore.GetItemsAsync(forceRefresh)).GroupBy(i => i.Date).OrderBy(i => i.Key).Select(i => new ReportGroup(i.Key, i));
+            var items = ReportDataStore.GetItemsAsync(forceRefresh).GroupBy(i => i.Date).OrderBy(i => i.Key);
             Items.Clear();
-            foreach (var item in items)
+            await foreach (var item in items)
             {
-                Items.Add(item);
+                Items.Add(new ReportGroup(item.Key, await item.ToArrayAsync()));
             }
+
+            tcs.SetResult();
+        }
+        catch (Exception ex)
+        {
+            tcs.SetException(ex);
         }
         finally
         {

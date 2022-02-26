@@ -142,7 +142,7 @@ public class SchoolDayDetailViewModel : BaseViewModel
             }
         }
 
-        if ((await SchoolDayDataStore.GetItemsAsync()).FirstOrDefault(i => i.Date == date) is SchoolDay item2)
+        if (await (SchoolDayDataStore.GetItemsAsync()).FirstOrDefaultAsync(i => i.Date == date) is SchoolDay item2)
         {
             // 既にdateに授業日が登録されている場合入れ替える
             await SchoolDayDataStore.DeleteItemAsync(item.Id);

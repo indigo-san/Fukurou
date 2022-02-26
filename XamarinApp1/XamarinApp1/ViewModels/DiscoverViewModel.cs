@@ -1,6 +1,7 @@
 ﻿using Reactive.Bindings;
 
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 using Xamarin.Forms;
@@ -20,16 +21,16 @@ public class DiscoverViewModel : BaseViewModel
             try
             {
                 // NextSchoolDay
-                var items = await SchoolDayDataStore.GetItemsAsync(true);
-                var nextDay = items.FirstOrDefault(x => x.Date >= DateOnly.FromDateTime(DateTime.Now) && x.Lessons.Any(x => !x.IsCompleted));
+                var items = SchoolDayDataStore.GetItemsAsync(true);
+                var nextDay = await items.FirstOrDefaultAsync(x => x.Date >= DateOnly.FromDateTime(DateTime.Now) && x.Lessons.Any(x => !x.IsCompleted));
                 IsNextSchoolDayVisible.Value = nextDay != null;
                 NextSchoolDay.Value = nextDay;
 
                 // Reports
                 var nowDateOnly = DateOnly.FromDateTime(DateTime.Now);
-                var reports = (await ReportDataStore.GetItemsAsync(true)).Where(item => item.IsNotSubmitted).OrderBy(item => item.Date).Take(3);
+                var reports = ReportDataStore.GetItemsAsync(true).Where(item => item.IsNotSubmitted).OrderBy(item => item.Date).Take(3);
                 Reports.Clear();
-                foreach (var item in reports)
+                await foreach (var item in reports)
                 {
                     Reports.Add(item);
                 }
@@ -87,5 +88,5 @@ public class DiscoverViewModel : BaseViewModel
 
     public ReactiveProperty<bool> IsReportsEmpty { get; } = new();
 
-    public ReactiveCollection<Report> Reports { get; } = new();
+    public ObservableCollection<Report> Reports { get; } = new();
 }

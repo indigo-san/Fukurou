@@ -72,7 +72,7 @@ public class LessonDetailViewModel : BaseViewModel
 
             try
             {
-                Subjects.Value = (await SubjectDataStore.GetItemsAsync(true)).ToArray();
+                Subjects.Value = await SubjectDataStore.GetItemsAsync(true).ToArrayAsync();
             }
             finally
             {

@@ -62,11 +62,9 @@ public class MockLessonDataStore : IDataStore<Lesson>
         return await Task.FromResult(item);
     }
 
-    public async Task<IEnumerable<Lesson>> GetItemsAsync(bool forceRefresh = false)
+    public async IAsyncEnumerable<Lesson> GetItemsAsync(bool forceRefresh = false)
     {
-        var list = new List<Lesson>();
-
-        foreach (var item in _items.Select(async item =>
+        foreach (var item in _items.Select<Lesson, ValueTask<Lesson>>(async item =>
         {
             return item with
             {
@@ -74,10 +72,8 @@ public class MockLessonDataStore : IDataStore<Lesson>
             };
         }))
         {
-            list.Add(await item);
+            yield return await item;
         }
-
-        return list;
     }
 
     public async Task<bool> UpdateItemAsync(Lesson item)
