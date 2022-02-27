@@ -5,11 +5,24 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:XamarinApp1.Views"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
-    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    x:Name="root">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding OnBackCommand}" />
+    </Shell.BackButtonBehavior>
     <ContentPage.BindingContext>
         <vm:SchoolDaysViewModel />
     </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
+        <ToolbarItem Clicked="ScrollToSpecDate_Clicked" Text="指定した日付に移動">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF094C;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
         <ToolbarItem Clicked="ScrollToToday_Clicked" Text="今日へ移動">
             <ToolbarItem.IconImageSource>
                 <FontImageSource
@@ -18,38 +31,61 @@
                     Size="24" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
+        <local:BindableToolbarItem
+            Command="{Binding Delete}"
+            IsVisible="{Binding IsEditing.Value}"
+            Text="削除">
+            <local:BindableToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{DynamicResource MaterialFontFamily}"
+                    Glyph="&#xF09E7;"
+                    Size="24" />
+            </local:BindableToolbarItem.IconImageSource>
+        </local:BindableToolbarItem>
     </ContentPage.ToolbarItems>
     <Grid>
-        <ListView
-            x:Name="ListView1"
-            CachingStrategy="RecycleElement"
-            IsPullToRefreshEnabled="True"
-            IsRefreshing="{Binding IsBusy}"
-            ItemSelected="ListView_ItemSelected"
-            ItemsSource="{Binding Items}"
-            RefreshCommand="{Binding Refresh}"
-            RowHeight="80"
-            SelectionMode="Single"
-            SeparatorColor="#37474f">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <StackLayout Margin="8" Spacing="8">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="Large"
-                                Text="{Binding Date}" />
+        <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView
+                x:Name="CollectionView1"
+                ItemsSource="{Binding Items}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            xct:TouchEffect.Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SchoolDaysViewModel}}, Path=ItemTapped}"
+                            xct:TouchEffect.CommandParameter="{Binding}"
+                            xct:TouchEffect.LongPressCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:SchoolDaysViewModel}}, Path=SwitchIsEditing}"
+                            xct:TouchEffect.LongPressCommandParameter="{Binding}"
+                            ColumnDefinitions="Auto,*"
+                            HeightRequest="80">
+                            <CheckBox IsChecked="{Binding IsChecked.Value, Mode=TwoWay}" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:SchoolDaysViewModel}}, Path=IsEditing.Value}" />
 
-                            <StackLayout BindingContext="{Binding Lessons}" Orientation="Horizontal">
-                                <StackLayout.Behaviors>
-                                    <local:LessonsBehavior />
-                                </StackLayout.Behaviors>
+                            <StackLayout
+                                Grid.Column="1"
+                                Margin="8"
+                                Spacing="8">
+                                <StackLayout Orientation="Horizontal" Spacing="8">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Large"
+                                        Text="{Binding Item.Date}" />
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Large"
+                                        Text="{Binding DayOfWeek}" />
+                                </StackLayout>
+
+                                <StackLayout BindingContext="{Binding Item.Lessons}" Orientation="Horizontal">
+                                    <StackLayout.Behaviors>
+                                        <local:LessonsBehavior />
+                                    </StackLayout.Behaviors>
+                                </StackLayout>
                             </StackLayout>
-                        </StackLayout>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
 
         <material:MaterialButton
             Margin="0,0,8,16"

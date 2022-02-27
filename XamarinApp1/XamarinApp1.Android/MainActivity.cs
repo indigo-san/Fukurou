@@ -1,12 +1,10 @@
-﻿using System;
-
+﻿
 using Android.App;
 using Android.Content.PM;
-using Android.Runtime;
 using Android.OS;
+using Android.Runtime;
+
 using Xamarin.Forms;
-using AndroidX.AppCompat.App;
-using Android.Content;
 
 namespace XamarinApp1.Droid
 {
@@ -24,6 +22,7 @@ namespace XamarinApp1.Droid
 
             LoadApplication(new App());
         }
+
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);

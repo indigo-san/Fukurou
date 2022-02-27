@@ -1,11 +1,9 @@
 ﻿using System;
 
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 using XamarinApp1.Models;
 using XamarinApp1.Services;
-using XamarinApp1.Views;
 
 using XF.Material.Forms;
 using XF.Material.Forms.Resources;
@@ -21,10 +19,15 @@ namespace XamarinApp1
             InitializeComponent();
             Material.Init(this, (MaterialConfiguration)Resources["Material.Configuration"]);
 
-            DependencyService.Register<IDataStore<SchoolDay>, MockSchoolDayDataStore>();
-            DependencyService.Register<IDataStore<Lesson>, MockLessonDataStore>();
-            DependencyService.Register<IDataStore<Subject>, MockSubjectDataStore>();
-            DependencyService.Register<IDataStore<Report>, MockReportDataStore>();
+            //DependencyService.Register<IDataStore<SchoolDay>, MockSchoolDayDataStore>();
+            //DependencyService.Register<IDataStore<Lesson>, MockLessonDataStore>();
+            //DependencyService.Register<IDataStore<Subject>, MockSubjectDataStore>();
+            //DependencyService.Register<IDataStore<Report>, MockReportDataStore>();
+
+            DependencyService.Register<IDataStore<SchoolDay>, StorageSchoolDayDataStore>();
+            DependencyService.Register<IDataStore<Lesson>, StorageLessonDataStore>();
+            DependencyService.Register<IDataStore<Subject>, StorageSubjectDataStore>();
+            DependencyService.Register<IDataStore<Report>, StorageReportDataStore>();
             MainPage = new AppShell();
         }
 

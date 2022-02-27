@@ -7,14 +7,10 @@
     xmlns:cardView="clr-namespace:AndroidX.CardView.Widget;assembly=Xamarin.AndroidX.CardView;targetPlatform=Android"
     xmlns:formsandroid="clr-namespace:Xamarin.Forms;assembly=Xamarin.Forms.Platform.Android;targetPlatform=Android"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
-    xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
     xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
     <ContentPage.BindingContext>
         <vm:SchoolDayDetailViewModel />
     </ContentPage.BindingContext>
-    <ContentPage.Resources>
-        <toolkitconverter:InvertedBoolConverter x:Key="InvertedBoolConverter" />
-    </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem Command="{Binding Delete}" Text="削除">
             <ToolbarItem.IconImageSource>
@@ -214,7 +210,6 @@
                                                         Margin="8,0"
                                                         FontAttributes="Bold"
                                                         FontSize="Body"
-                                                        HorizontalOptions="End"
                                                         Text="{Binding Name}"
                                                         VerticalOptions="Center">
                                                         <Label.Triggers>

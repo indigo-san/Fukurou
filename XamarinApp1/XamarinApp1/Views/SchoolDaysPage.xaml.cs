@@ -1,19 +1,13 @@
 ﻿using Android.App;
 
-using Com.Airbnb.Lottie.Model.Layer;
-
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Shapes;
 
 using XamarinApp1.Models;
-using XamarinApp1.Services;
 using XamarinApp1.ViewModels;
-
-using static Android.Graphics.ColorSpace;
 
 namespace XamarinApp1.Views;
 
@@ -75,25 +69,16 @@ public partial class SchoolDaysPage : ContentPage
     public SchoolDaysPage()
     {
         InitializeComponent();
-        ListView1.ItemAppearing += ListView1_ItemAppearing;
+        CollectionView1.SizeChanged += CollectionView1_SizeChanged;
     }
 
-    private void ListView1_ItemAppearing(object sender, ItemVisibilityEventArgs e)
+    private void CollectionView1_SizeChanged(object sender, EventArgs e)
     {
         if (isFirstLoading)
         {
-            isFirstLoading = true;
+            isFirstLoading = false;
             ScrollToToday_Clicked(null, EventArgs.Empty);
-            ListView1.ItemAppearing -= ListView1_ItemAppearing;
-        }
-    }
-
-    private void ListView_ItemSelected(object sender, SelectedItemChangedEventArgs e)
-    {
-        if (BindingContext is SchoolDaysViewModel vm && e.SelectedItem is SchoolDay sc)
-        {
-            ListView1.SelectedItem = null;
-            vm.ItemTapped.Execute(sc);
+            CollectionView1.SizeChanged -= CollectionView1_SizeChanged;
         }
     }
 
@@ -112,24 +97,52 @@ public partial class SchoolDaysPage : ContentPage
         }
     }
 
-    private async void ScrollToToday_Clicked(object sender, EventArgs e)
+    private async void ScrollToDate(DateOnly date)
     {
-        if (BindingContext is SchoolDaysViewModel vm)
+        if (BindingContext is not SchoolDaysViewModel vm) return;
+
+        await vm.RefreshTask;
+        if (vm.Items.Count >= 1)
         {
-            var today = DateOnly.FromDateTime(DateTime.Now);
-            await vm.RefreshTask;
-
-            for (int i = 0; i < vm.Items.Count - 1; i++)
+            var first = vm.Items[0];
+            var last = vm.Items[^1];
+            if (first.Item.Date >= date)
             {
-                var current = vm.Items[i];
-                var next = vm.Items[i + 1];
-
-                if (current.Date <= today && today <= next.Date)
+                CollectionView1.ScrollTo(first, null, ScrollToPosition.Start);
+            }
+            else if (last.Item.Date <= date)
+            {
+                CollectionView1.ScrollTo(last, null, ScrollToPosition.Start);
+            }
+            else
+            {
+                for (int i = 0; i < vm.Items.Count - 1; i++)
                 {
-                    ListView1.ScrollTo(next, ScrollToPosition.Start, true);
-                    return;
+                    var current = vm.Items[i];
+                    var next = vm.Items[i + 1];
+
+                    if (current.Item.Date <= date && date <= next.Item.Date)
+                    {
+                        CollectionView1.ScrollTo(next, null, ScrollToPosition.Start);
+                        return;
+                    }
                 }
             }
         }
+    }
+
+    private void ScrollToToday_Clicked(object sender, EventArgs e)
+    {
+        ScrollToDate(DateOnly.FromDateTime(DateTime.Now));
+    }
+
+    private void ScrollToSpecDate_Clicked(object sender, EventArgs e)
+    {
+        var now = DateTime.Now;
+        var dialog = new DatePickerDialog(DependencyService.Get<Activity>(), (s, e) =>
+        {
+            ScrollToDate(DateOnly.FromDateTime(e.Date));
+        }, now.Year, now.Month - 1, now.Day);
+        dialog.Show();
     }
 }

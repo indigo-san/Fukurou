@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="akavache.sqlite3" Version="8.1.1" />
     <PackageReference Include="ReactiveProperty" Version="8.0.3" />
     <PackageReference Include="System.Interactive" Version="6.0.1" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />

@@ -3,10 +3,14 @@
     x:Class="XamarinApp1.Views.ReportsPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:XamarinApp1.Views"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
-    xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
     xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
     Shell.NavBarHasShadow="True">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding OnBackCommand}" />
+    </Shell.BackButtonBehavior>
     <ContentPage.BindingContext>
         <vm:ReportsViewModel />
     </ContentPage.BindingContext>
@@ -27,6 +31,17 @@
                     Size="24" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
+        <local:BindableToolbarItem
+            Command="{Binding Delete}"
+            IsVisible="{Binding IsEditing.Value}"
+            Text="削除">
+            <local:BindableToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{DynamicResource MaterialFontFamily}"
+                    Glyph="&#xF09E7;"
+                    Size="24" />
+            </local:BindableToolbarItem.IconImageSource>
+        </local:BindableToolbarItem>
     </ContentPage.ToolbarItems>
     <ContentPage.Resources>
         <Color x:Key="GroupColor">#102027</Color>
@@ -59,23 +74,25 @@
                 </CollectionView.GroupHeaderTemplate>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid Margin="16" ColumnDefinitions="Auto,*,Auto">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}, Path=ItemTapped}"
-                                    CommandParameter="{Binding .}"
-                                    NumberOfTapsRequired="1" />
-                            </Grid.GestureRecognizers>
-                            <StackLayout VerticalOptions="Center">
+                        <Grid
+                            Margin="16"
+                            xct:TouchEffect.Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}, Path=ItemTapped}"
+                            xct:TouchEffect.CommandParameter="{Binding}"
+                            xct:TouchEffect.LongPressCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}, Path=SwitchIsEditing}"
+                            xct:TouchEffect.LongPressCommandParameter="{Binding}"
+                            ColumnDefinitions="Auto,Auto,*,Auto">
+                            <CheckBox IsChecked="{Binding IsChecked.Value, Mode=TwoWay}" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ReportsViewModel}}, Path=IsEditing.Value}" />
+
+                            <StackLayout Grid.Column="1" VerticalOptions="Center">
                                 <Label
                                     Margin="8,0"
                                     FontAttributes="Bold"
                                     FontSize="Body"
-                                    Text="{Binding Name}"
+                                    Text="{Binding Item.Name}"
                                     VerticalOptions="Center">
                                     <Label.Triggers>
                                         <DataTrigger
-                                            Binding="{Binding IsExpirationOfTerm}"
+                                            Binding="{Binding Item.IsExpirationOfTerm}"
                                             TargetType="Label"
                                             Value="True">
                                             <Setter Property="TextColor" Value="#ff6d00" />
@@ -88,19 +105,19 @@
                                     TextColor="DarkGray">
                                     <Label.Triggers>
                                         <DataTrigger
-                                            Binding="{Binding IsSubmitted}"
+                                            Binding="{Binding Item.IsSubmitted}"
                                             TargetType="Label"
                                             Value="True">
                                             <Setter Property="Text" Value="・提出済み" />
                                         </DataTrigger>
                                         <DataTrigger
-                                            Binding="{Binding IsNotSubmitted}"
+                                            Binding="{Binding Item.IsNotSubmitted}"
                                             TargetType="Label"
                                             Value="True">
                                             <Setter Property="Text" Value="・未提出" />
                                         </DataTrigger>
                                         <DataTrigger
-                                            Binding="{Binding IsExpirationOfTerm}"
+                                            Binding="{Binding Item.IsExpirationOfTerm}"
                                             TargetType="Label"
                                             Value="True">
                                             <Setter Property="Text" Value="・期限切れ" />
@@ -109,40 +126,40 @@
                                 </Label>
                             </StackLayout>
                             <Label
-                                Grid.Column="1"
+                                Grid.Column="2"
                                 Margin="8,0"
                                 FontAttributes="Bold"
                                 FontSize="Body"
                                 HorizontalOptions="End"
-                                Text="{Binding Subject.SubjectName}"
+                                Text="{Binding Item.Subject.SubjectName}"
                                 VerticalOptions="Center" />
 
                             <Ellipse
-                                Grid.Column="2"
-                                Fill="{Binding Subject.Color}"
+                                Grid.Column="3"
+                                Fill="{Binding Item.Subject.Color}"
                                 HeightRequest="24"
                                 HorizontalOptions="End"
                                 VerticalOptions="Center"
                                 WidthRequest="24" />
 
                             <Label
-                                Grid.Column="2"
+                                Grid.Column="3"
                                 FontFamily="{DynamicResource MaterialFontFamily}"
                                 FontSize="16"
                                 HorizontalOptions="Center"
                                 HorizontalTextAlignment="Center"
-                                IsVisible="{Binding IsSubmitted}"
+                                IsVisible="{Binding Item.IsSubmitted}"
                                 Text="&#xF012C;"
                                 VerticalOptions="Center"
                                 VerticalTextAlignment="Center" />
 
                             <Label
-                                Grid.Column="2"
+                                Grid.Column="3"
                                 FontFamily="{DynamicResource MaterialFontFamily}"
                                 FontSize="24"
                                 HorizontalOptions="Center"
                                 HorizontalTextAlignment="Center"
-                                IsVisible="{Binding IsExpirationOfTerm}"
+                                IsVisible="{Binding Item.IsExpirationOfTerm}"
                                 Text="&#xF05D6;"
                                 VerticalOptions="Center"
                                 VerticalTextAlignment="Center" />

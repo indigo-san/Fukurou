@@ -3,7 +3,8 @@
     x:Class="XamarinApp1.App"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:mtrl="clr-namespace:XF.Material.Forms.Resources;assembly=XF.Material">
+    xmlns:mtrl="clr-namespace:XF.Material.Forms.Resources;assembly=XF.Material"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
     <!--
         Define global resources and styles here, that apply to all pages in your app.
     -->
@@ -11,6 +12,7 @@
         <OnPlatform x:Key="MaterialFontFamily" x:TypeArguments="x:String">
             <On Platform="Android" Value="materialdesignicons-webfont.ttf#Material Design Icons" />
         </OnPlatform>
+        <xct:InvertedBoolConverter x:Key="InvertedBoolConverter" />
 
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

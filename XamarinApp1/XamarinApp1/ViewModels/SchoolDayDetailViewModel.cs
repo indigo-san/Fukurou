@@ -25,62 +25,9 @@ public class SchoolDayDetailViewModel : BaseViewModel
     public SchoolDayDetailViewModel()
     {
         Refresh.Subscribe(() => LoadItemId(itemId));
-
-        Delete.Subscribe(async () =>
-        {
-            if (SchoolDay.Value != null)
-            {
-                var oldValue = SchoolDay.Value;
-                foreach (var lesson in SchoolDay.Value.Lessons)
-                {
-                    await LessonDataStore.DeleteItemAsync(lesson.Id);
-                }
-
-                await SchoolDayDataStore.DeleteItemAsync(SchoolDay.Value.Id);
-
-                await Shell.Current.GoToAsync("..");
-
-                // 元に戻す
-                if (await MaterialDialog.Instance.SnackbarAsync("アイテムが削除されました", "元に戻す"))
-                {
-                    foreach (var lesson in oldValue.Lessons)
-                    {
-                        await LessonDataStore.AddItemAsync(lesson);
-                    }
-
-                    await SchoolDayDataStore.AddItemAsync(oldValue);
-                }
-            }
-        });
-
-        GoToReportDetail.Subscribe(async item =>
-        {
-            if (item != null)
-            {
-                if (await ReportDataStore.ExistsAsync(item.Id))
-                {
-                    await Shell.Current.GoToAsync($"{nameof(ReportDetailPage)}?{nameof(ReportDetailViewModel.ItemId)}={item.Id}");
-                }
-                else
-                {
-                    await MaterialDialog.Instance.SnackbarAsync("アイテムが存在しません");
-                }
-            }
-        });
-        GoToLessonDetail.Subscribe(async item =>
-        {
-            if (item != null)
-            {
-                if (await LessonDataStore.ExistsAsync(item.Id))
-                {
-                    await Shell.Current.GoToAsync($"{nameof(LessonDetailPage)}?{nameof(LessonDetailViewModel.ItemId)}={item.Id}");
-                }
-                else
-                {
-                    await MaterialDialog.Instance.SnackbarAsync("アイテムが存在しません");
-                }
-            }
-        });
+        Delete.Subscribe(OnDelete);
+        GoToReportDetail.Subscribe(OnGoToReportDetail);
+        GoToLessonDetail.Subscribe(OnGoToLessonDetail);
         IsLessonsEmpty = SchoolDay.Select(i => i?.Lessons.Any() ?? true).ToReadOnlyReactivePropertySlim();
         IsReportsEmpty = SchoolDay.Select(i => i?.Reports.Any() ?? true).ToReadOnlyReactivePropertySlim();
         SchoolDay.Subscribe(sd => itemId = sd?.Id.ToString());
@@ -173,4 +120,62 @@ public class SchoolDayDetailViewModel : BaseViewModel
             IsBusy = false;
         }
     }
+
+    private async void OnGoToLessonDetail(Lesson item)
+    {
+        if (item != null)
+        {
+            if (await LessonDataStore.ExistsAsync(item.Id))
+            {
+                await Shell.Current.GoToAsync($"{nameof(LessonDetailPage)}?{nameof(LessonDetailViewModel.ItemId)}={item.Id}");
+            }
+            else
+            {
+                await MaterialDialog.Instance.SnackbarAsync("アイテムが存在しません");
+            }
+        }
+    }
+
+    private async void OnGoToReportDetail(Report item)
+    {
+        if (item != null)
+        {
+            if (await ReportDataStore.ExistsAsync(item.Id))
+            {
+                await Shell.Current.GoToAsync($"{nameof(ReportDetailPage)}?{nameof(ReportDetailViewModel.ItemId)}={item.Id}");
+            }
+            else
+            {
+                await MaterialDialog.Instance.SnackbarAsync("アイテムが存在しません");
+            }
+        }
+    }
+
+    private async void OnDelete()
+    {
+        if (SchoolDay.Value != null)
+        {
+            var oldValue = SchoolDay.Value;
+            foreach (var lesson in SchoolDay.Value.Lessons)
+            {
+                await LessonDataStore.DeleteItemAsync(lesson.Id);
+            }
+
+            await SchoolDayDataStore.DeleteItemAsync(SchoolDay.Value.Id);
+
+            await Shell.Current.GoToAsync("..");
+
+            // 元に戻す
+            if (await MaterialDialog.Instance.SnackbarAsync("アイテムが削除されました", "元に戻す"))
+            {
+                foreach (var lesson in oldValue.Lessons)
+                {
+                    await LessonDataStore.AddItemAsync(lesson);
+                }
+
+                await SchoolDayDataStore.AddItemAsync(oldValue);
+            }
+        }
+    }
+
 }

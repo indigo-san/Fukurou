@@ -1,6 +1,7 @@
 ﻿using Reactive.Bindings;
 
 using System;
+using System.Text.Json.Serialization;
 
 using Xamarin.Forms;
 
@@ -18,6 +19,7 @@ public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly En
     
     public string Memo { get; init; } = string.Empty;
 
+    [JsonIgnore]
     public string DateHeader
     {
         get
@@ -42,6 +44,7 @@ public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly En
         }
     }
 
+    [JsonIgnore]
     public string DateHeaderSuffix
     {
         get
@@ -66,6 +69,7 @@ public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly En
         }
     }
 
+    [JsonIgnore]
     public bool IsCompleted
     {
         get
@@ -76,6 +80,7 @@ public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly En
         }
     }
 
+    [JsonIgnore]
     public bool IsDuring
     {
         get
@@ -104,15 +109,19 @@ public enum ReportState
 
 public record Report(Subject Subject, DateOnly Date, string Name, Guid Id, ReportState State)
 {
+    [JsonIgnore]
     public bool IsSubmitted => State == ReportState.Submitted;
 
+    [JsonIgnore]
     public bool IsNotSubmitted => State == ReportState.NotSubmitted;
 
+    [JsonIgnore]
     public bool IsExpirationOfTerm => IsNotSubmitted && Date < DateOnly.FromDateTime(DateTime.Now);
 }
 
 public record SchoolDay(DateOnly Date, Guid Id)
 {
+    [JsonIgnore]
     public string DateHeader
     {
         get
@@ -137,6 +146,7 @@ public record SchoolDay(DateOnly Date, Guid Id)
         }
     }
 
+    [JsonIgnore]
     public string DateHeaderSuffix
     {
         get
@@ -161,7 +171,9 @@ public record SchoolDay(DateOnly Date, Guid Id)
         }
     }
 
+    [JsonIgnore]
     public Lesson[] Lessons { get; init; } = Array.Empty<Lesson>();
 
+    [JsonIgnore]
     public Report[] Reports { get; init; } = Array.Empty<Report>();
 }

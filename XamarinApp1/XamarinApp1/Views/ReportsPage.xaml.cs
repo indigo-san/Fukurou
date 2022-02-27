@@ -63,10 +63,6 @@ public partial class ReportsPage : ContentPage
                 }
             }
         }
-        else
-        {
-            CollectionView1.ScrollTo(0, 0, ScrollToPosition.Start);
-        }
     }
 
     private void ScrollToSpecDate_Clicked(object sender, EventArgs e)
