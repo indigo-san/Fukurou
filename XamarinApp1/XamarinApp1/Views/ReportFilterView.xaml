@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="XamarinApp1.Views.ReportFilterView"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+    x:DataType="vm:ReportFilterViewModel">
+    <StackLayout>
+        <StackLayout Orientation="Horizontal">
+            <CheckBox IsChecked="{Binding IsSubjectEnabled.Value}" VerticalOptions="Center" />
+            <Label Text="教科" VerticalOptions="Center" />
+        </StackLayout>
+
+        <Picker
+            IsEnabled="{Binding IsSubjectEnabled.Value}"
+            ItemDisplayBinding="{Binding SubjectName}"
+            ItemsSource="{Binding Subjects}"
+            SelectedItem="{Binding SelectedSubject.Value}" />
+
+        <Label Text="状態" />
+
+        <Picker x:Name="ReportStates" SelectedIndex="{Binding ReportState.Value}" />
+
+        <StackLayout Orientation="Horizontal">
+            <CheckBox IsChecked="{Binding IsMinDateEnabled.Value}" VerticalOptions="Center" />
+            <Label Text="日付 (最小)" VerticalOptions="Center" />
+        </StackLayout>
+
+        <DatePicker Date="{Binding MinDate.Value}" IsEnabled="{Binding IsMinDateEnabled.Value}" />
+
+        <StackLayout Orientation="Horizontal">
+            <CheckBox IsChecked="{Binding IsMaxDateEnabled.Value}" VerticalOptions="Center" />
+            <Label Text="日付 (最大)" VerticalOptions="Center" />
+        </StackLayout>
+
+        <DatePicker Date="{Binding MaxDate.Value}" IsEnabled="{Binding IsMaxDateEnabled.Value}" />
+    </StackLayout>
+</ContentView>

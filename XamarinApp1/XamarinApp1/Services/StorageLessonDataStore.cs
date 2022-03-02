@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ public class StorageHelper
             {
                 result = await JsonSerializer.DeserializeAsync<T>(stream, Options);
             }
-            catch
+            catch (Exception ex)
             {
                 result = default;
             }
@@ -74,12 +75,12 @@ public class StorageHelper
                 Directory.CreateDirectory(dir);
             }
 
-            await using var stream = new FileStream(file, FileMode.OpenOrCreate);
+            await using var stream = new FileStream(file, FileMode.Create);
             await JsonSerializer.SerializeAsync(stream, data, Options);
 
             return true;
         }
-        catch// (Exception ex)
+        catch (Exception ex)
         {
             return false;
         }

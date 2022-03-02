@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.SubjectDetailPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
+    <ContentPage.BindingContext>
+        <vm:SubjectDetailViewModel />
+    </ContentPage.BindingContext>
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Command="{Binding Delete}" Text="削除">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{DynamicResource MaterialFontFamily}"
+                    Glyph="&#xF09E7;"
+                    Size="24" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+    <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <StackLayout
+                x:Name="Stack"
+                Margin="8"
+                Spacing="8">
+                <material:MaterialCard
+                    Padding="0"
+                    BackgroundColor="{Binding Subject.Value.Color}"
+                    CornerRadius="24">
+                    <Grid RowDefinitions="Auto,Auto">
+                        <Label
+                            Margin="16,16,0,0"
+                            FontAttributes="Bold"
+                            FontSize="24"
+                            Text="{Binding Subject.Value.SubjectName}" />
+
+                        <StackLayout
+                            Grid.Row="1"
+                            HorizontalOptions="End"
+                            Orientation="Horizontal"
+                            Spacing="0">
+                            <material:MaterialIconButton
+                                BackgroundColor="Transparent"
+                                Clicked="Rename_Clicked"
+                                CornerRadius="16">
+                                <material:MaterialIconButton.Image>
+                                    <FontImageSource
+                                        FontFamily="{DynamicResource MaterialFontFamily}"
+                                        Glyph="&#xF03EB;"
+                                        Size="24" />
+                                </material:MaterialIconButton.Image>
+                            </material:MaterialIconButton>
+                            <material:MaterialIconButton
+                                BackgroundColor="Transparent"
+                                Clicked="RandomColor_Clicked"
+                                CornerRadius="16">
+                                <material:MaterialIconButton.Image>
+                                    <FontImageSource
+                                        FontFamily="{DynamicResource MaterialFontFamily}"
+                                        Glyph="&#xF1377;"
+                                        Size="24" />
+                                </material:MaterialIconButton.Image>
+                            </material:MaterialIconButton>
+                        </StackLayout>
+                    </Grid>
+                </material:MaterialCard>
+            </StackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

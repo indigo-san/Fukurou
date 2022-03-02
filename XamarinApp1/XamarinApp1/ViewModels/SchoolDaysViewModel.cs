@@ -18,8 +18,6 @@ using XF.Material.Forms.UI.Dialogs;
 namespace XamarinApp1.ViewModels;
 public class SchoolDaysViewModel : BaseViewModel
 {
-    private bool isLoading;
-
     public record SchoolDayViewModel(SchoolDay Item)
     {
         public string DayOfWeek
@@ -154,14 +152,12 @@ public class SchoolDaysViewModel : BaseViewModel
 
     private async void LoadItems(bool forceRefresh)
     {
-        if (isLoading) return;
-
         IsBusy = true;
         var tcs = new TaskCompletionSource();
+        await RefreshTask;
         RefreshTask = new ValueTask(tcs.Task);
         try
         {
-            isLoading = true;
             var items = SchoolDayDataStore.GetItemsAsync(forceRefresh).OrderBy(i => i.Date);
             Items.Clear();
             await foreach (var item in items)
@@ -178,7 +174,6 @@ public class SchoolDaysViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
-            isLoading = false;
         }
     }
 }

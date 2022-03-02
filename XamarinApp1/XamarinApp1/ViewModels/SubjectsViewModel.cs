@@ -18,41 +18,13 @@ public class SubjectsViewModel : BaseViewModel
     {
         Refresh.Subscribe(() => LoadItems(true));
 
-        UpdateColor.Subscribe(async item =>
-        {
-            var index = Items.IndexOf(item);
-            item = item with
-            {
-                Color = RandomColor.GetColor()
-            };
-
-            Items[index] = item;
-            await DependencyService.Get<IDataStore<Subject>>().UpdateItemAsync(item);
-        });
-
-        UpdateName.Subscribe(async item =>
-        {
-            var index = Items.IndexOf(item.Item1);
-            var item1 = item.Item1 with
-            {
-                SubjectName = item.Item2
-            };
-
-            Items[index] = item1;
-            await DependencyService.Get<IDataStore<Subject>>().UpdateItemAsync(item1);
-        });
-
         NewSubject.Subscribe(async item =>
         {
-            await DependencyService.Get<IDataStore<Subject>>().AddItemAsync(item);
+            await SubjectDataStore.AddItemAsync(item);
             LoadItems(false);
         });
         
-        Delete.Subscribe(async item =>
-        {
-            Items.Remove(item);
-            await DependencyService.Get<IDataStore<Subject>>().DeleteItemAsync(item.Id);
-        });
+        ItemTapped.Subscribe(async item => await Shell.Current.GoToAsync($"SubjectDetailPage?ItemId={item.Id}"));
 
         LoadItems(false);
     }
@@ -60,12 +32,8 @@ public class SubjectsViewModel : BaseViewModel
     public ReactiveCommand Refresh { get; } = new();
 
     public ReactiveCommand<Subject> NewSubject { get; } = new();
-
-    public ReactiveCommand<Subject> UpdateColor { get; } = new();
     
-    public ReactiveCommand<Subject> Delete { get; } = new();
-
-    public ReactiveCommand<(Subject, string)> UpdateName { get; } = new();
+    public ReactiveCommand<Subject> ItemTapped { get; } = new();
 
     public ObservableCollection<Subject> Items { get; } = new();
 

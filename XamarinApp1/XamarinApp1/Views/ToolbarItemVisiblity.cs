@@ -1,5 +1,4 @@
-﻿
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace XamarinApp1.Views;
 
@@ -15,9 +14,7 @@ public class BindableToolbarItem : ToolbarItem
 
     private static void OnIsVisibleChanged(BindableObject bindable, object oldvalue, object newvalue)
     {
-        var item = bindable as BindableToolbarItem;
-
-        if (item == null || item.Parent == null)
+        if (bindable is not BindableToolbarItem item || item.Parent == null)
             return;
 
         var toolbarItems = ((ContentPage)item.Parent).ToolbarItems;

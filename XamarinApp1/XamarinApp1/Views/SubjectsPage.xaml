@@ -4,50 +4,21 @@
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
-    xmlns:toolkitconverter="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit"
-    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
+    xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
     <ContentPage.BindingContext>
         <vm:SubjectsViewModel />
     </ContentPage.BindingContext>
     <Grid>
-        <ListView
-            IsPullToRefreshEnabled="True"
-            IsRefreshing="{Binding IsBusy}"
-            ItemsSource="{Binding Items}"
-            RefreshCommand="{Binding Refresh}"
-            RowHeight="80"
-            SelectionMode="None"
-            SeparatorColor="#37474f">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <ViewCell.ContextActions>
-                            <MenuItem Clicked="RandomColor_Clicked" Text="色を変更">
-                                <MenuItem.IconImageSource>
-                                    <FontImageSource
-                                        FontFamily="{StaticResource MaterialFontFamily}"
-                                        Glyph="&#xF0E0C;"
-                                        Size="24" />
-                                </MenuItem.IconImageSource>
-                            </MenuItem>
-                            <MenuItem Clicked="Rename_Clicked" Text="名前を変更">
-                                <MenuItem.IconImageSource>
-                                    <FontImageSource
-                                        FontFamily="{StaticResource MaterialFontFamily}"
-                                        Glyph="&#xF0CB6;"
-                                        Size="24" />
-                                </MenuItem.IconImageSource>
-                            </MenuItem>
-                            <MenuItem Clicked="Delete_Clicked" Text="削除">
-                                <MenuItem.IconImageSource>
-                                    <FontImageSource
-                                        FontFamily="{StaticResource MaterialFontFamily}"
-                                        Glyph="&#xF09E7;"
-                                        Size="24" />
-                                </MenuItem.IconImageSource>
-                            </MenuItem>
-                        </ViewCell.ContextActions>
-                        <Grid Margin="16" ColumnDefinitions="Auto,*,Auto">
+        <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Items}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            Margin="16"
+                            xct:TouchEffect.Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SubjectsViewModel}}, Path=ItemTapped}"
+                            xct:TouchEffect.CommandParameter="{Binding}"
+                            ColumnDefinitions="Auto,*,Auto">
                             <Label
                                 Margin="8,0"
                                 FontAttributes="Bold"
@@ -65,10 +36,10 @@
                                 WidthRequest="24" />
 
                         </Grid>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
 
         <material:MaterialButton
             Margin="0,0,8,16"

@@ -17,10 +17,12 @@ using XF.Material.Forms.UI.Dialogs;
 namespace XamarinApp1.ViewModels;
 
 [QueryProperty(nameof(Reload), nameof(Reload))]
+[QueryProperty(nameof(FilterSubject), nameof(FilterSubject))]
+[QueryProperty(nameof(FilterState), nameof(FilterState))]
+[QueryProperty(nameof(FilterMinDate), nameof(FilterMinDate))]
+[QueryProperty(nameof(FilterMaxDate), nameof(FilterMaxDate))]
 public class ReportsViewModel : BaseViewModel
 {
-    private bool isLoading;
-
     public record ReportViewModel(Report Item)
     {
         public ReactivePropertySlim<bool> IsChecked { get; } = new();
@@ -69,6 +71,14 @@ public class ReportsViewModel : BaseViewModel
             }
         }
     }
+
+    public string FilterSubject { get; set; }
+
+    public bool? FilterState { get; set; }
+
+    public string FilterMinDate { get; set; }
+
+    public string FilterMaxDate { get; set; }
 
     public ReactivePropertySlim<bool> IsEditing { get; } = new();
 
@@ -119,11 +129,11 @@ public class ReportsViewModel : BaseViewModel
     {
         if (IsEditing.Value)
         {
-            var oldGroups = new List<(bool IsEmpty, ReportGroup Group, int Index, List<ReportViewModel> Items)>();
+            var oldGroups = new List<(bool IsEmpty, ReportGroup Group, int Index, List<(ReportViewModel Item, int Index)> Items)>();
             int count = 0;
             for (int i = Items.Count - 1; i >= 0; i--)
             {
-                var oldItems = new List<ReportViewModel>();
+                var oldItems = new List<(ReportViewModel Item, int Index)>();
                 var group = Items[i];
 
                 for (int ii = group.Count - 1; ii >= 0; ii--)
@@ -134,7 +144,7 @@ public class ReportsViewModel : BaseViewModel
                     {
                         group.RemoveAt(ii);
                         await ReportDataStore.DeleteItemAsync(item.Item.Id);
-                        oldItems.Add(item);
+                        oldItems.Add((item, ii));
                         count++;
                     }
                 }
@@ -164,9 +174,9 @@ public class ReportsViewModel : BaseViewModel
 
                     for (int ii = items.Count - 1; ii >= 0; ii--)
                     {
-                        var item = items[ii];
+                        var (item, index2) = items[ii];
                         item.IsChecked.Value = false;
-                        group.Add(item);
+                        group.Insert(index2, item);
                         await ReportDataStore.AddItemAsync(item.Item);
                     }
                 }
@@ -195,19 +205,49 @@ public class ReportsViewModel : BaseViewModel
 
     private async void LoadItems(bool forceRefresh)
     {
-        if (isLoading) return;
-
         IsBusy = true;
         var tcs = new TaskCompletionSource();
+        await RefreshTask;
         RefreshTask = new ValueTask(tcs.Task);
         try
         {
-            isLoading = true;
             var items = ReportDataStore.GetItemsAsync(forceRefresh).GroupBy(i => i.Date).OrderBy(i => i.Key);
+            var subject = Guid.TryParse(FilterSubject, out var subjectId)
+                ? await SubjectDataStore.GetItemAsync(subjectId)
+                : null;
+
+            if (!DateOnly.TryParse(FilterMinDate, out DateOnly minDate))
+            {
+                minDate = DateOnly.MinValue;
+            }
+            if (!DateOnly.TryParse(FilterMaxDate, out DateOnly maxDate))
+            {
+                maxDate = DateOnly.MaxValue;
+            }
+
             Items.Clear();
             await foreach (var item in items)
             {
-                Items.Add(new ReportGroup(item.Key, await item.Select(i => new ReportViewModel(i)).ToArrayAsync()));
+                if (minDate <= item.Key && item.Key <= maxDate)
+                {
+                    IAsyncEnumerable<Report> enumerable = item;
+
+                    if (FilterState.HasValue)
+                    {
+                        enumerable = enumerable.Where(i => i.IsSubmitted == FilterState.Value);
+                    }
+
+                    if (subject != null)
+                    {
+                        enumerable = enumerable.Where(i => i.Subject.Id == subject.Id);
+                    }
+
+                    Items.Add(new ReportGroup(item.Key, await enumerable
+                        .OrderBy(i => i.Subject.SubjectName)
+                        .ThenBy(i => i.Name)
+                        .Select(i => new ReportViewModel(i))
+                        .ToArrayAsync()));
+                }
             }
 
             tcs.SetResult();
@@ -219,7 +259,6 @@ public class ReportsViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
-            isLoading = false;
         }
     }
 }
