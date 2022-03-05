@@ -243,7 +243,8 @@ public class ReportsViewModel : BaseViewModel
                     }
 
                     Items.Add(new ReportGroup(item.Key, await enumerable
-                        .OrderBy(i => i.Subject.SubjectName)
+                        .OrderBy(i => (int)i.State)
+                        .ThenBy(i => i.Subject.SubjectName)
                         .ThenBy(i => i.Name)
                         .Select(i => new ReportViewModel(i))
                         .ToArrayAsync()));

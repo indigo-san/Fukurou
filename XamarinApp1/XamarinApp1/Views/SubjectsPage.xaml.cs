@@ -26,8 +26,12 @@ public partial class SubjectsPage : ContentPage
     {
         if (BindingContext is SubjectsViewModel vm)
         {
-            var name = await MaterialDialog.Instance.InputAsync("新しい教科の名前を入力", "新しい教科");
-            if (name.Length != 0 && string.IsNullOrWhiteSpace(name))
+            var name = await DisplayPromptAsync("新しい教科", "新しい教科の名前を入力");
+            if (name == null)
+            {
+                return;
+            }
+            else if (string.IsNullOrWhiteSpace(name))
             {
                 await MaterialDialog.Instance.AlertAsync("教科の名前に空白を指定することはできません", "新しい教科");
             }

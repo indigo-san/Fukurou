@@ -44,7 +44,35 @@ public class SubjectDetailViewModel : BaseViewModel
 
     public ReactiveCommand Delete { get; } = new();
 
-    //public ObservableCollection<Report> Reports { get; } = new();
+    public ReactivePropertySlim<float> SubmissionRate { get; } = new();
+
+    public ReactivePropertySlim<float> ExpirationRate { get; } = new();
+
+    public ReactivePropertySlim<string> SubmissionRateText { get; } = new();
+
+    public ReactivePropertySlim<string> ExpirationRateText { get; } = new();
+
+    public ReactivePropertySlim<int> SubmissionCount { get; } = new();
+
+    public ReactivePropertySlim<int> NonSubmissionCount { get; } = new();
+
+    public ReactivePropertySlim<int> ExpirationCount { get; } = new();
+
+    public ReactivePropertySlim<int> ReportsCount { get; } = new();
+
+    public ReactivePropertySlim<float> AttendanceRate { get; } = new();
+
+    public ReactivePropertySlim<float> AbsenceRate { get; } = new();
+
+    public ReactivePropertySlim<string> AttendanceRateText { get; } = new();
+
+    public ReactivePropertySlim<string> AbsenceRateText { get; } = new();
+
+    public ReactivePropertySlim<int> AttendanceCount { get; } = new();
+
+    public ReactivePropertySlim<int> AbsenceCount { get; } = new();
+
+    public ReactivePropertySlim<int> LessonsCount { get; } = new();
 
     public ValueTask RefreshTask { get; private set; }
 
@@ -83,6 +111,46 @@ public class SubjectDetailViewModel : BaseViewModel
         try
         {
             Subject.Value = await SubjectDataStore.GetItemAsync(Guid.Parse(itemId));
+
+            // この教科のレポート
+            var reports = await ReportDataStore.GetItemsAsync().Where(i => i.Subject.Id == Subject.Value.Id)
+                .ToArrayAsync();
+
+            // 提出数、未提出数、期限切れ数、レポート数
+            SubmissionCount.Value = reports.Count(i => i.IsSubmitted);
+            NonSubmissionCount.Value = reports.Count(i => i.IsNotSubmitted);
+            ExpirationCount.Value = reports.Count(i => i.IsExpirationOfTerm);
+            ReportsCount.Value = reports.Length;
+
+            // 提出率
+            SubmissionRate.Value = reports.Length == 0
+                ? 0 : (float)SubmissionCount.Value / reports.Length;
+            SubmissionRateText.Value = SubmissionRate.Value.ToString("P1");
+
+            // 期限切れ率
+            ExpirationRate.Value = reports.Length == 0
+                ? 0 : (float)ExpirationCount.Value / reports.Length;
+            ExpirationRateText.Value = ExpirationRate.Value.ToString("P1");
+
+            // この教科の授業
+            var lessons = await LessonDataStore.GetItemsAsync().Where(i => i.Subject.Id == Subject.Value.Id)
+                .ToArrayAsync();
+
+            // 出席数、欠席数、授業数
+            AttendanceCount.Value = lessons.Count(i => i.State == LessonState.Attend);
+            AbsenceCount.Value = lessons.Count(i => i.State == LessonState.Absent);
+            LessonsCount.Value = lessons.Length;
+
+            // 出席率
+            AttendanceRate.Value = lessons.Length == 0
+                ? 0 : (float)AttendanceCount.Value / lessons.Length;
+            AttendanceRateText.Value = AttendanceRate.Value.ToString("P1");
+
+            // 欠席率
+            AbsenceRate.Value = lessons.Length == 0
+                ? 0 : (float)AbsenceCount.Value / lessons.Length;
+            AbsenceRateText.Value = AbsenceRate.Value.ToString("P1");
+
             tcs.SetResult();
         }
         catch (Exception ex)

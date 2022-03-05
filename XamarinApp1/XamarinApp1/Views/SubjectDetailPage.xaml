@@ -66,6 +66,287 @@
                         </StackLayout>
                     </Grid>
                 </material:MaterialCard>
+
+                <material:MaterialCard
+                    Padding="16"
+                    Clicked="ReportScore_Clicked"
+                    CornerRadius="24"
+                    IsClickable="True">
+                    <Grid RowDefinitions="Auto,Auto,Auto">
+                        <Label FontSize="Body" Text="レポートスコア" />
+
+                        <Image x:Name="ReportScoreChevron" HorizontalOptions="End">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="{DynamicResource MaterialFontFamily}"
+                                    Glyph="&#xF0140;"
+                                    Size="24" />
+                            </Image.Source>
+                        </Image>
+
+                        <xct:Expander
+                            x:Name="ReportScoreExpander"
+                            Grid.Row="1"
+                            Margin="0,4">
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Large"
+                                        Text="提出率" />
+
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Large"
+                                        HorizontalOptions="End"
+                                        Text="{Binding SubmissionRateText.Value}" />
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <Grid
+                                Margin="0,4"
+                                RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                                RowSpacing="8">
+                                <Grid.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="TextColor" Value="LightGray" />
+                                    </Style>
+                                </Grid.Resources>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="期限切れ率" />
+
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding ExpirationRateText.Value}" />
+
+                                <Label
+                                    Grid.Row="1"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="提出数" />
+
+                                <Label
+                                    Grid.Row="1"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding SubmissionCount.Value}" />
+
+                                <Label
+                                    Grid.Row="2"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="未提出数" />
+
+                                <Label
+                                    Grid.Row="2"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding NonSubmissionCount.Value}" />
+
+                                <Label
+                                    Grid.Row="3"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="期限切れ数" />
+
+                                <Label
+                                    Grid.Row="3"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding ExpirationCount.Value}" />
+
+                                <Label
+                                    Grid.Row="4"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="レポート総数" />
+
+                                <Label
+                                    Grid.Row="4"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding ReportsCount.Value}" />
+                            </Grid>
+                        </xct:Expander>
+                        <Grid Grid.Row="2">
+                            <Rectangle
+                                x:Name="SubmissionBase"
+                                HeightRequest="6"
+                                HorizontalOptions="FillAndExpand"
+                                RadiusX="3"
+                                RadiusY="3">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="Gray" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <AbsoluteLayout>
+                                <Rectangle
+                                    x:Name="ExpirationRate"
+                                    HeightRequest="6"
+                                    HorizontalOptions="Start"
+                                    RadiusX="3"
+                                    RadiusY="3">
+                                    <Rectangle.Fill>
+                                        <SolidColorBrush Color="#ff6d00" />
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <Rectangle
+                                    x:Name="SubmissionRate"
+                                    HeightRequest="6"
+                                    HorizontalOptions="Start"
+                                    RadiusX="3"
+                                    RadiusY="3">
+                                    <Rectangle.Fill>
+                                        <SolidColorBrush Color="#00c853" />
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                            </AbsoluteLayout>
+                        </Grid>
+                    </Grid>
+                </material:MaterialCard>
+
+                <material:MaterialCard
+                    Padding="16"
+                    Clicked="LessonScore_Clicked"
+                    CornerRadius="24"
+                    IsClickable="True">
+                    <Grid RowDefinitions="Auto,Auto,Auto">
+                        <Label FontSize="Body" Text="授業スコア" />
+
+                        <Image x:Name="LessonScoreChevron" HorizontalOptions="End">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="{DynamicResource MaterialFontFamily}"
+                                    Glyph="&#xF0140;"
+                                    Size="24" />
+                            </Image.Source>
+                        </Image>
+
+                        <xct:Expander
+                            x:Name="LessonScoreExpander"
+                            Grid.Row="1"
+                            Margin="0,4">
+                            <xct:Expander.Header>
+                                <Grid>
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Large"
+                                        Text="出席率" />
+
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="Large"
+                                        HorizontalOptions="End"
+                                        Text="{Binding AttendanceRateText.Value}" />
+                                </Grid>
+                            </xct:Expander.Header>
+
+                            <Grid
+                                Margin="0,4"
+                                RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                                RowSpacing="8">
+                                <Grid.Resources>
+                                    <Style TargetType="Label">
+                                        <Setter Property="TextColor" Value="LightGray" />
+                                    </Style>
+                                </Grid.Resources>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="欠席率" />
+
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding AbsenceRateText.Value}" />
+
+                                <Label
+                                    Grid.Row="1"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="出席数" />
+
+                                <Label
+                                    Grid.Row="1"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding AttendanceCount.Value}" />
+
+                                <Label
+                                    Grid.Row="2"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="欠席数" />
+
+                                <Label
+                                    Grid.Row="2"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding AbsenceCount.Value}" />
+
+                                <Label
+                                    Grid.Row="3"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    Text="授業数" />
+
+                                <Label
+                                    Grid.Row="3"
+                                    FontAttributes="Bold"
+                                    FontSize="Body"
+                                    HorizontalOptions="End"
+                                    Text="{Binding LessonsCount.Value}" />
+                            </Grid>
+                        </xct:Expander>
+                        <Grid Grid.Row="2">
+                            <Rectangle
+                                x:Name="AttendanceBase"
+                                HeightRequest="6"
+                                HorizontalOptions="FillAndExpand"
+                                RadiusX="3"
+                                RadiusY="3">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="Gray" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <AbsoluteLayout>
+                                <Rectangle
+                                    x:Name="AbsenceRate"
+                                    HeightRequest="6"
+                                    HorizontalOptions="Start"
+                                    RadiusX="3"
+                                    RadiusY="3">
+                                    <Rectangle.Fill>
+                                        <SolidColorBrush Color="#ff6d00" />
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <Rectangle
+                                    x:Name="AttendanceRate"
+                                    HeightRequest="6"
+                                    HorizontalOptions="Start"
+                                    RadiusX="3"
+                                    RadiusY="3">
+                                    <Rectangle.Fill>
+                                        <SolidColorBrush Color="#00c853" />
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                            </AbsoluteLayout>
+                        </Grid>
+                    </Grid>
+                </material:MaterialCard>
             </StackLayout>
         </ScrollView>
     </RefreshView>
