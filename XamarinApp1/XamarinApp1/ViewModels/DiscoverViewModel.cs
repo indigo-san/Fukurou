@@ -83,7 +83,7 @@ public class DiscoverViewModel : BaseViewModel
 
             // Reports
             var nowDateOnly = DateOnly.FromDateTime(DateTime.Now);
-            var reports = ReportDataStore.GetItemsAsync(forceRefresh).Where(item => item.IsNotSubmitted).OrderBy(item => item.Date).Take(3);
+            var reports = ReportDataStore.GetItemsAsync(forceRefresh).Where(item => item.IsNotSubmitted && !item.IsArchived).OrderBy(item => item.Date).Take(3);
             Reports.Clear();
             await foreach (var item in reports)
             {

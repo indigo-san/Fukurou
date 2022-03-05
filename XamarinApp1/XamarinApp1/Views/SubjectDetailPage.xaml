@@ -67,6 +67,22 @@
                     </Grid>
                 </material:MaterialCard>
 
+                <material:MaterialCard Padding="16" CornerRadius="24">
+                    <StackLayout Spacing="8">
+                        <Label FontSize="Body" Text="必要な出席数" />
+
+                        <Entry
+                            x:Name="RequiredAttendanceEntry"
+                            Placeholder="-1で未指定、-2で全ての授業に出席"
+                            Text="{Binding Subject.Value.RequiredAttendance, Mode=OneWay}"
+                            Unfocused="RequiredAttendanceEntry_Unfocused">
+                            <Entry.Effects>
+                                <xct:RemoveBorderEffect />
+                            </Entry.Effects>
+                        </Entry>
+                    </StackLayout>
+                </material:MaterialCard>
+
                 <material:MaterialCard
                     Padding="16"
                     Clicked="ReportScore_Clicked"
@@ -311,18 +327,18 @@
                             </Grid>
                         </xct:Expander>
                         <Grid Grid.Row="2">
-                            <Rectangle
-                                x:Name="AttendanceBase"
-                                HeightRequest="6"
-                                HorizontalOptions="FillAndExpand"
-                                RadiusX="3"
-                                RadiusY="3">
-                                <Rectangle.Fill>
-                                    <SolidColorBrush Color="Gray" />
-                                </Rectangle.Fill>
-                            </Rectangle>
+                            <Grid HorizontalOptions="Fill" VerticalOptions="Center">
+                                <Rectangle
+                                    x:Name="AttendanceBase"
+                                    HeightRequest="6"
+                                    HorizontalOptions="FillAndExpand"
+                                    RadiusX="3"
+                                    RadiusY="3">
+                                    <Rectangle.Fill>
+                                        <SolidColorBrush Color="Gray" />
+                                    </Rectangle.Fill>
+                                </Rectangle>
 
-                            <AbsoluteLayout>
                                 <Rectangle
                                     x:Name="AbsenceRate"
                                     HeightRequest="6"
@@ -343,7 +359,21 @@
                                         <SolidColorBrush Color="#00c853" />
                                     </Rectangle.Fill>
                                 </Rectangle>
-                            </AbsoluteLayout>
+                            </Grid>
+
+                            <Rectangle
+                                x:Name="RequiredAttendBar"
+                                Margin="-2,0,0,0"
+                                HeightRequest="12"
+                                HorizontalOptions="Start"
+                                IsVisible="{Binding IsVisiableRequiredAttendance.Value}"
+                                RadiusX="3"
+                                RadiusY="3"
+                                WidthRequest="4">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="White" />
+                                </Rectangle.Fill>
+                            </Rectangle>
                         </Grid>
                     </Grid>
                 </material:MaterialCard>

@@ -100,7 +100,12 @@ public partial class ReportsPage : ContentPage
 
             if (viewModel.FilterState.HasValue)
             {
-                dialogViewModel.ReportState.Value = viewModel.FilterState.Value ? 0 : 1;
+                dialogViewModel.ReportState.Value = viewModel.FilterState.Value ? 1 : 2;
+            }
+            
+            if (viewModel.FilterArchive.HasValue)
+            {
+                dialogViewModel.ArchiveMode.Value = viewModel.FilterArchive.Value ? 2 : 1;
             }
 
             if (DateOnly.TryParse(viewModel.FilterMinDate, out DateOnly minDate))
@@ -156,6 +161,13 @@ public partial class ReportsPage : ContentPage
                 {
                     1 => true,
                     2 => false,
+                    _ => null
+                };
+                
+                viewModel.FilterArchive = dialogViewModel.ArchiveMode.Value switch
+                {
+                    1 => false,
+                    2 => true,
                     _ => null
                 };
 

@@ -50,6 +50,17 @@
                     Size="24" />
             </local:BindableToolbarItem.IconImageSource>
         </local:BindableToolbarItem>
+        <local:BindableToolbarItem
+            Command="{Binding Archive}"
+            IsVisible="{Binding IsEditing.Value}"
+            Text="アーカイブ">
+            <local:BindableToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{DynamicResource MaterialFontFamily}"
+                    Glyph="&#xF125A;"
+                    Size="24" />
+            </local:BindableToolbarItem.IconImageSource>
+        </local:BindableToolbarItem>
     </ContentPage.ToolbarItems>
     <ContentPage.Resources>
         <Color x:Key="GroupColor">#102027</Color>

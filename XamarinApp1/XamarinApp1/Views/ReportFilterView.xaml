@@ -19,6 +19,10 @@
             ItemsSource="{Binding Subjects}"
             SelectedItem="{Binding SelectedSubject.Value}" />
 
+        <Label Text="アーカイブ" />
+
+        <Picker x:Name="ArchiveStates" SelectedIndex="{Binding ArchiveMode.Value}" />
+
         <Label Text="状態" />
 
         <Picker x:Name="ReportStates" SelectedIndex="{Binding ReportState.Value}" />

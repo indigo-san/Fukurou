@@ -31,6 +31,10 @@ public class ReportFilterViewModel : BaseViewModel
     
     public ReactivePropertySlim<Subject> SelectedSubject { get; } = new();
 
+    public ReactivePropertySlim<int> ArchiveMode { get; } = new();
+
+    public ReactivePropertySlim<bool> IsArchiveModeEnabled { get; } = new();
+
     public ReactivePropertySlim<int> ReportState { get; } = new();
 
     public ReactivePropertySlim<bool> IsMinDateEnabled { get; } = new();

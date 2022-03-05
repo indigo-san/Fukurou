@@ -7,16 +7,12 @@ using Xamarin.Forms;
 
 namespace XamarinApp1.Models;
 
-public record Subject(string SubjectName, Guid Id, Color Color);
+public record Subject(string SubjectName, Guid Id, Color Color, int RequiredAttendance = -1);
 
-public record Teacher(string Name, Subject[] Subjects, Guid Id);
-
-public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly End, Guid Id, LessonState State = LessonState.None)
+public record Lesson(Subject Subject, DateOnly Date, TimeOnly Start, TimeOnly End, Guid Id, LessonState State = LessonState.None, bool IsArchived = false)
 {
-    public Teacher[] Teachers { get; init; } = Array.Empty<Teacher>();
-
     public string Room { get; init; } = string.Empty;
-    
+
     public string Memo { get; init; } = string.Empty;
 
     [JsonIgnore]
@@ -107,7 +103,7 @@ public enum ReportState
     NotSubmitted
 }
 
-public record Report(Subject Subject, DateOnly Date, string Name, Guid Id, ReportState State)
+public record Report(Subject Subject, DateOnly Date, string Name, Guid Id, ReportState State, bool IsArchived = false)
 {
     [JsonIgnore]
     public bool IsSubmitted => State == ReportState.Submitted;

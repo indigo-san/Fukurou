@@ -3,9 +3,7 @@
     x:Class="XamarinApp1.Views.SchoolDayDetailPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:androidWidget="clr-namespace:Android.Widget;assembly=Mono.Android;targetPlatform=Android"
-    xmlns:cardView="clr-namespace:AndroidX.CardView.Widget;assembly=Xamarin.AndroidX.CardView;targetPlatform=Android"
-    xmlns:formsandroid="clr-namespace:Xamarin.Forms;assembly=Xamarin.Forms.Platform.Android;targetPlatform=Android"
+    xmlns:local="clr-namespace:XamarinApp1.Views"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
     xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
     <ContentPage.BindingContext>
@@ -154,6 +152,18 @@
                                                         </DataTrigger>
                                                     </Ellipse.Triggers>
                                                 </Ellipse>
+
+                                                <Label
+                                                    Grid.Column="4"
+                                                    Margin="0,1,0,0"
+                                                    FontFamily="{DynamicResource MaterialFontFamily}"
+                                                    FontSize="16"
+                                                    HorizontalOptions="Center"
+                                                    HorizontalTextAlignment="Center"
+                                                    IsVisible="{Binding IsArchived}"
+                                                    Text="&#xF120E;"
+                                                    VerticalOptions="Center"
+                                                    VerticalTextAlignment="Center" />
                                             </Grid>
                                         </ViewCell>
                                     </DataTemplate>
@@ -206,21 +216,30 @@
                                         <ViewCell>
                                             <Grid Margin="16" ColumnDefinitions="Auto,*,Auto">
                                                 <StackLayout>
-                                                    <Label
-                                                        Margin="8,0"
-                                                        FontAttributes="Bold"
-                                                        FontSize="Body"
-                                                        Text="{Binding Name}"
-                                                        VerticalOptions="Center">
-                                                        <Label.Triggers>
-                                                            <DataTrigger
-                                                                Binding="{Binding IsExpirationOfTerm}"
-                                                                TargetType="Label"
-                                                                Value="True">
-                                                                <Setter Property="TextColor" Value="#ff6d00" />
-                                                            </DataTrigger>
-                                                        </Label.Triggers>
-                                                    </Label>
+                                                    <StackLayout Margin="8,0" Orientation="Horizontal">
+                                                        <Label
+                                                            FontAttributes="Bold"
+                                                            FontSize="Body"
+                                                            Text="{Binding Name}"
+                                                            VerticalOptions="Center">
+                                                            <Label.Triggers>
+                                                                <DataTrigger
+                                                                    Binding="{Binding IsExpirationOfTerm}"
+                                                                    TargetType="Label"
+                                                                    Value="True">
+                                                                    <Setter Property="TextColor" Value="#ff6d00" />
+                                                                </DataTrigger>
+                                                            </Label.Triggers>
+                                                        </Label>
+
+                                                        <Label
+                                                            Margin="0,1,0,0"
+                                                            FontFamily="{DynamicResource MaterialFontFamily}"
+                                                            FontSize="16"
+                                                            IsVisible="{Binding IsArchived}"
+                                                            Text="&#xF120E;"
+                                                            VerticalOptions="Center" />
+                                                    </StackLayout>
                                                     <Label
                                                         Margin="8,0"
                                                         FontSize="Micro"

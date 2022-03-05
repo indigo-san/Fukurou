@@ -4,6 +4,7 @@ using System;
 
 using Xamarin.Forms;
 
+using XamarinApp1.Models;
 using XamarinApp1.ViewModels;
 
 using XF.Material.Forms.UI.Dialogs;
@@ -16,6 +17,7 @@ public partial class SubjectDetailPage : ContentPage
     private IDisposable disposable2;
     private IDisposable disposable3;
     private IDisposable disposable4;
+    private IDisposable disposable5;
 
     public SubjectDetailPage()
     {
@@ -54,12 +56,13 @@ public partial class SubjectDetailPage : ContentPage
             disposable2?.Dispose();
             disposable3?.Dispose();
             disposable4?.Dispose();
+            disposable5?.Dispose();
 
             disposable1 = viewModel.SubmissionRate.Subscribe(_ =>
             {
                 Dispatcher.BeginInvokeOnMainThread(() =>
                 {
-                    UpdateSize();
+                    UpdateReportRate();
                 });
             });
 
@@ -67,7 +70,7 @@ public partial class SubjectDetailPage : ContentPage
             {
                 Dispatcher.BeginInvokeOnMainThread(() =>
                 {
-                    UpdateSize();
+                    UpdateReportRate();
                 });
             });
 
@@ -75,7 +78,7 @@ public partial class SubjectDetailPage : ContentPage
             {
                 Dispatcher.BeginInvokeOnMainThread(() =>
                 {
-                    UpdateSize();
+                    UpdateLessonRate();
                 });
             });
 
@@ -83,7 +86,15 @@ public partial class SubjectDetailPage : ContentPage
             {
                 Dispatcher.BeginInvokeOnMainThread(() =>
                 {
-                    UpdateSize();
+                    UpdateLessonRate();
+                });
+            });
+
+            disposable5 = viewModel.RequiredAttendanceRate.Subscribe(_ =>
+            {
+                Dispatcher.BeginInvokeOnMainThread(() =>
+                {
+                    UpdateRequiredAttendRate();
                 });
             });
         }
@@ -91,10 +102,13 @@ public partial class SubjectDetailPage : ContentPage
 
     private void SubjectDetailPage_SizeChanged(object sender, EventArgs e)
     {
-        UpdateSize();
+        UpdateReportRate();
+        UpdateLessonRate();
+        UpdateRequiredAttendRate();
+        SizeChanged -= SubjectDetailPage_SizeChanged;
     }
 
-    private async void UpdateSize()
+    private async void UpdateReportRate()
     {
         if (BindingContext is SubjectDetailViewModel viewModel)
         {
@@ -102,10 +116,26 @@ public partial class SubjectDetailPage : ContentPage
             SubmissionRate.WidthRequest = SubmissionBase.Width * viewModel.SubmissionRate.Value;
             ExpirationRate.WidthRequest = SubmissionBase.Width * viewModel.ExpirationRate.Value;
             ExpirationRate.WidthRequest += SubmissionRate.WidthRequest;
-
+        }
+    }
+    
+    private async void UpdateLessonRate()
+    {
+        if (BindingContext is SubjectDetailViewModel viewModel)
+        {
+            await viewModel.RefreshTask;
             AttendanceRate.WidthRequest = AttendanceBase.Width * viewModel.AttendanceRate.Value;
             AbsenceRate.WidthRequest = AttendanceBase.Width * viewModel.AbsenceRate.Value;
             AbsenceRate.WidthRequest += AttendanceRate.WidthRequest;
+        }
+    }
+    
+    private async void UpdateRequiredAttendRate()
+    {
+        if (BindingContext is SubjectDetailViewModel viewModel)
+        {
+            await viewModel.RefreshTask;
+            RequiredAttendBar.TranslationX = AttendanceBase.Width * viewModel.RequiredAttendanceRate.Value;
         }
     }
 
@@ -141,5 +171,14 @@ public partial class SubjectDetailPage : ContentPage
     private void LessonScore_Clicked(object sender, EventArgs e)
     {
         LessonScoreExpander.IsExpanded = !LessonScoreExpander.IsExpanded;
+    }
+
+    private void RequiredAttendanceEntry_Unfocused(object sender, FocusEventArgs e)
+    {
+        if (BindingContext is SubjectDetailViewModel vm &&
+            int.TryParse(RequiredAttendanceEntry.Text, out int num))
+        {
+            vm.UpdateRequiredATT(num);
+        }
     }
 }

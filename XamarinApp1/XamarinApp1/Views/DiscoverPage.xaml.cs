@@ -84,6 +84,7 @@ namespace XamarinApp1.Views
 
         private void Settings_Clicked(object sender, EventArgs e)
         {
+            Shell.Current.GoToAsync(nameof(SettingsPage));
         }
 
         private void Menu_Clicked(object sender, EventArgs e)

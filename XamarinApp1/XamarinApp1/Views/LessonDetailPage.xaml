@@ -3,6 +3,7 @@
     x:Class="XamarinApp1.Views.LessonDetailPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:XamarinApp1.Views"
     xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
     xmlns:vm="clr-namespace:XamarinApp1.ViewModels"
     xmlns:xct="http://xamarin.com/schemas/2020/toolkit">
@@ -18,6 +19,39 @@
                     Size="24" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
+        <local:BindableToolbarItem
+            Command="{Binding Delete}"
+            IsVisible="{Binding IsEditing.Value}"
+            Text="削除">
+            <local:BindableToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{DynamicResource MaterialFontFamily}"
+                    Glyph="&#xF09E7;"
+                    Size="24" />
+            </local:BindableToolbarItem.IconImageSource>
+        </local:BindableToolbarItem>
+        <local:BindableToolbarItem
+            Command="{Binding MarkAsArchived}"
+            IsVisible="{Binding Lesson.Value.IsArchived, Converter={StaticResource InvertedBoolConverter}}"
+            Text="アーカイブ">
+            <local:BindableToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF125A;"
+                    Size="24" />
+            </local:BindableToolbarItem.IconImageSource>
+        </local:BindableToolbarItem>
+        <local:BindableToolbarItem
+            Command="{Binding MarkAsNotArchived}"
+            IsVisible="{Binding Lesson.Value.IsArchived}"
+            Text="アーカイブから取り出す">
+            <local:BindableToolbarItem.IconImageSource>
+                <FontImageSource
+                    FontFamily="{StaticResource MaterialFontFamily}"
+                    Glyph="&#xF125C;"
+                    Size="24" />
+            </local:BindableToolbarItem.IconImageSource>
+        </local:BindableToolbarItem>
     </ContentPage.ToolbarItems>
     <RefreshView Command="{Binding Refresh}" IsRefreshing="{Binding IsBusy}">
         <ScrollView>

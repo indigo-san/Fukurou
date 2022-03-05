@@ -19,6 +19,7 @@ namespace XamarinApp1.ViewModels;
 [QueryProperty(nameof(Reload), nameof(Reload))]
 [QueryProperty(nameof(FilterSubject), nameof(FilterSubject))]
 [QueryProperty(nameof(FilterState), nameof(FilterState))]
+[QueryProperty(nameof(FilterArchive), nameof(FilterArchive))]
 [QueryProperty(nameof(FilterMinDate), nameof(FilterMinDate))]
 [QueryProperty(nameof(FilterMaxDate), nameof(FilterMaxDate))]
 public class ReportsViewModel : BaseViewModel
@@ -56,6 +57,8 @@ public class ReportsViewModel : BaseViewModel
 
         Delete.Subscribe(OnDeleteItems);
 
+        Archive.Subscribe(OnArchiveItems);
+
         OnBackCommand.Subscribe(OnBack);
 
         LoadItems(false);
@@ -76,6 +79,8 @@ public class ReportsViewModel : BaseViewModel
 
     public bool? FilterState { get; set; }
 
+    public bool? FilterArchive { get; set; } = false;
+
     public string FilterMinDate { get; set; }
 
     public string FilterMaxDate { get; set; }
@@ -93,6 +98,8 @@ public class ReportsViewModel : BaseViewModel
     public ReactiveCommand OnBackCommand { get; } = new();
 
     public ReactiveCommand Delete { get; } = new();
+
+    public ReactiveCommand Archive { get; } = new();
 
     public ObservableCollection<ReportGroup> Items { get; } = new();
 
@@ -123,6 +130,31 @@ public class ReportsViewModel : BaseViewModel
         }
 
         source.IsChecked.Value = true;
+    }
+
+    private async void OnArchiveItems()
+    {
+        if (IsEditing.Value)
+        {
+            for (int i = 0; i < Items.Count; i++)
+            {
+                var group = Items[i];
+                for (int ii = 0; ii < group.Count; ii++)
+                {
+                    var item = group[ii];
+                    if (item.IsChecked.Value)
+                    {
+                        await ReportDataStore.UpdateItemAsync(item.Item with
+                        {
+                            IsArchived = true
+                        });
+                    }
+                }
+            }
+
+            IsEditing.Value = false;
+            LoadItems(false);
+        }
     }
 
     private async void OnDeleteItems()
@@ -237,17 +269,27 @@ public class ReportsViewModel : BaseViewModel
                         enumerable = enumerable.Where(i => i.IsSubmitted == FilterState.Value);
                     }
 
+                    if (FilterArchive.HasValue)
+                    {
+                        enumerable = enumerable.Where(i => i.IsArchived == FilterArchive.Value);
+                    }
+
                     if (subject != null)
                     {
                         enumerable = enumerable.Where(i => i.Subject.Id == subject.Id);
                     }
 
-                    Items.Add(new ReportGroup(item.Key, await enumerable
+                    var array = await enumerable
                         .OrderBy(i => (int)i.State)
                         .ThenBy(i => i.Subject.SubjectName)
                         .ThenBy(i => i.Name)
                         .Select(i => new ReportViewModel(i))
-                        .ToArrayAsync()));
+                        .ToArrayAsync();
+
+                    if (array.Length > 0)
+                    {
+                        Items.Add(new ReportGroup(item.Key, array));
+                    }
                 }
             }
 

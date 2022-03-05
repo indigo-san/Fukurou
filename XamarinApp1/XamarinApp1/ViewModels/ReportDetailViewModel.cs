@@ -54,6 +54,30 @@ public class ReportDetailViewModel : BaseViewModel
             }
         });
 
+        MarkAsArchived.Subscribe(async () =>
+        {
+            if (Report.Value != null)
+            {
+                Report.Value = Report.Value with
+                {
+                    IsArchived = true
+                };
+                await ReportDataStore.UpdateItemAsync(Report.Value);
+            }
+        });
+
+        MarkAsNotArchived.Subscribe(async () =>
+        {
+            if (Report.Value != null)
+            {
+                Report.Value = Report.Value with
+                {
+                    IsArchived = false
+                };
+                await ReportDataStore.UpdateItemAsync(Report.Value);
+            }
+        });
+
         var canSave = SelectedSubject.CombineLatest(Name).Select(t => t.First != null && !string.IsNullOrWhiteSpace(t.Second));
         Save = new ReactiveCommand(canSave);
         Save.Subscribe(async () =>
@@ -166,6 +190,10 @@ public class ReportDetailViewModel : BaseViewModel
     public ReactiveCommand MarkAsSubmitted { get; } = new();
 
     public ReactiveCommand MarkAsNotSubmitted { get; } = new();
+
+    public ReactiveCommand MarkAsArchived { get; } = new();
+
+    public ReactiveCommand MarkAsNotArchived { get; } = new();
 
     public ReactivePropertySlim<Report> Report { get; } = new();
 

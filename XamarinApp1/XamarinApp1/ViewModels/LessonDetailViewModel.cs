@@ -66,6 +66,30 @@ public class LessonDetailViewModel : BaseViewModel
             }
         });
 
+        MarkAsArchived.Subscribe(async () =>
+        {
+            if (Lesson.Value != null)
+            {
+                Lesson.Value = Lesson.Value with
+                {
+                    IsArchived = true
+                };
+                await LessonDataStore.UpdateItemAsync(Lesson.Value);
+            }
+        });
+
+        MarkAsNotArchived.Subscribe(async () =>
+        {
+            if (Lesson.Value != null)
+            {
+                Lesson.Value = Lesson.Value with
+                {
+                    IsArchived = false
+                };
+                await LessonDataStore.UpdateItemAsync(Lesson.Value);
+            }
+        });
+
         Task.Run(async () =>
         {
             IsBusy = true;
@@ -94,6 +118,10 @@ public class LessonDetailViewModel : BaseViewModel
     public ReactiveCommand Refresh { get; } = new();
     
     public ReactiveCommand Delete { get; } = new();
+
+    public ReactiveCommand MarkAsArchived { get; } = new();
+
+    public ReactiveCommand MarkAsNotArchived { get; } = new();
 
     public ReactivePropertySlim<Lesson> Lesson { get; } = new();
 

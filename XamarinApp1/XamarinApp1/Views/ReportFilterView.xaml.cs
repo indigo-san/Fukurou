@@ -20,5 +20,11 @@ public partial class ReportFilterView : ContentView
             "提出済み",
             "未提出",
         };
+        ArchiveStates.ItemsSource = new string[]
+        {
+            "全て",
+            "未アーカイブ",
+            "アーカイブ済み",
+        };
     }
 }

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="XamarinApp1.Views.SettingsPage"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:XamarinApp1.Views"
+    xmlns:material="clr-namespace:XF.Material.Forms.UI;assembly=XF.Material"
+    xmlns:vm="clr-namespace:XamarinApp1.ViewModels">
+    <ScrollView>
+        <StackLayout>
+            <material:MaterialCard Clicked="ExportAsJson_Clicked" BackgroundColor="Transparent" IsClickable="True">
+                <StackLayout Orientation="Horizontal" Spacing="16">
+                    <Label StyleClass="IconLabel" Text="&#xF0207;" />
+
+                    <Label
+                        FontSize="Body"
+                        Text="JSONに保存"
+                        VerticalOptions="Center" />
+                </StackLayout>
+            </material:MaterialCard>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

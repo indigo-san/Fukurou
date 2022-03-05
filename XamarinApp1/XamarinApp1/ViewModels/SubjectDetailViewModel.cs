@@ -62,6 +62,10 @@ public class SubjectDetailViewModel : BaseViewModel
 
     public ReactivePropertySlim<float> AttendanceRate { get; } = new();
 
+    public ReactivePropertySlim<bool> IsVisiableRequiredAttendance { get; } = new();
+
+    public ReactivePropertySlim<float> RequiredAttendanceRate { get; } = new();
+
     public ReactivePropertySlim<float> AbsenceRate { get; } = new();
 
     public ReactivePropertySlim<string> AttendanceRateText { get; } = new();
@@ -75,6 +79,20 @@ public class SubjectDetailViewModel : BaseViewModel
     public ReactivePropertySlim<int> LessonsCount { get; } = new();
 
     public ValueTask RefreshTask { get; private set; }
+
+    public async void UpdateRequiredATT(int num)
+    {
+        var value = Subject.Value with
+        {
+            RequiredAttendance = num
+        };
+
+        if (await SubjectDataStore.UpdateItemAsync(value))
+        {
+            Subject.Value = value;
+            SetRequiredAttendance(LessonsCount.Value);
+        }
+    }
 
     public async void UpdateName(string name)
     {
@@ -113,7 +131,7 @@ public class SubjectDetailViewModel : BaseViewModel
             Subject.Value = await SubjectDataStore.GetItemAsync(Guid.Parse(itemId));
 
             // この教科のレポート
-            var reports = await ReportDataStore.GetItemsAsync().Where(i => i.Subject.Id == Subject.Value.Id)
+            var reports = await ReportDataStore.GetItemsAsync().Where(i => i.Subject.Id == Subject.Value.Id && !i.IsArchived)
                 .ToArrayAsync();
 
             // 提出数、未提出数、期限切れ数、レポート数
@@ -133,7 +151,7 @@ public class SubjectDetailViewModel : BaseViewModel
             ExpirationRateText.Value = ExpirationRate.Value.ToString("P1");
 
             // この教科の授業
-            var lessons = await LessonDataStore.GetItemsAsync().Where(i => i.Subject.Id == Subject.Value.Id)
+            var lessons = await LessonDataStore.GetItemsAsync().Where(i => i.Subject.Id == Subject.Value.Id && !i.IsArchived)
                 .ToArrayAsync();
 
             // 出席数、欠席数、授業数
@@ -151,6 +169,9 @@ public class SubjectDetailViewModel : BaseViewModel
                 ? 0 : (float)AbsenceCount.Value / lessons.Length;
             AbsenceRateText.Value = AbsenceRate.Value.ToString("P1");
 
+            // 必要な出席数
+            SetRequiredAttendance(lessons.Length);
+
             tcs.SetResult();
         }
         catch (Exception ex)
@@ -161,6 +182,28 @@ public class SubjectDetailViewModel : BaseViewModel
         finally
         {
             IsBusy = false;
+        }
+    }
+
+    private void SetRequiredAttendance(int lessonsCount)
+    {
+        // 必要な出席数
+        if (Subject.Value.RequiredAttendance == -1 || lessonsCount == 0)
+        {
+            // 未指定
+            RequiredAttendanceRate.Value = 0;
+            IsVisiableRequiredAttendance.Value = false;
+        }
+        else if (Subject.Value.RequiredAttendance <= -2)
+        {
+            // 全て
+            RequiredAttendanceRate.Value = lessonsCount;
+            IsVisiableRequiredAttendance.Value = true;
+        }
+        else
+        {
+            RequiredAttendanceRate.Value = (float)Subject.Value.RequiredAttendance / lessonsCount;
+            IsVisiableRequiredAttendance.Value = true;
         }
     }
 
