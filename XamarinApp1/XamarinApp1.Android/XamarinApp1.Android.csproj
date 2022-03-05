@@ -10,7 +10,7 @@
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidUseAapt2>true</AndroidUseAapt2>
-    <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
+    <AndroidHttpClientHandlerType>Fukurou.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
     <TargetFramework>net6.0-android</TargetFramework>
     <RootNamespace>XamarinApp1.Droid</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
