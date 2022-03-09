@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Fukurou</string>
+
+    <string name="title_activity_gmail">Gmail</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_gmail_menu">Menu</string>
+    <string name="cd_gmail_profile">My profile</string>
+    <string name="cd_create_new_email">Create new email</string>
+    <string name="dashboard">ダッシュボード</string>
+    <string name="lessons">授業</string>
+    <string name="reports">レポート</string>
+</resources>
