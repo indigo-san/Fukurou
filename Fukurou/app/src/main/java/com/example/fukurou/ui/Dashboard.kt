@@ -129,63 +129,46 @@ fun NextCard(navController: NavHostController) {
     if (schoolday == null) {
 
     } else {
-        Card(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            shape = RoundedCornerShape(searchLayoutHeightDp / 2),
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth()
+        SecondaryCardScaffold(
+            title = { Text("次の授業") },
+            action = {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = stringResource(id = R.string.cd_gmail_menu)
+                )
+            },
+            isClickable = true,
+            onClick = {
+                navController.navigate("schoolday-detail/${schoolday.id}")
+            }
         ) {
-            Box(modifier = Modifier
-                .clickable {
-                    navController.navigate("schoolday-detail/${schoolday.id}")
-                }) {
-                Column(
+            Row {
+                DateFormat(schoolday.date)
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .align(Alignment.Bottom)
+                        .fillMaxWidth()
                 ) {
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("次の授業")
-
-                        Icon(
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = stringResource(id = R.string.cd_gmail_menu)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row {
-                        DateFormat(schoolday.date)
-
-                        Spacer(modifier = Modifier.width(16.dp))
+                    var x = 0
+                    for (item in DemoDataProvider.getLessons(schoolday)
+                        .map { DemoDataProvider.getSubject(it.subjectId) }) {
 
                         Box(
                             modifier = Modifier
-                                .align(Alignment.Bottom)
-                                .fillMaxWidth()
-                        ) {
-                            var x = 0
-                            for (item in DemoDataProvider.getLessons(schoolday)
-                                .map { DemoDataProvider.getSubject(it.subjectId) }) {
-
-                                Box(
-                                    modifier = Modifier
-                                        .padding(x.dp, 0.dp, 0.dp, 0.dp)
-                                        .size(24.dp, 24.dp)
-                                        .border(
-                                            2.dp,
-                                            MaterialTheme.colorScheme.onSurface,
-                                            CircleShape
-                                        )
-                                        .background(Color(item.color), shape = CircleShape)
+                                .padding(x.dp, 0.dp, 0.dp, 0.dp)
+                                .size(24.dp, 24.dp)
+                                .border(
+                                    2.dp,
+                                    LocalContentColor.current,
+                                    CircleShape
                                 )
+                                .background(Color(item.color), shape = CircleShape)
+                        )
 
-                                x += 12
-                            }
-                        }
+                        x += 12
                     }
                 }
             }
