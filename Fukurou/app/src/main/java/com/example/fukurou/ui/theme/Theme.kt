@@ -1,12 +1,14 @@
 package com.example.fukurou.ui.theme
 
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 //import androidx.compose.material.MaterialTheme
 //import androidx.compose.material.darkColors
 //import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -68,6 +70,7 @@ private val DarkThemeColors = darkColorScheme(
     inverseSurface = md_theme_dark_inverseSurface,
     inversePrimary = md_theme_dark_inversePrimary,
 )
+
 @Composable
 fun FukurouTheme(
     isDarkTheme: Boolean = isSystemInDarkTheme(),
@@ -86,7 +89,13 @@ fun FukurouTheme(
         else -> LightThemeColors
     }
 
-    AppThemeState.darkTheme = isDarkTheme;
+    AppThemeState.darkTheme = isDarkTheme
+    AppCompatDelegate.setDefaultNightMode(
+        if (isDarkTheme)
+            AppCompatDelegate.MODE_NIGHT_YES
+        else
+            AppCompatDelegate.MODE_NIGHT_NO
+    )
 
     MaterialTheme(
         colorScheme = myColorScheme,

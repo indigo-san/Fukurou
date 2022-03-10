@@ -16,4 +16,8 @@
     <!-- Status bar -->
     <color name="black30">#4D000000</color>
 
+    <color name="colorPrimary">#FF00658d</color>
+    <color name="colorOnPrimary">#FFffffff</color>
+    <color name="colorSurface">#FFfbfcff</color>
+
 </resources>

@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.data.Lesson
@@ -32,6 +33,8 @@ import com.example.fukurou.data.Schoolday
 import com.example.fukurou.ui.DateFormat
 import com.example.fukurou.ui.TimeRange
 import com.example.fukurou.ui.theme.FukurouTheme
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -44,14 +47,14 @@ fun PreviewBody() {
     val scd = DemoDataProvider.getNextSchoolday()
     val selectedIndex = remember { mutableStateOf(0) }
     if (scd != null) {
-        SchooldayDetailBody(scd, selectedIndex)
+        SchooldayDetailBody(scd, selectedIndex, rememberNavController())
     }
 }
 
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
-fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>) {
+fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>, navController: NavHostController) {
     Column {
         NavigationBar(modifier = Modifier.height(48.dp), containerColor = Color.Transparent) {
             NavigationBarItem(
@@ -79,81 +82,62 @@ fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>) {
         DividerItem(modifier = Modifier.height(8.dp))
 
         if (selectedIndex.value == 0) {
-            val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed)
-            val scope = rememberCoroutineScope()
             val selectedLesson = remember { mutableStateOf<Lesson?>(null) }
+            var isRefreshing by remember { mutableStateOf(false) }
+            val refreshState = rememberSwipeRefreshState(isRefreshing);
+
             // 授業
-
-            BackdropScaffold(
-                appBar = {},
-                scaffoldState = scaffoldState,
-                backLayerBackgroundColor = Color.Transparent,
-                frontLayerBackgroundColor = MaterialTheme.colorScheme.background,
-                frontLayerScrimColor = Color.Transparent,
-                headerHeight = 0.dp,
-                peekHeight = 0.dp,
-                stickyFrontLayer = false,
-                backLayerContent = {
-                    LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                        items(DemoDataProvider.getLessons(item)) {
-                            val subject = DemoDataProvider.getSubject(it.subjectId)
-                            Column {
-                                Row(
+            SwipeRefresh(
+                state = refreshState,
+                onRefresh = { isRefreshing = true },
+            ) {
+                LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                    items(DemoDataProvider.getLessons(item)) {
+                        val subject = DemoDataProvider.getSubject(it.subjectId)
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .height(56.dp)
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        navController.navigate("lesson-detail/${it.id}")
+                                    },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
                                     modifier = Modifier
-                                        .height(56.dp)
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            selectedLesson.value = it;
-                                            scope.launch { scaffoldState.conceal() }
-                                        },
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .padding(8.dp, 0.dp)
+                                        .background(
+                                            Color(subject.color),
+                                            shape = CircleShape
+                                        )
+                                        .size(24.dp)
+                                )
+
+                                Text(
+                                    text = subject.name,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+
+                                // 時刻
+                                Row(
+                                    verticalAlignment = Alignment.Bottom,
+                                    horizontalArrangement = Arrangement.End,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(8.dp, 0.dp)
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(8.dp, 0.dp)
-                                            .background(Color(subject.color), shape = CircleShape)
-                                            .size(24.dp)
-                                    )
-
-                                    Text(
-                                        text = subject.name,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-
-                                    // 時刻
-                                    Row(
-                                        verticalAlignment = Alignment.Bottom,
-                                        horizontalArrangement = Arrangement.End,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .padding(8.dp, 0.dp)
-                                    ) {
-                                        TimeRange(start = it.start, end = it.end)
-                                    }
+                                    TimeRange(start = it.start, end = it.end)
                                 }
-
-                                DividerItem()
                             }
-                        }
-                    }
-                },
-                frontLayerContent = {
-                    val lesson = selectedLesson.value
-                    Column(modifier = Modifier.fillMaxHeight()) {
-                        Box(
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .fillMaxWidth()
-                        ) {
-                            Text("授業", modifier = Modifier.padding(16.dp))
-                        }
 
-                        if (lesson != null) {
-                            LessonDetailBody(lesson)
+                            DividerItem()
                         }
                     }
+
+                    isRefreshing = false
                 }
-            )
+            }
 
         } else {
             // レポート
@@ -216,6 +200,6 @@ fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
                 }
             )
         },
-        content = { SchooldayDetailBody(item, selectedIndex) }
+        content = { SchooldayDetailBody(item, selectedIndex, navController) }
     )
 }

@@ -6,11 +6,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.fukurou.timeformatter
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-
-private val timeformatter = DateTimeFormatter.ofPattern("HH:mm")
 @Composable
 fun TimeRange(start: LocalTime, end: LocalTime) {
     Text(

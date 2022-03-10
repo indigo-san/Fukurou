@@ -26,6 +26,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
+import com.example.fukurou.dateformatter
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.LocalDate
@@ -183,7 +184,6 @@ fun DateFormat(date: LocalDate, modifier: Modifier = Modifier) {
         // 日数が31以内
         val sub = date.toEpochDay() - now.toEpochDay()
         val subAbs = abs(sub)
-        val formatter = DateTimeFormatter.ofPattern("MM/dd")
 
         if (subAbs <= 31) {
             // 過去
@@ -198,9 +198,9 @@ fun DateFormat(date: LocalDate, modifier: Modifier = Modifier) {
             }
 
             Spacer(modifier = Modifier.width(16.dp))
-            Text(date.format(formatter), modifier = Modifier.align(Alignment.Bottom))
+            Text(date.format(dateformatter), modifier = Modifier.align(Alignment.Bottom))
         } else {
-            Text(date.format(formatter), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(date.format(dateformatter), fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

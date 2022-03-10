@@ -5,7 +5,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 object DemoDataProvider {
-    val subjects = listOf(
+    val subjects = mutableListOf(
         Subject("教科1", 0, 0xffff1744),
         Subject("教科2", 1, 0xff2962ff),
         Subject("教科3", 2, 0xff00c853),
@@ -13,7 +13,7 @@ object DemoDataProvider {
         Subject("教科5", 4, 0xffffab00),
     )
 
-    val lessons = listOf(
+    val lessons = mutableListOf(
         Lesson(
             date = LocalDate.now().plusDays(0),
             start = LocalTime.of(9, 0),
@@ -86,7 +86,7 @@ object DemoDataProvider {
         ),
     )
 
-    val schooldays = listOf(
+    val schooldays = mutableListOf(
         Schoolday(0, LocalDate.now().plusDays(0)),
         Schoolday(1, LocalDate.now().plusDays(1)),
         Schoolday(2, LocalDate.now().plusDays(2)),
@@ -101,6 +101,10 @@ object DemoDataProvider {
 
     fun getLessons(schoolday: Schoolday): List<Lesson> {
         return lessons.filter { it.date == schoolday.date }
+    }
+
+    fun getLesson(id: Int): Lesson {
+        return lessons.first { it.id == id }
     }
 
     fun getSchoolday(date: LocalDate): Schoolday {
@@ -120,5 +124,12 @@ object DemoDataProvider {
 
     fun getSubject(id: Int): Subject {
         return subjects.first { it.id == id }
+    }
+
+    fun updateLesson(lesson: Lesson) {
+        val index = lessons.indexOfFirst { it.id == lesson.id }
+        if (index >= 0) {
+            lessons[index] = lesson
+        }
     }
 }

@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.fukurou.ui.details.LessonDetailScreen
 import com.example.fukurou.ui.details.SchooldayDetailScreen
 
 @ExperimentalMaterial3Api
@@ -27,6 +28,15 @@ fun FukurouApp() {
             "schoolday-detail/{id}", listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             SchooldayDetailScreen(
+                navController = navController,
+                id = backStackEntry.arguments?.getInt("id") ?: -1
+            )
+        }
+
+        composable(
+            "lesson-detail/{id}", listOf(navArgument("id") { type = NavType.IntType })
+        ) { backStackEntry ->
+            LessonDetailScreen(
                 navController = navController,
                 id = backStackEntry.arguments?.getInt("id") ?: -1
             )
