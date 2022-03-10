@@ -6,10 +6,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BackdropScaffold
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,12 +27,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
+import com.example.fukurou.data.Lesson
 import com.example.fukurou.data.Schoolday
 import com.example.fukurou.ui.DateFormat
+import com.example.fukurou.ui.TimeRange
+import com.example.fukurou.ui.theme.FukurouTheme
+import kotlinx.coroutines.launch
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 @Preview(showBackground = true)
 @Composable
+@ExperimentalMaterialApi
+@ExperimentalMaterial3Api
 fun PreviewBody() {
     val scd = DemoDataProvider.getNextSchoolday()
     val selectedIndex = remember { mutableStateOf(0) }
@@ -36,6 +48,8 @@ fun PreviewBody() {
     }
 }
 
+@ExperimentalMaterial3Api
+@ExperimentalMaterialApi
 @Composable
 fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>) {
     Column {
@@ -65,63 +79,82 @@ fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>) {
         DividerItem(modifier = Modifier.height(8.dp))
 
         if (selectedIndex.value == 0) {
-            val formatter = DateTimeFormatter.ofPattern("HH:mm")
+            val scaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed)
+            val scope = rememberCoroutineScope()
+            val selectedLesson = remember { mutableStateOf<Lesson?>(null) }
             // 授業
-            LazyColumn {
-                items(DemoDataProvider.getLessons(item)) {
-                    val subject = DemoDataProvider.getSubject(it.subjectId)
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .height(56.dp)
-                                .fillMaxWidth()
-                                .clickable {
 
-                                },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(8.dp, 0.dp)
-                                    .background(Color(subject.color), shape = CircleShape)
-                                    .size(24.dp)
-                            )
+            BackdropScaffold(
+                appBar = {},
+                scaffoldState = scaffoldState,
+                backLayerBackgroundColor = Color.Transparent,
+                frontLayerBackgroundColor = MaterialTheme.colorScheme.background,
+                frontLayerScrimColor = Color.Transparent,
+                headerHeight = 0.dp,
+                peekHeight = 0.dp,
+                stickyFrontLayer = false,
+                backLayerContent = {
+                    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                        items(DemoDataProvider.getLessons(item)) {
+                            val subject = DemoDataProvider.getSubject(it.subjectId)
+                            Column {
+                                Row(
+                                    modifier = Modifier
+                                        .height(56.dp)
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            selectedLesson.value = it;
+                                            scope.launch { scaffoldState.conceal() }
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(8.dp, 0.dp)
+                                            .background(Color(subject.color), shape = CircleShape)
+                                            .size(24.dp)
+                                    )
 
-                            Text(
-                                text = subject.name,
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                                    Text(
+                                        text = subject.name,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
 
-                            // 時刻
-                            Row(
-                                verticalAlignment = Alignment.Bottom,
-                                horizontalArrangement = Arrangement.End,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(8.dp, 0.dp)
-                            ) {
-                                Text(
-                                    text = it.start.format(formatter),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
+                                    // 時刻
+                                    Row(
+                                        verticalAlignment = Alignment.Bottom,
+                                        horizontalArrangement = Arrangement.End,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(8.dp, 0.dp)
+                                    ) {
+                                        TimeRange(start = it.start, end = it.end)
+                                    }
+                                }
 
-                                Text(
-                                    "-",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    modifier = Modifier.padding(8.dp, 0.dp)
-                                )
-
-                                Text(
-                                    text = it.end.format(formatter),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                DividerItem()
                             }
                         }
+                    }
+                },
+                frontLayerContent = {
+                    val lesson = selectedLesson.value
+                    Column(modifier = Modifier.fillMaxHeight()) {
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .fillMaxWidth()
+                        ) {
+                            Text("授業", modifier = Modifier.padding(16.dp))
+                        }
 
-                        DividerItem()
+                        if (lesson != null) {
+                            LessonDetailBody(lesson)
+                        }
                     }
                 }
-            }
+            )
+
         } else {
             // レポート
         }
@@ -138,6 +171,7 @@ private fun DividerItem(modifier: Modifier = Modifier) {
 }
 
 @ExperimentalMaterial3Api
+@ExperimentalMaterialApi
 @Composable
 fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
     val item = DemoDataProvider.getSchoolday(id)

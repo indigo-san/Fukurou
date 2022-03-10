@@ -1,5 +1,6 @@
 package com.example.fukurou.ui
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
@@ -10,6 +11,7 @@ import androidx.navigation.navArgument
 import com.example.fukurou.ui.details.SchooldayDetailScreen
 
 @ExperimentalMaterial3Api
+@ExperimentalMaterialApi
 @Composable
 fun FukurouApp() {
     val navController = rememberNavController()

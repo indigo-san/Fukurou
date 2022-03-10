@@ -26,7 +26,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
-import com.example.fukurou.ui.theme.AppThemeState
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.LocalDate
@@ -131,11 +130,11 @@ fun NextCard(navController: NavHostController) {
 
     } else {
         Card(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             shape = RoundedCornerShape(searchLayoutHeightDp / 2),
             modifier = Modifier
                 .padding(8.dp)
-                //.shadow(8.dp, shape = RoundedCornerShape(searchLayoutHeightDp / 2), clip = false)
-                //.background(background, shape = RoundedCornerShape(searchLayoutHeightDp / 2))
                 .fillMaxWidth()
         ) {
             Box(modifier = Modifier
@@ -176,7 +175,11 @@ fun NextCard(navController: NavHostController) {
                                     modifier = Modifier
                                         .padding(x.dp, 0.dp, 0.dp, 0.dp)
                                         .size(24.dp, 24.dp)
-                                        .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                                        .border(
+                                            2.dp,
+                                            MaterialTheme.colorScheme.onSurface,
+                                            CircleShape
+                                        )
                                         .background(Color(item.color), shape = CircleShape)
                                 )
 
@@ -202,7 +205,11 @@ fun DateFormat(date: LocalDate, modifier: Modifier = Modifier) {
         if (subAbs <= 31) {
             // 過去
             when {
-                date < now -> Text("${subAbs}日前", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                date < now -> Text(
+                    "${subAbs}日前",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 date == now -> Text("本日", fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 else -> Text("${subAbs}日後", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
@@ -256,7 +263,11 @@ fun UserEmailDialog(showUserDialog: MutableState<Boolean>) {
                         modifier = Modifier
                             .wrapContentWidth()
                             .padding(8.dp)
-                            .border(1.dp, Color.Gray.copy(alpha = 0.6f), RoundedCornerShape(16.dp))
+                            .border(
+                                1.dp,
+                                Color.Gray.copy(alpha = 0.6f),
+                                RoundedCornerShape(16.dp)
+                            )
                             .clip(RoundedCornerShape(16.dp))
                             .clickable(onClick = {})
                             .padding(horizontal = 12.dp, vertical = 8.dp)
