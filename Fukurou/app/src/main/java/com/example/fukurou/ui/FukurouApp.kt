@@ -18,7 +18,7 @@ fun FukurouApp() {
         startDestination = "home"
     ) {
         composable("home") {
-            Dashboard(navController = navController)
+            HomeScreen(navController = navController)
         }
 
         composable(

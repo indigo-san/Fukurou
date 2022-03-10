@@ -27,83 +27,12 @@ import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.ui.theme.AppThemeState
-import com.example.fukurou.ui.theme.graySurface
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 import kotlin.math.absoluteValue
-
-@ExperimentalMaterial3Api
-@Composable
-fun Dashboard(navController: NavHostController) {
-
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val fabExpandState = remember { mutableStateOf(false) }
-    val showUserDialog = remember { mutableStateOf(false) }
-    val bottomNavState = remember { mutableStateOf(0) }
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-//        modifier = Modifier.width(360.dp),
-        drawerContent = { FukurouDrawer() },
-    ) {
-        Scaffold(
-            floatingActionButton = { },
-            bottomBar = {
-                val background = if (AppThemeState.darkTheme) graySurface else Color.White
-                NavigationBar {
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                if (bottomNavState.value == 0)
-                                    Icons.Filled.Dashboard
-                                else
-                                    Icons.Outlined.Dashboard,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            bottomNavState.value = 0;
-                        },
-                        selected = bottomNavState.value == 0,
-                        label = { Text(stringResource(id = R.string.dashboard)) }
-                    )
-
-                    NavigationBarItem(
-                        icon = {
-                            Icon(
-                                if (bottomNavState.value == 1)
-                                    Icons.Filled.Book
-                                else
-                                    Icons.Outlined.Book,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            bottomNavState.value = 1
-                        },
-                        selected = bottomNavState.value == 1,
-                        label = { Text(stringResource(id = R.string.lessons)) }
-                    )
-                }
-            },
-        ) {
-            when (bottomNavState.value) {
-                0 -> {
-                    DashboardContent(fabExpandState, drawerState, navController, showUserDialog)
-                }
-                1 -> {
-                    Text("Lessons")
-                }
-                else -> {}
-            }
-        }
-    }
-
-    UserEmailDialog(showUserDialog)
-}
 
 @ExperimentalMaterial3Api
 @Composable
@@ -288,9 +217,6 @@ fun DateFormat(date: LocalDate, modifier: Modifier = Modifier) {
 
 @Composable
 fun UserEmailDialog(showUserDialog: MutableState<Boolean>) {
-
-    val background = if (AppThemeState.darkTheme) graySurface else Color.White
-
     if (showUserDialog.value) {
         Dialog(
             onDismissRequest = {
@@ -301,7 +227,7 @@ fun UserEmailDialog(showUserDialog: MutableState<Boolean>) {
             Surface(
                 modifier = Modifier,
 //                shape = MaterialTheme.shapes.medium,
-                color = background,
+                color = MaterialTheme.colorScheme.surface,
                 contentColor = MaterialTheme.colorScheme.onSurface
             ) {
 

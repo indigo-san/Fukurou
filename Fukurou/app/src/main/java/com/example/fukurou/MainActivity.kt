@@ -3,24 +3,28 @@ package com.example.fukurou
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.view.WindowCompat
 import com.example.fukurou.ui.FukurouApp
 import com.example.fukurou.ui.theme.FukurouTheme
+import com.google.accompanist.insets.ProvideWindowInsets
 
 @ExperimentalMaterial3Api
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //WindowCompat.setDecorFitsSystemWindows(window, true)
+
         setContent {
-            FukurouTheme(darkTheme = true) {
-                FukurouApp()
+            ProvideWindowInsets(consumeWindowInsets = false){
+                FukurouTheme() {
+                    FukurouApp()
+                }
             }
         }
     }

@@ -24,8 +24,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.fukurou.R
-import com.example.fukurou.ui.theme.AppThemeState
-import com.example.fukurou.ui.theme.graySurface
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api

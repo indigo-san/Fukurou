@@ -1,113 +1,132 @@
 package com.example.fukurou.ui
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AllInbox
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.google.accompanist.insets.statusBarsHeight
 
-@Preview
+@ExperimentalMaterial3Api
 @Composable
-fun FukurouDrawer(modifier: Modifier = Modifier) {
+fun ColumnScope.FukurouDrawer(navController: NavHostController, modifier: Modifier = Modifier) {
+    Spacer(Modifier.statusBarsHeight())
+    DrawerHeader()
+    DividerItem()
+    DrawerItemHeader("Fukurou")
 
-    LazyColumn(modifier = modifier) {
-        // use `item` for separate elements like headers
-        // and `items` for lists of identical elements
-        item {
-            Text(
-                text = "Gmail",
-                color = Color.Red,
-                fontSize = 24.sp,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
-            )
-        }
-
-        item { Divider(thickness = 0.3.dp) }
-        item { Spacer(modifier.padding(top = 8.dp)) }
-        item { DrawerItem(icon = Icons.Filled.AllInbox, title = "All Inbox") }
-        item { Spacer(modifier.padding(top = 8.dp)) }
-        item { Divider(thickness = 0.3.dp) }
-
-        item { Spacer(modifier.padding(top = 8.dp)) }
-
-        item { DrawerItem(icon = Icons.Outlined.Inbox, title = "Primary") }
-        item { DrawerItem(icon = Icons.Outlined.Groups, title = "Social") }
-        item { DrawerItem(icon = Icons.Outlined.LocalOffer, title = "Promotion") }
-
-        item { DrawerCategory(title = "RECENT LABELS") }
-        item { DrawerItem(icon = Icons.Outlined.Label, title = "[Imap]/Trash") }
-        item { DrawerItem(icon = Icons.Outlined.Label, title = "facebook") }
-
-        item { DrawerCategory(title = "ALL LABELS") }
-        item { DrawerItem(icon = Icons.Outlined.StarBorder, title = "Starred") }
-        item { DrawerItem(icon = Icons.Outlined.AccessTime, title = "Snoozed") }
-        item { DrawerItem(icon = Icons.Outlined.LabelImportant, title = "Important", "99+") }
-        item { DrawerItem(icon = Icons.Outlined.Send, title = "Sent", "99+") }
-        item { DrawerItem(icon = Icons.Outlined.MoreTime, title = "Scheduled", "99+") }
-        item { DrawerItem(icon = Icons.Outlined.MarkunreadMailbox, title = "Outbox", "10") }
-
-    }
-
-}
-
-@Composable
-fun DrawerItem(icon: ImageVector, title: String, msgCount: String = "") {
-
-    Row {
-        Icon(imageVector = icon, modifier = Modifier.padding(16.dp), contentDescription = null)
-        Text(
-            modifier = Modifier
-                .weight(1f)
-                .align(Alignment.CenterVertically)
-                .padding(start = 8.dp),
-            text = title,
-            fontFamily = FontFamily.SansSerif,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Start
-        )
-
-        if (msgCount.isNotEmpty()) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(16.dp),
-                text = msgCount,
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Start
-            )
-        }
-
-    }
-
-}
-
-@Composable
-fun DrawerCategory(title: String) {
-
-    Text(
-        text = title,
-        letterSpacing = 0.7.sp,
-        color = MaterialTheme.colorScheme.onBackground,
-        fontSize = 12.sp,
-        modifier = Modifier.padding(16.dp)
+    DrawerItem(
+        icon = Icons.Filled.Home,
+        text = "ホーム",
+        onClick = {
+            navController.navigate("home")
+        },
+        selected = navController.currentDestination?.route == "home"
     )
 
+    DrawerItem(
+        icon = Icons.Filled.Assignment,
+        text = "レポート",
+        onClick = {
+            //navController.navigate("home")
+        },
+        selected = navController.currentDestination?.route == "report"
+    )
+
+    DividerItem(modifier = Modifier.padding(horizontal = 28.dp))
+    DrawerItemHeader("Recent Profiles")
+
+
+}
+
+@Composable
+private fun DrawerHeader() {
+//    Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+//        JetchatIcon(
+//            contentDescription = null,
+//            modifier = Modifier.size(24.dp)
+//        )
+//        Image(
+//            painter = painterResource(id = R.drawable.jetchat_logo),
+//            contentDescription = null,
+//            modifier = Modifier.padding(start = 8.dp)
+//        )
+//    }
+}
+
+@Composable
+private fun DrawerItemHeader(text: String) {
+    Box(
+        modifier = Modifier
+            .heightIn(min = 52.dp)
+            .padding(horizontal = 28.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun DrawerItem(text: String, selected: Boolean, icon: ImageVector, onClick: () -> Unit) {
+    val background = if (selected) {
+        Modifier.background(MaterialTheme.colorScheme.primaryContainer)
+    } else {
+        Modifier
+    }
+    Row(
+        modifier = Modifier
+            .height(56.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .clip(CircleShape)
+            .then(background)
+            .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val iconTint = if (selected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        }
+        Icon(
+            icon,
+            tint = iconTint,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
+            contentDescription = null
+        )
+        Text(
+            text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (selected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+            modifier = Modifier.padding(start = 12.dp)
+        )
+    }
+}
+
+@Composable
+private fun DividerItem(modifier: Modifier = Modifier) {
+    // TODO (M3): No Divider, replace when available
+    androidx.compose.material.Divider(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    )
 }

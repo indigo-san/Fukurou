@@ -1,18 +1,21 @@
 package com.example.fukurou.ui.details
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,23 +24,22 @@ import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.data.Schoolday
 import com.example.fukurou.ui.DateFormat
+import java.time.format.DateTimeFormatter
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewBody() {
     val scd = DemoDataProvider.getNextSchoolday()
+    val selectedIndex = remember { mutableStateOf(0) }
     if (scd != null) {
-        SchooldayDetailBody(scd)
+        SchooldayDetailBody(scd, selectedIndex)
     }
 }
 
 @Composable
-fun SchooldayDetailBody(item: Schoolday) {
+fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>) {
     Column {
-        DateFormat(item.date, modifier = Modifier.padding(16.dp))
-        val selectedIndex = remember { mutableStateOf(0) }
-
-        NavigationBar(modifier = Modifier.height(64.dp)) {
+        NavigationBar(modifier = Modifier.height(48.dp), containerColor = Color.Transparent) {
             NavigationBarItem(
                 icon = {
                     Icon(
@@ -59,16 +61,101 @@ fun SchooldayDetailBody(item: Schoolday) {
                 onClick = { selectedIndex.value = 1 }
             )
         }
+
+        DividerItem(modifier = Modifier.height(8.dp))
+
+        if (selectedIndex.value == 0) {
+            val formatter = DateTimeFormatter.ofPattern("HH:mm")
+            // 授業
+            LazyColumn {
+                items(DemoDataProvider.getLessons(item)) {
+                    val subject = DemoDataProvider.getSubject(it.subjectId)
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .height(56.dp)
+                                .fillMaxWidth()
+                                .clickable {
+
+                                },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(8.dp, 0.dp)
+                                    .background(Color(subject.color), shape = CircleShape)
+                                    .size(24.dp)
+                            )
+
+                            Text(
+                                text = subject.name,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            // 時刻
+                            Row(
+                                verticalAlignment = Alignment.Bottom,
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp, 0.dp)
+                            ) {
+                                Text(
+                                    text = it.start.format(formatter),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+
+                                Text(
+                                    "-",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(8.dp, 0.dp)
+                                )
+
+                                Text(
+                                    text = it.end.format(formatter),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+
+                        DividerItem()
+                    }
+                }
+            }
+        } else {
+            // レポート
+        }
     }
+}
+
+@Composable
+private fun DividerItem(modifier: Modifier = Modifier) {
+    // TODO (M3): No Divider, replace when available
+    androidx.compose.material.Divider(
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    )
 }
 
 @ExperimentalMaterial3Api
 @Composable
 fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
+    val item = DemoDataProvider.getSchoolday(id)
+    val selectedIndex = remember { mutableStateOf(0) }
+
     Scaffold(
+        floatingActionButton = {
+            if (selectedIndex.value == 0) {
+                ExtendedFloatingActionButton(
+                    icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+                    text = { Text("授業を追加") },
+                    onClick = { /*TODO*/ }
+                )
+            }
+        },
         topBar = {
-            TopAppBar(
-                title = {},
+            MediumTopAppBar(
+                title = { DateFormat(item.date) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -95,6 +182,6 @@ fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
                 }
             )
         },
-        content = { SchooldayDetailBody(DemoDataProvider.getSchoolday(id)) }
+        content = { SchooldayDetailBody(item, selectedIndex) }
     )
 }
