@@ -19,13 +19,17 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +40,8 @@ import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.data.Schoolday
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -45,12 +51,7 @@ import kotlinx.coroutines.launch
 fun LessonsContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     val lazyListState = rememberLazyListState()
     var isRefreshing by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    val items = remember {
-        val list = mutableStateListOf<Schoolday>()
-        list.addAll(DemoDataProvider.schooldays)
-        list
-    }
+    val items = rememberSaveable { DemoDataProvider.schooldays }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
@@ -62,29 +63,36 @@ fun LessonsContent(navController: NavHostController, snackbarHostState: Snackbar
         ) {
             items(items, key = { it.id }) {
                 var deleting by remember { mutableStateOf(false) }
-                val dismissState = rememberDismissState(
-                    confirmStateChange = { value: DismissValue ->
-                        if (value == DismissValue.DismissedToStart || value == DismissValue.DismissedToEnd) {
-                            deleting = true
-                            val message = stringResource(R.string.item_was_deleted)
-                            scope.launch {
-                                delay(300)
-                                snackbarHostState.showSnackbar(
-                                    message = Application
-                                )
-                                DemoDataProvider.deleteSchoolday(it.id)
-                                items.remove(it)
-                            }
-                        }
-
-                        true
-                    }
-                )
-
+                val context = LocalContext.current
+                val dismissState = rememberDismissState()
                 val height by animateDpAsState(
                     if (deleting) 0.dp else 80.dp,
                     animationSpec = tween()
                 )
+
+                if (dismissState.currentValue != DismissValue.Default) {
+                    LaunchedEffect(LocalContext.current) {
+                        try {
+                            deleting = true
+
+                            val result = snackbarHostState.showSnackbar(
+                                message = context.getString(R.string.item_was_deleted),
+                                actionLabel = context.getString(R.string.restore)
+                            )
+
+                            if (result == SnackbarResult.ActionPerformed) {
+                                dismissState.snapTo(DismissValue.Default)
+
+                                deleting = false
+                            } else {
+                                DemoDataProvider.deleteSchoolday(it.id)
+                                items.remove(it)
+                            }
+                        } catch (e: CancellationException) {
+                            DemoDataProvider.deleteSchoolday(it.id)
+                        }
+                    }
+                }
 
                 SwipeToDismiss(
                     modifier = Modifier
@@ -139,13 +147,13 @@ fun LessonsContent(navController: NavHostController, snackbarHostState: Snackbar
         isRefreshing = false
     }
 
-//    LaunchedEffect(Unit) {
-//        val next = DemoDataProvider.getNextSchoolday()
-//        var index = DemoDataProvider.schooldays.indexOf(next)
-//        if (index > 0) index--
-//
-//        lazyListState.scrollToItem(index)
-//    }
+    LaunchedEffect(Unit) {
+        val next = DemoDataProvider.getNextSchoolday()
+        var index = DemoDataProvider.schooldays.indexOf(next)
+        if (index > 0) index--
+
+        lazyListState.scrollToItem(index)
+    }
 }
 
 @Composable

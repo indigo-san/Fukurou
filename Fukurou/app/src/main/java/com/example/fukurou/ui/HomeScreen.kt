@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Description
@@ -15,11 +16,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.fukurou.R
+import com.example.fukurou.data.DemoDataProvider
+import java.time.LocalDate
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -42,13 +47,33 @@ fun HomeScreen(navController: NavHostController) {
     val showUserDialog = remember { mutableStateOf(false) }
     val bottomNavState = rememberSaveable { mutableStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val activity = LocalContext.current as? FragmentActivity
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = { FukurouDrawer(navController) },
     ) {
         Scaffold(
-            floatingActionButton = { },
+            floatingActionButton = {
+                if (bottomNavState.value == 1) {
+                    ExtendedFloatingActionButton(
+                        text = { Text("授業日を追加") },
+                        icon = {
+                            Icon(
+                                Icons.Outlined.Add,
+                                contentDescription = null
+                            )
+                        },
+                        onClick = {
+                            if (activity != null) {
+                                showDatePicker(LocalDate.now(), activity) {
+                                    val item = DemoDataProvider.createOrGetSchoolday(it)
+                                    navController.navigate("schoolday-detail/${item.id}")
+                                }
+                            }
+                        })
+                }
+            },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             bottomBar = {
                 NavigationBar {
@@ -112,12 +137,8 @@ fun HomeScreen(navController: NavHostController) {
                         slideInHorizontally { width -> -width } with
                                 slideOutHorizontally { width -> width }
                     }
-//                        .using(
-//                        SizeTransform(clip = false)
-//                    )
                 }
             ) { type ->
-
                 when (type) {
                     0 -> {
                         DashboardContent(navController)

@@ -1,6 +1,7 @@
 package com.example.fukurou.data
 
 import android.graphics.Color
+import java.lang.Integer.max
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -152,6 +153,22 @@ object DemoDataProvider {
 
     fun getSchoolday(date: LocalDate): Schoolday {
         return schooldays.first { it.date == date }
+    }
+
+    fun createOrGetSchoolday(date: LocalDate): Schoolday {
+        var id: Int = -1
+        for (item in schooldays) {
+            if (item.date == date) {
+                return item
+            }
+
+            id = max(id, item.id)
+        }
+        id++
+
+        val item = Schoolday(id, date)
+        schooldays.add(item)
+        return item
     }
 
     fun getSchoolday(id: Int): Schoolday {
