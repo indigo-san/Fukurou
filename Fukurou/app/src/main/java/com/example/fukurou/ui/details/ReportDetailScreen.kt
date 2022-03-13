@@ -2,19 +2,19 @@ package com.example.fukurou.ui.details
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.*
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,9 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
-import com.example.fukurou.data.DemoDataProvider
-import com.example.fukurou.data.Lesson
-import com.example.fukurou.data.LessonState
+import com.example.fukurou.data.*
 import com.example.fukurou.dateformatter
 import com.example.fukurou.timeformatter
 import com.example.fukurou.ui.SettingsSection
@@ -40,14 +38,14 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @Composable
-fun LessonDetailScreen(navController: NavHostController, id: Int) {
-    val item = remember { mutableStateOf(DemoDataProvider.getLesson(id)) };
+fun ReportDetailScreen(navController: NavHostController, id: Int) {
+    val item = remember { mutableStateOf(DemoDataProvider.getReport(id)) };
     val subject = DemoDataProvider.getSubject(item.value.subjectId)
 
     Scaffold(
         topBar = {
             SmallTopAppBar(
-                title = { Text(subject.name) },
+                title = { Text("${subject.name} ${item.value.name}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -68,46 +66,33 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                     SettingsSection(
                         icon = Icons.Outlined.CheckCircleOutline,
                         onClick = {
-                            item.value = item.value.copy(state = LessonState.Attend)
-                            DemoDataProvider.updateLesson(item.value)
+                            item.value = item.value.copy(state = ReportState.Submitted)
+                            DemoDataProvider.updateReport(item.value)
                             scope.launch {
                                 sheetState.hide()
                             }
                         }
                     ) {
-                        Text("出席としてマーク")
+                        Text("提出済みとしてマーク")
                     }
 
                     SettingsSection(
                         icon = Icons.Outlined.Unpublished,
                         onClick = {
-                            item.value = item.value.copy(state = LessonState.Absent)
-                            DemoDataProvider.updateLesson(item.value)
+                            item.value = item.value.copy(state = ReportState.NotSubmitted)
+                            DemoDataProvider.updateReport(item.value)
                             scope.launch {
                                 sheetState.hide()
                             }
                         }
                     ) {
-                        Text("欠席としてマーク")
-                    }
-
-                    SettingsSection(
-                        icon = Icons.Outlined.HelpOutline,
-                        onClick = {
-                            item.value = item.value.copy(state = LessonState.None)
-                            DemoDataProvider.updateLesson(item.value)
-                            scope.launch {
-                                sheetState.hide()
-                            }
-                        }
-                    ) {
-                        Text("未指定としてマーク")
+                        Text("未提出としてマーク")
                     }
 
                     SettingsSection(
                         icon = Icons.Outlined.DeleteOutline,
                         onClick = {
-                            DemoDataProvider.deleteLesson(item.value.id)
+                            DemoDataProvider.deleteReport(item.value.id)
                             navController.popBackStack()
                         }
                     ) {
@@ -118,7 +103,7 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
                 sheetBackgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 sheetContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ) {
-                LessonDetailBody(item) {
+                ReportDetailBody(item) {
                     scope.launch {
                         sheetState.show()
                     }
@@ -131,16 +116,16 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
 @Preview(showBackground = true)
 @ExperimentalMaterial3Api
 @Composable
-private fun LessonDetailBodyPreview() {
-    LessonDetailBody(
-        lesson = remember { mutableStateOf(DemoDataProvider.lessons[0]) },
+private fun ReportDetailBodyPreview() {
+    ReportDetailBody(
+        report = remember { mutableStateOf(DemoDataProvider.reports[0]) },
         onRequestMenu = {})
 }
 
 @ExperimentalMaterial3Api
 @Composable
-fun LessonDetailBody(lesson: MutableState<Lesson>, onRequestMenu: () -> Unit) {
-    var subject = DemoDataProvider.getSubject(lesson.value.subjectId)
+fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
+    var subject = DemoDataProvider.getSubject(report.value.subjectId)
 
     Column {
         Column(
@@ -149,6 +134,24 @@ fun LessonDetailBody(lesson: MutableState<Lesson>, onRequestMenu: () -> Unit) {
                 .verticalScroll(rememberScrollState())
         ) {
             val subjectsVisible = remember { mutableStateOf(false) }
+            val nameInputShow = remember { mutableStateOf(false) }
+
+            SettingsSection(
+                icon = Icons.Outlined.Label,
+                title = { Text("名前") },
+                content = { Text(report.value.name, style = MaterialTheme.typography.titleLarge) },
+                onClick = { nameInputShow.value = true }
+            )
+
+            TextInputDialog(
+                showDialog = nameInputShow,
+                text = report.value.name,
+                title = "名前を入力",
+                label = "名前"
+            ) {
+                report.value = report.value.copy(name = it)
+                DemoDataProvider.updateReport(report.value)
+            }
 
             SettingsSection(
                 icon = Icons.Outlined.Book,
@@ -177,9 +180,9 @@ fun LessonDetailBody(lesson: MutableState<Lesson>, onRequestMenu: () -> Unit) {
                 Column {
                     for (item in DemoDataProvider.subjects) {
                         val select = {
-                            lesson.value = lesson.value.copy(subjectId = item.id)
+                            report.value = report.value.copy(subjectId = item.id)
                             subject = item
-                            DemoDataProvider.updateLesson(lesson.value)
+                            DemoDataProvider.updateReport(report.value)
                         }
 
                         Row(
@@ -206,119 +209,20 @@ fun LessonDetailBody(lesson: MutableState<Lesson>, onRequestMenu: () -> Unit) {
                 title = { Text("日付") },
                 content = {
                     Text(
-                        lesson.value.date.format(dateformatter),
+                        report.value.date.format(dateformatter),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 onClick = {
                     if (activity != null) {
-                        showDatePicker(lesson.value.date, activity) {
-                            lesson.value = lesson.value.copy(date = it)
-                            DemoDataProvider.updateLesson(lesson.value)
+                        showDatePicker(report.value.date, activity) {
+                            report.value = report.value.copy(date = it)
+                            DemoDataProvider.updateReport(report.value)
                         }
                     }
                 }
             )
-
-            SettingsSection(
-                icon = Icons.Outlined.AccessTime,
-                title = { Text("開始時間") },
-                content = {
-                    Text(
-                        lesson.value.start.format(timeformatter),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                onClick = {
-                    if (activity != null) {
-                        showTimePicker(lesson.value.start, activity) {
-                            lesson.value = lesson.value.copy(start = it)
-                            DemoDataProvider.updateLesson(lesson.value)
-                        }
-                    }
-                }
-            )
-
-            SettingsSection(
-                title = { Text("終了時間") },
-                content = {
-                    Text(
-                        lesson.value.end.format(timeformatter),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                onClick = {
-                    if (activity != null) {
-                        showTimePicker(lesson.value.start, activity) {
-                            lesson.value = lesson.value.copy(end = it)
-                            DemoDataProvider.updateLesson(lesson.value)
-                        }
-                    }
-                }
-            )
-
-            Divider()
-
-            val roomInputShow = remember { mutableStateOf(false) }
-            SettingsSection(
-                icon = Icons.Outlined.Room,
-                title = { Text("教室") },
-                content = {
-                    if (lesson.value.room.isNotBlank()) {
-                        Text(
-                            lesson.value.room,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                onClick = {
-                    roomInputShow.value = true
-                }
-            )
-
-            TextInputDialog(
-                showDialog = roomInputShow,
-                text = lesson.value.room,
-                title = "教室名を入力",
-                label = "教室名"
-            ) {
-                lesson.value = lesson.value.copy(room = it)
-                DemoDataProvider.updateLesson(lesson.value)
-            }
-
-            val tagInputShow = remember { mutableStateOf(false) }
-            SettingsSection(
-                icon = Icons.Outlined.Tag,
-                title = { Text("タグ") },
-                content = {
-                    if (lesson.value.tag.isNotBlank()) {
-                        Text(
-                            lesson.value.tag,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                onClick = {
-                    tagInputShow.value = true
-                }
-            )
-
-            TextInputDialog(
-                showDialog = tagInputShow,
-                text = lesson.value.tag,
-                title = "タグを入力",
-                label = "タグ"
-            ) {
-                lesson.value = lesson.value.copy(tag = it)
-                DemoDataProvider.updateLesson(lesson.value)
-            }
-
-
         }
 
         Surface(
@@ -330,10 +234,11 @@ fun LessonDetailBody(lesson: MutableState<Lesson>, onRequestMenu: () -> Unit) {
                     modifier = Modifier.align(Alignment.Center),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    text = when (lesson.value.state) {
-                        LessonState.None -> "状態: 未指定"
-                        LessonState.Attend -> "状態: 出席"
-                        LessonState.Absent -> "状態: 欠席"
+                    text = when {
+                        report.value.isExpired -> "状態: 期限切れ"
+                        report.value.isSubmitted -> "状態: 提出済み"
+                        report.value.isNotSubmitted -> "状態: 未提出"
+                        else -> "状態: 不明"
                     }
                 )
 

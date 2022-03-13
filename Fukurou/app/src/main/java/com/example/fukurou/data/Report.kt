@@ -6,6 +6,7 @@ data class Report(
     val id: Int,
     val date: LocalDate,
     val name: String,
+    val subjectId: Int,
     val state: ReportState = ReportState.NotSubmitted,
     val isArchived: Boolean = false
 ) {

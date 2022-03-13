@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Platform.Theme.Fukurou" parent="Theme.Material3.DayNight">
-        <item name="android:statusBarColor">@color/black30</item>
     </style>
 
     <style name="Theme.Fukurou" parent="Platform.Theme.Fukurou">

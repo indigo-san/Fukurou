@@ -37,78 +37,28 @@ import kotlin.math.absoluteValue
 @ExperimentalMaterial3Api
 @Composable
 fun DashboardContent(
-    fabExpandState: MutableState<Boolean>,
-    drawerState: DrawerState,
-    navController: NavHostController,
-    showUserDialog: MutableState<Boolean>
+    navController: NavHostController
 ) {
     val lazyListState = rememberLazyListState()
 
-    val offsetY = remember { mutableStateOf(0) }
-    val oldIndex = remember { mutableStateOf(0) }
-    val searchOffsetY = remember { mutableStateOf(0) }
-
-    val searchLayoutHeightPx = with(LocalDensity.current) { 70.dp.toPx() }
-
-    // ensures that the user intents to have scroll gesture..
-    val isVisibleScrolled =
-        oldIndex.value != lazyListState.firstVisibleItemIndex ||
-                (offsetY.value - lazyListState.firstVisibleItemScrollOffset).absoluteValue > 15
-
     println("${lazyListState.firstVisibleItemIndex}  ${lazyListState.firstVisibleItemScrollOffset}")
 
-    if (isVisibleScrolled) {
-        when {
-            oldIndex.value > lazyListState.firstVisibleItemIndex -> {   // down
-                fabExpandState.value = true
-            }
-            oldIndex.value < lazyListState.firstVisibleItemIndex -> {  // up
-                fabExpandState.value = false
-            }
-            oldIndex.value == lazyListState.firstVisibleItemIndex -> {
-                fabExpandState.value = offsetY.value > lazyListState.firstVisibleItemScrollOffset
-            }
-        }
-
-        // for the initial search offset
-        if (lazyListState.firstVisibleItemIndex == 0
-            && lazyListState.firstVisibleItemScrollOffset < searchLayoutHeightPx
-            && !fabExpandState.value
-        ) {
-            searchOffsetY.value = -lazyListState.firstVisibleItemScrollOffset
-        } else if (fabExpandState.value) {
-            searchOffsetY.value = 0
-        } else if (!fabExpandState.value) {
-            searchOffsetY.value = (-searchLayoutHeightPx).toInt()
-        }
-
-    }
-
-    offsetY.value = lazyListState.firstVisibleItemScrollOffset
-    oldIndex.value = lazyListState.firstVisibleItemIndex
     var isRefreshing by remember { mutableStateOf(false) }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
         onRefresh = { isRefreshing = true },
     ) {
-        Box {
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier.fillMaxHeight()
-            ) {
-
-                item {
-                    Spacer(modifier = Modifier.height(72.dp))
-                }
-
-                item {
-                    NextCard(navController)
-                }
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            item {
+                NextCard(navController)
             }
 
-            SearchLayout(searchOffsetY.value, drawerState, showUserDialog) {
-                navController.navigate("create")
+            item {
+                Spacer(modifier = Modifier.height(88.dp))
             }
         }
 
@@ -356,47 +306,4 @@ fun UserEmailDialog(showUserDialog: MutableState<Boolean>) {
 
     }
 
-}
-
-@Composable
-fun GmailUserEmail(imageId: Int, name: String, email: String, badgeCount: Int) {
-
-    Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Image(
-            painter = painterResource(id = imageId),
-            contentDescription = null,
-            modifier = Modifier
-                .size(32.dp)
-                .clip(CircleShape)
-                .clickable(onClick = {
-
-                })
-        )
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 16.dp)
-        ) {
-            Text(text = name)
-
-            Row {
-                Text(
-                    text = email,
-                    fontSize = 12.sp,
-                    modifier = Modifier.weight(1f)
-                )
-
-                Text(
-                    text = "$badgeCount",
-                    fontSize = 12.sp
-                )
-            }
-        }
-
-
-    }
 }

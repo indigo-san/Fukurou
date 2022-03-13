@@ -9,4 +9,10 @@
     <string name="dashboard">ダッシュボード</string>
     <string name="lessons">授業</string>
     <string name="reports">レポート</string>
+    <string name="ok">OK</string>
+    <string name="cancel">キャンセル</string>
+    <string name="delete">削除</string>
+    <string name="search">検索</string>
+    <string name="item_was_deleted">アイテムが削除されました</string>
+    <string name="restore">元に戻す</string>
 </resources>

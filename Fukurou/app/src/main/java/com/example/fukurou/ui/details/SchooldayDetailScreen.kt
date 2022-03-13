@@ -6,20 +6,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BackdropScaffold
-import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.TextSnippet
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,16 +25,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
-import com.example.fukurou.data.Lesson
 import com.example.fukurou.data.Schoolday
 import com.example.fukurou.ui.DateFormat
 import com.example.fukurou.ui.TimeRange
-import com.example.fukurou.ui.theme.FukurouTheme
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.launch
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 @Preview(showBackground = true)
 @Composable
@@ -54,7 +46,11 @@ fun PreviewBody() {
 @ExperimentalMaterial3Api
 @ExperimentalMaterialApi
 @Composable
-fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>, navController: NavHostController) {
+fun SchooldayDetailBody(
+    item: Schoolday,
+    selectedIndex: MutableState<Int>,
+    navController: NavHostController
+) {
     Column {
         NavigationBar(modifier = Modifier.height(48.dp), containerColor = Color.Transparent) {
             NavigationBarItem(
@@ -70,7 +66,7 @@ fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>, navCo
             NavigationBarItem(
                 icon = {
                     Icon(
-                        Icons.Filled.Assignment,
+                        Icons.Filled.Description,
                         contentDescription = stringResource(id = R.string.reports)
                     )
                 },
@@ -82,11 +78,10 @@ fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>, navCo
         DividerItem(modifier = Modifier.height(8.dp))
 
         if (selectedIndex.value == 0) {
-            val selectedLesson = remember { mutableStateOf<Lesson?>(null) }
+            // 授業
             var isRefreshing by remember { mutableStateOf(false) }
             val refreshState = rememberSwipeRefreshState(isRefreshing);
 
-            // 授業
             SwipeRefresh(
                 state = refreshState,
                 onRefresh = { isRefreshing = true },
@@ -138,9 +133,75 @@ fun SchooldayDetailBody(item: Schoolday, selectedIndex: MutableState<Int>, navCo
                     isRefreshing = false
                 }
             }
-
         } else {
             // レポート
+            var isRefreshing by remember { mutableStateOf(false) }
+            val refreshState = rememberSwipeRefreshState(isRefreshing);
+
+            SwipeRefresh(
+                state = refreshState,
+                onRefresh = { isRefreshing = true },
+            ) {
+                LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                    items(DemoDataProvider.getReports(item)) {
+                        val subject = DemoDataProvider.getSubject(it.subjectId)
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .height(56.dp)
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        navController.navigate("report-detail/${it.id}")
+                                    },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(8.dp, 0.dp)
+                                        .background(
+                                            Color(subject.color),
+                                            shape = CircleShape
+                                        )
+                                        .size(24.dp)
+                                )
+
+                                Text(
+                                    text = subject.name,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+
+                                Column(
+                                    verticalArrangement = Arrangement.Bottom,
+                                    horizontalAlignment = Alignment.End,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(8.dp, 0.dp)
+                                ) {
+                                    Text(it.name)
+
+                                    ProvideTextStyle(
+                                        value = MaterialTheme.typography.bodySmall
+                                            .copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    ) {
+                                        when {
+                                            it.isExpired -> Text(
+                                                "期限切れ",
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                            it.isNotSubmitted -> Text("未提出")
+                                            it.isSubmitted -> Text("提出済み")
+                                        }
+                                    }
+                                }
+                            }
+
+                            DividerItem()
+                        }
+                    }
+
+                    isRefreshing = false
+                }
+            }
         }
     }
 }
@@ -159,7 +220,7 @@ private fun DividerItem(modifier: Modifier = Modifier) {
 @Composable
 fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
     val item = DemoDataProvider.getSchoolday(id)
-    val selectedIndex = remember { mutableStateOf(0) }
+    val selectedIndex = rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
         floatingActionButton = {
@@ -167,6 +228,12 @@ fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
                 ExtendedFloatingActionButton(
                     icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
                     text = { Text("授業を追加") },
+                    onClick = { /*TODO*/ }
+                )
+            } else if (selectedIndex.value == 1) {
+                ExtendedFloatingActionButton(
+                    icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+                    text = { Text("レポートを追加") },
                     onClick = { /*TODO*/ }
                 )
             }
