@@ -51,7 +51,8 @@ import kotlinx.coroutines.launch
 fun LessonsContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     val lazyListState = rememberLazyListState()
     var isRefreshing by remember { mutableStateOf(false) }
-    val items = rememberSaveable { DemoDataProvider.schooldays }
+    //val items = rememberSaveable { DemoDataProvider.schooldays }
+    val items = remember { DemoDataProvider.schooldays.toMutableStateList() }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
