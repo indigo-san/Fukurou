@@ -144,10 +144,11 @@ fun HomeScreen(navController: NavHostController) {
                         DashboardContent(navController)
                     }
                     1 -> {
-                        LessonsContent(navController, snackbarHostState)
+                        //LessonsContent(navController, snackbarHostState)
+                        TimetableContent(navController)
                     }
                     2 -> {
-                        Text("Reports")
+                        ReportsContent(navController, snackbarHostState)
                     }
                     else -> {}
                 }

@@ -24,7 +24,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -44,6 +46,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
+import kotlin.coroutines.EmptyCoroutineContext
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -51,7 +55,6 @@ import kotlinx.coroutines.launch
 fun LessonsContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     val lazyListState = rememberLazyListState()
     var isRefreshing by remember { mutableStateOf(false) }
-    //val items = rememberSaveable { DemoDataProvider.schooldays }
     val items = remember { DemoDataProvider.schooldays.toMutableStateList() }
 
     SwipeRefresh(
@@ -63,9 +66,11 @@ fun LessonsContent(navController: NavHostController, snackbarHostState: Snackbar
             modifier = Modifier.fillMaxHeight()
         ) {
             items(items, key = { it.id }) {
-                var deleting by remember { mutableStateOf(false) }
-                val context = LocalContext.current
                 val dismissState = rememberDismissState()
+                var deleting by remember {
+                    mutableStateOf(false)
+                }
+                val context = LocalContext.current
                 val height by animateDpAsState(
                     if (deleting) 0.dp else 80.dp,
                     animationSpec = tween()
@@ -75,7 +80,6 @@ fun LessonsContent(navController: NavHostController, snackbarHostState: Snackbar
                     LaunchedEffect(LocalContext.current) {
                         try {
                             deleting = true
-
                             val result = snackbarHostState.showSnackbar(
                                 message = context.getString(R.string.item_was_deleted),
                                 actionLabel = context.getString(R.string.restore)
@@ -83,14 +87,16 @@ fun LessonsContent(navController: NavHostController, snackbarHostState: Snackbar
 
                             if (result == SnackbarResult.ActionPerformed) {
                                 dismissState.snapTo(DismissValue.Default)
-
                                 deleting = false
                             } else {
                                 DemoDataProvider.deleteSchoolday(it.id)
                                 items.remove(it)
                             }
                         } catch (e: CancellationException) {
+                            println("キャンセル")
+                            println("${e.message}")
                             DemoDataProvider.deleteSchoolday(it.id)
+                            items.remove(it)
                         }
                     }
                 }
@@ -99,8 +105,7 @@ fun LessonsContent(navController: NavHostController, snackbarHostState: Snackbar
                     modifier = Modifier
                         .padding(8.dp, 0.dp)
                         .height(height)
-                        .fillMaxWidth()
-                        .animateItemPlacement(),
+                        .fillMaxWidth(),
                     state = dismissState,
                     dismissThresholds = { FractionalThreshold(0.5f) },
                     background = {

@@ -1,9 +1,52 @@
 package com.example.fukurou.data
 
-import android.graphics.Color
 import java.lang.Integer.max
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.temporal.ChronoField
+import java.time.temporal.WeekFields
+
+data class Week(
+    val monday: Schoolday?,
+    val tuesday: Schoolday?,
+    val wednesday: Schoolday?,
+    val thursday: Schoolday?,
+    val friday: Schoolday?,
+    val saturday: Schoolday?,
+    val sunday: Schoolday?
+) {
+    companion object {
+        fun create(items: List<Schoolday?>): Week {
+            var monday: Schoolday? = null
+            var tuesday: Schoolday? = null
+            var wednesday: Schoolday? = null
+            var thursday: Schoolday? = null
+            var friday: Schoolday? = null
+            var saturday: Schoolday? = null
+            var sunday: Schoolday? = null
+
+            for (item in items) {
+                if (item != null) {
+                    when (item.date.dayOfWeek) {
+                        DayOfWeek.MONDAY -> monday = item
+                        DayOfWeek.TUESDAY -> tuesday = item
+                        DayOfWeek.WEDNESDAY -> wednesday = item
+                        DayOfWeek.THURSDAY -> thursday = item
+                        DayOfWeek.FRIDAY -> friday = item
+                        DayOfWeek.SATURDAY -> saturday = item
+                        DayOfWeek.SUNDAY -> sunday = item
+                        else -> {}
+                    }
+                }
+            }
+
+            return Week(
+                monday, tuesday, wednesday, thursday, friday, saturday, sunday
+            )
+        }
+    }
+}
 
 object DemoDataProvider {
     val subjects = mutableListOf(
@@ -135,6 +178,54 @@ object DemoDataProvider {
             date = LocalDate.now().plusDays(1),
             id = 8,
             subjectId = 3
+        ),
+        Report(
+            name = "レポート9",
+            date = LocalDate.now().plusDays(2),
+            id = 9,
+            subjectId = 0
+        ),
+        Report(
+            name = "レポート10",
+            date = LocalDate.now().plusDays(2),
+            id = 10,
+            subjectId = 1
+        ),
+        Report(
+            name = "レポート11",
+            date = LocalDate.now().plusDays(2),
+            id = 11,
+            subjectId = 2
+        ),
+        Report(
+            name = "レポート12",
+            date = LocalDate.now().plusDays(2),
+            id = 12,
+            subjectId = 3
+        ),
+        Report(
+            name = "レポート13",
+            date = LocalDate.now().plusDays(3),
+            id = 13,
+            subjectId = 0
+        ),
+        Report(
+            name = "レポート14",
+            date = LocalDate.now().plusDays(3),
+            id = 14,
+            subjectId = 1
+        ),
+        Report(
+            name = "レポート15",
+            date = LocalDate.now().plusDays(3),
+            id = 15,
+            subjectId = 2
+        ),
+        Report(
+            name = "レポート16",
+            date = LocalDate.now().plusDays(3),
+            id = 16,
+            subjectId = 3
         )
     )
 
@@ -168,6 +259,7 @@ object DemoDataProvider {
 
         val item = Schoolday(id, date)
         schooldays.add(item)
+        schooldays.sortBy { it.date }
         return item
     }
 
@@ -179,10 +271,47 @@ object DemoDataProvider {
         schooldays.removeIf { it.id == id }
     }
 
+    fun chunkSchooldays(): List<Week> {
+        val startSunday = false
+        val field = if (startSunday)
+            WeekFields.SUNDAY_START.dayOfWeek()
+        else
+            ChronoField.DAY_OF_WEEK
+
+        val tmp: MutableList<Schoolday?> = mutableListOf()
+        val result: MutableList<Week> = mutableListOf()
+
+        for (index in 0..schooldays.size - 2) {
+            val item = schooldays[index]
+            val next = schooldays[index + 1]
+            val itemValue = item.date.dayOfWeek.get(field)
+            val nextValue = next.date.dayOfWeek.get(field)
+
+            if (itemValue < nextValue) {
+                tmp.add(item)
+            } else if (itemValue > nextValue) {
+                tmp.add(item)
+                result.add(Week.create(tmp))
+                tmp.clear()
+            }
+        }
+        if (tmp.any()) {
+            result.add(Week.create(tmp))
+        }
+
+        return result
+    }
+
     fun getNextSchoolday(): Schoolday? {
         val now = LocalDate.now()
         return schooldays.firstOrNull { scd ->
-            scd.date >= now && getLessons(scd).any { lesson -> !lesson.isCompoleted }
+            return@firstOrNull if (scd.date >= now) {
+                val lessons = getLessons(scd)
+
+                !lessons.any() || lessons.any { lesson -> !lesson.isCompoleted }
+            } else {
+                false
+            }
         }
     }
 
@@ -212,7 +341,10 @@ object DemoDataProvider {
 
     // 授業
     fun getLessons(schoolday: Schoolday): List<Lesson> {
-        return lessons.filter { it.date == schoolday.date }
+        val result = mutableListOf<Lesson>()
+        lessons.filterTo(result) { it.date == schoolday.date }
+        result.sortBy { it.start }
+        return result
     }
 
     fun getLesson(id: Int): Lesson {

@@ -10,9 +10,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
+import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.ui.FukurouApp
 import com.example.fukurou.ui.theme.FukurouTheme
 import com.google.accompanist.insets.ProvideWindowInsets
+import java.time.DayOfWeek
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
@@ -25,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            ProvideWindowInsets(consumeWindowInsets = true){
+            ProvideWindowInsets(consumeWindowInsets = true) {
                 FukurouTheme(true) {
                     FukurouApp()
                 }

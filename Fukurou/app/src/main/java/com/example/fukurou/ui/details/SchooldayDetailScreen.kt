@@ -80,7 +80,7 @@ fun SchooldayDetailBody(
         if (selectedIndex.value == 0) {
             // 授業
             var isRefreshing by remember { mutableStateOf(false) }
-            val refreshState = rememberSwipeRefreshState(isRefreshing);
+            val refreshState = rememberSwipeRefreshState(isRefreshing)
 
             SwipeRefresh(
                 state = refreshState,
