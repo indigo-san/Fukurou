@@ -230,6 +230,12 @@ object DemoDataProvider {
     )
 
     val schooldays = mutableListOf(
+        Schoolday(15, LocalDate.now().minusDays(6)),
+        Schoolday(14, LocalDate.now().minusDays(5)),
+        Schoolday(13, LocalDate.now().minusDays(4)),
+//        Schoolday(12, LocalDate.now().minusDays(3)),
+//        Schoolday(11, LocalDate.now().minusDays(2)),
+//        Schoolday(10, LocalDate.now().minusDays(1)),
         Schoolday(0, LocalDate.now().plusDays(0)),
         Schoolday(1, LocalDate.now().plusDays(1)),
         Schoolday(2, LocalDate.now().plusDays(2)),
