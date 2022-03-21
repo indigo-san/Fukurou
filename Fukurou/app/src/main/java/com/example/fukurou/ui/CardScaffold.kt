@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-@ExperimentalMaterial3Api
 @Composable
 fun PrimaryCardScaffold(
     modifier: Modifier = Modifier,
@@ -37,7 +36,6 @@ fun PrimaryCardScaffold(
     )
 }
 
-@ExperimentalMaterial3Api
 @Composable
 fun SecondaryCardScaffold(
     modifier: Modifier = Modifier,
@@ -62,7 +60,7 @@ fun SecondaryCardScaffold(
 }
 
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardScaffold(
     modifier: Modifier = Modifier,

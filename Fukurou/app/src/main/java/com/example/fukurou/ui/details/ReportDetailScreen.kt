@@ -35,8 +35,7 @@ import com.example.fukurou.ui.showDatePicker
 import com.example.fukurou.ui.showTimePicker
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ReportDetailScreen(navController: NavHostController, id: Int) {
     val item = remember { mutableStateOf(DemoDataProvider.getReport(id)) };
@@ -114,7 +113,6 @@ fun ReportDetailScreen(navController: NavHostController, id: Int) {
 }
 
 @Preview(showBackground = true)
-@ExperimentalMaterial3Api
 @Composable
 private fun ReportDetailBodyPreview() {
     ReportDetailBody(
@@ -122,7 +120,7 @@ private fun ReportDetailBodyPreview() {
         onRequestMenu = {})
 }
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
     var subject = DemoDataProvider.getSubject(report.value.subjectId)

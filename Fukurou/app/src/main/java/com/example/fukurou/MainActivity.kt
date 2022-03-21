@@ -16,10 +16,6 @@ import com.example.fukurou.ui.theme.FukurouTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import java.time.DayOfWeek
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,10 +32,6 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {

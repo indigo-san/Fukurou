@@ -7,7 +7,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,12 +17,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.accompanist.insets.statusBarsHeight
 
-@ExperimentalMaterial3Api
 @Composable
 fun ColumnScope.FukurouDrawer(navController: NavHostController, modifier: Modifier = Modifier) {
     Spacer(Modifier.statusBarsHeight())
     DrawerHeader()
-    DividerItem()
+    VerticalDividerItem()
     DrawerItemHeader("Fukurou")
 
     DrawerItem(
@@ -44,7 +42,7 @@ fun ColumnScope.FukurouDrawer(navController: NavHostController, modifier: Modifi
         selected = navController.currentDestination?.route == "report"
     )
 
-    DividerItem(modifier = Modifier.padding(horizontal = 28.dp))
+    VerticalDividerItem(modifier = Modifier.padding(horizontal = 28.dp))
     DrawerItemHeader("Recent Profiles")
 
 
@@ -123,7 +121,7 @@ private fun DrawerItem(text: String, selected: Boolean, icon: ImageVector, onCli
 }
 
 @Composable
-private fun DividerItem(modifier: Modifier = Modifier) {
+private fun VerticalDividerItem(modifier: Modifier = Modifier) {
     // TODO (M3): No Divider, replace when available
     androidx.compose.material.Divider(
         modifier = modifier,

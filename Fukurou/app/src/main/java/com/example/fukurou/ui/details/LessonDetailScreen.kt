@@ -37,8 +37,7 @@ import com.example.fukurou.ui.showDatePicker
 import com.example.fukurou.ui.showTimePicker
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LessonDetailScreen(navController: NavHostController, id: Int) {
     val item = remember { mutableStateOf(DemoDataProvider.getLesson(id)) };
@@ -129,7 +128,6 @@ fun LessonDetailScreen(navController: NavHostController, id: Int) {
 }
 
 @Preview(showBackground = true)
-@ExperimentalMaterial3Api
 @Composable
 private fun LessonDetailBodyPreview() {
     LessonDetailBody(
@@ -137,7 +135,7 @@ private fun LessonDetailBodyPreview() {
         onRequestMenu = {})
 }
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonDetailBody(lesson: MutableState<Lesson>, onRequestMenu: () -> Unit) {
     var subject = DemoDataProvider.getSubject(lesson.value.subjectId)

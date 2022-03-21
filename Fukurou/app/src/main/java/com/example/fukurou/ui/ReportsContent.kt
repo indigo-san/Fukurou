@@ -47,8 +47,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun ReportsContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     val lazyListState = rememberLazyListState()

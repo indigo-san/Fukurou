@@ -27,10 +27,6 @@ import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlin.math.ln
 
-@ExperimentalAnimationApi
-@ExperimentalFoundationApi
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
 @Composable
 fun FukurouApp() {
     val navController = rememberNavController()

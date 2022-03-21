@@ -34,7 +34,6 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
-@ExperimentalMaterial3Api
 @Composable
 fun DashboardContent(
     navController: NavHostController
@@ -69,7 +68,6 @@ fun DashboardContent(
     }
 }
 
-@ExperimentalMaterial3Api
 @Composable
 fun NextCard(navController: NavHostController) {
     val searchLayoutHeightDp = 64.dp

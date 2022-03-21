@@ -33,8 +33,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Preview(showBackground = true)
 @Composable
-@ExperimentalMaterialApi
-@ExperimentalMaterial3Api
 fun PreviewBody() {
     val scd = DemoDataProvider.getNextSchoolday()
     val selectedIndex = remember { mutableStateOf(0) }
@@ -43,8 +41,6 @@ fun PreviewBody() {
     }
 }
 
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
 @Composable
 fun SchooldayDetailBody(
     item: Schoolday,
@@ -215,8 +211,7 @@ private fun DividerItem(modifier: Modifier = Modifier) {
     )
 }
 
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
     val item = DemoDataProvider.getSchoolday(id)

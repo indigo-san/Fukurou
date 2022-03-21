@@ -1,152 +1,270 @@
 package com.example.fukurou.ui
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.rememberSwipeableState
+import androidx.compose.material3.*
+import androidx.compose.material.swipeable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.example.fukurou.data.DemoDataProvider
-import com.example.fukurou.data.Schoolday
+import com.example.fukurou.data.Lesson
 import com.example.fukurou.dateformatter
+import com.example.fukurou.totalHour
+import com.google.accompanist.pager.ExperimentalPagerApi
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.TextStyle
 import java.util.*
-import kotlin.math.absoluteValue
 
-@ExperimentalFoundationApi
+// 週の最初の日付を取得します
+private fun getCurrentWeek(): LocalDate {
+    val now = LocalDate.now()
+    return now.minusDays(now.dayOfWeek.ordinal.toLong())
+}
+
+private enum class SwipeDirection {
+    None,
+    LeftToRight,
+    RightToLeft
+}
+
+private val HourHeight = 72.dp//48.dp
+private val DayHeight = HourHeight * 24
+
+@OptIn(
+    ExperimentalPagerApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalAnimationApi::class
+)
 @Composable
 fun TimetableContent(navController: NavHostController) {
-    val lazyListState = rememberLazyListState()
-    val scrollState = rememberScrollState()
+    val verticalScrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    var base by remember { mutableStateOf(getCurrentWeek()) }
+    val state = rememberSwipeableState(SwipeDirection.None) {
+        base = when (it) {
+            SwipeDirection.None -> base
+            SwipeDirection.LeftToRight -> base.minusDays(7)
+            SwipeDirection.RightToLeft -> base.plusDays(7)
+        }
+        true
+    }
 
-    Row(
-        modifier = Modifier
-            .padding(bottom = 88.dp)
-    ) {
+    val px = with(LocalDensity.current) { 80.dp.toPx() }
+    val anchors = mapOf(
+        -px to SwipeDirection.RightToLeft,
+        0f to SwipeDirection.None,
+        px to SwipeDirection.LeftToRight
+    )
+
+    Row {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface)
+                .zIndex(5f)
                 .padding(0.dp, 40.dp, 0.dp, 0.dp)
-                .verticalScroll(scrollState)
+                .verticalScroll(verticalScrollState)
         ) {
-            for (index in 0..24) {
+            repeat(24) { index ->
                 Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .size(32.dp, 48.dp)
+                        .size(32.dp, HourHeight)
+                        .padding(top = 8.dp),
                 ) {
                     Text(index.toString())
                 }
             }
         }
 
-        LazyRow(
-            state = lazyListState,
+        AnimatedContent(
             modifier = Modifier
-                .verticalScroll(scrollState)
-        ) {
-            var last: Schoolday? = null
-
-            for (it in DemoDataProvider.schooldays) {
-                if (last != null) {
-                    val sub = it.date.toEpochDay() - last.date.toEpochDay()
-                    val date = last.date
-
-                    for (offset in 1 until sub) {
-                        item {
-                            Column {
-                                val date2 = date.plusDays(offset)
-                                TimetableHeader(
-                                    modifier = Modifier
-                                        .graphicsLayer(translationY = scrollState.value.toFloat()),
-                                    week = date2.dayOfWeek,
-                                    date = date2
-                                )
-
-                                Box(modifier = Modifier.height((48 * 24).dp))
-                            }
-                        }
-                    }
-                }
-
-                item {
-                    Column {
-                        TimetableHeader(
-                            modifier = Modifier.graphicsLayer(translationY = scrollState.value.toFloat()),
-                            week = it.date.dayOfWeek,
-                            date = it.date
-                        )
-
-                        Box(modifier = Modifier.height((48 * 24).dp))
-                    }
-                }
-
-                last = it
+                .fillMaxHeight()
+                .weight(1f),
+            targetState = base,
+            transitionSpec = {
+                if (targetState > initialState) {
+                    slideInHorizontally { width -> width } + fadeIn() with
+                            slideOutHorizontally { width -> -width } + fadeOut()
+                } else {
+                    slideInHorizontally { width -> -width } + fadeIn() with
+                            slideOutHorizontally { width -> width } + fadeOut()
+                }.using(
+                    SizeTransform(clip = false)
+                )
             }
+        ) { date ->
+            Timetable(
+                verticalScrollState = verticalScrollState,
+                horizontalScrollState = horizontalScrollState,
+                navController = navController,
+                date = date,
+                headerModifier = Modifier
+                    .swipeable(
+                        state = state,
+                        anchors = anchors,
+                        orientation = Orientation.Horizontal
+                    )
+            )
         }
     }
 
-//    LazyColumn(
-//        state = lazyListState,
-//        modifier = Modifier.fillMaxHeight()
-//    ) {
-//        for (item in DemoDataProvider.chunkSchooldays()) {
-//            stickyHeader {
-//                Row(
-//                    modifier = Modifier
-//                        .padding(32.dp, 0.dp, 0.dp, 0.dp)
-//                        .horizontalScroll(scrollState)
-//                ) {
-//                    TimetableHeader(DayOfWeek.MONDAY, item.monday?.date)
-//                    TimetableHeader(DayOfWeek.TUESDAY, item.tuesday?.date)
-//                    TimetableHeader(DayOfWeek.WEDNESDAY, item.wednesday?.date)
-//                    TimetableHeader(DayOfWeek.THURSDAY, item.thursday?.date)
-//                    TimetableHeader(DayOfWeek.FRIDAY, item.friday?.date)
-//                    TimetableHeader(DayOfWeek.SATURDAY, item.saturday?.date)
-//                    TimetableHeader(DayOfWeek.SUNDAY, item.sunday?.date)
-//                }
-//            }
-//
-//            item {
-//                Row {
-//                    Column(modifier = Modifier.width(32.dp)) {
-//
-//                    }
-//
-//                    Column(
-//                        modifier = Modifier
-//                            .size(64.dp, 40.dp)
-//                            .padding(1.dp, 0.dp)
-//                    ) {
-//                        val schoolday = item.monday
-//                        if (schoolday != null) {
-//                            val lessons = DemoDataProvider.getLessons(schoolday)
-//
-//
-//                        }
-//                    }
-//
-//
-//                }
-//            }
-//        }
-//    }
+    val hourHeightPx = with(LocalDensity.current) { HourHeight.toPx() }
+    LaunchedEffect(Unit) {
+        verticalScrollState.animateScrollTo(
+            ((hourHeightPx * LocalTime.now().totalHour) - px).coerceAtLeast(
+                0f
+            ).toInt()
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class, androidx.compose.foundation.ExperimentalFoundationApi::class)
+@Composable
+private fun Timetable(
+    verticalScrollState: ScrollState,
+    horizontalScrollState: ScrollState,
+    date: LocalDate,
+    navController: NavHostController,
+    headerModifier: Modifier = Modifier
+) {
+    Column {
+        Row(
+            modifier = Modifier
+                .horizontalScroll(horizontalScrollState)
+                .then(headerModifier)
+        ) {
+            for (offset in 0..6) {
+                val d = date.plusDays(offset.toLong())
+                TimetableHeader(
+                    week = d.dayOfWeek,
+                    date = d,
+                    modifier = Modifier.padding(
+                        start = 1.dp,
+                        end = if (offset == 6)
+                            1.dp
+                        else
+                            0.dp
+                    )
+                )
+            }
+        }
+
+        HorizontalDividerItem()
+
+        Box(
+            modifier = Modifier
+                .horizontalScroll(horizontalScrollState)
+                .verticalScroll(verticalScrollState)
+                .height(DayHeight)
+        ) {
+            repeat(24) { index ->
+                Box(
+                    modifier = Modifier
+                        .padding(top = HourHeight * (index + 1))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .width(66.dp * 7)
+                        .height(1.dp)
+                )
+            }
+
+            Row {
+                for (offset in 0..6) {
+                    VerticalDividerItem()
+                    val d = date.plusDays(offset.toLong())
+                    TimetableList(date = d, navController = navController)
+                }
+
+                VerticalDividerItem()
+            }
+
+            Box(
+                modifier = Modifier
+                    .padding(top = HourHeight * LocalTime.now().totalHour)
+                    .background(MaterialTheme.colorScheme.error)
+                    .width(66.dp * 7)
+                    .height(1.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun VerticalDividerItem() {
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .fillMaxHeight()
+            .width(1.dp)
+    )
+}
+
+@Composable
+private fun HorizontalDividerItem() {
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .fillMaxWidth()
+            .height(1.dp)
+    )
+}
+
+@Composable
+private fun RowScope.TimetableList(date: LocalDate, navController: NavHostController) {
+    val scd = DemoDataProvider.getSchooldayOrNull(date)
+    Box(
+        Modifier
+            .width(64.dp)
+            .fillMaxHeight()
+            .padding(2.dp, 0.dp)
+    ) {
+        if (scd != null) {
+            val lessons = DemoDataProvider.getLessons(scd)
+
+            for (it in lessons) {
+                val startF = it.start.totalHour
+                val endF = it.end.totalHour
+                LessonItem(
+                    lesson = it,
+                    modifier = Modifier
+                        .padding(top = HourHeight * startF)
+                        .width(64.dp)
+                        .height(HourHeight * (endF - startF))
+                        .clickable {
+                            navController.navigate("lesson-detail/${it.id}")
+                        }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LessonItem(lesson: Lesson, modifier: Modifier = Modifier) {
+    val subject = DemoDataProvider.getSubject(lesson.subjectId)
+    Surface(
+        color = Color(subject.color),
+        modifier = modifier,
+        shape = RoundedCornerShape(4.dp)
+    ) {
+        Text(
+            text = subject.name,
+            modifier = Modifier.padding(4.dp)
+        )
+    }
 }
 
 @Composable
@@ -158,11 +276,9 @@ private fun TimetableHeader(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
+        modifier = modifier
             .size(64.dp, 40.dp)
-            .padding(1.dp, 0.dp)
             .clickable(onClick = onClick)
-            .then(modifier)
     ) {
         Text(
             text = week.getDisplayName(TextStyle.SHORT, Locale.getDefault())

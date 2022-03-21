@@ -252,6 +252,10 @@ object DemoDataProvider {
         return schooldays.first { it.date == date }
     }
 
+    fun getSchooldayOrNull(date: LocalDate): Schoolday? {
+        return schooldays.firstOrNull { it.date == date }
+    }
+
     fun createOrGetSchoolday(date: LocalDate): Schoolday {
         var id: Int = -1
         for (item in schooldays) {

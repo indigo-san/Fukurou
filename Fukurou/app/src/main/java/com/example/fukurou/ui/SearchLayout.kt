@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.example.fukurou.R
 import kotlinx.coroutines.launch
 
-@ExperimentalMaterial3Api
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLayout(
     drawerState: DrawerState,

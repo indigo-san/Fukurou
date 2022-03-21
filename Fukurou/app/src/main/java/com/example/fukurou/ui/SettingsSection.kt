@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
-@ExperimentalMaterial3Api
 @Composable
 fun SettingsSection(
     title: @Composable () -> Unit = {},
