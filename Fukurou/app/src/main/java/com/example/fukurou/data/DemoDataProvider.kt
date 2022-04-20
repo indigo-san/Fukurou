@@ -49,6 +49,16 @@ data class Week(
 }
 
 object DemoDataProvider {
+    val timeFrames = mutableListOf(
+        TimeFrame(1, LocalTime.of(9, 0), LocalTime.of(9, 45)),
+        TimeFrame(2, LocalTime.of(9, 55), LocalTime.of(10, 40)),
+        TimeFrame(3, LocalTime.of(10, 50), LocalTime.of(11, 35)),
+        TimeFrame(4, LocalTime.of(11, 45), LocalTime.of(12, 30)),
+        TimeFrame(5, LocalTime.of(13, 35), LocalTime.of(14, 20)),
+        TimeFrame(6, LocalTime.of(14, 30), LocalTime.of(15, 15)),
+        TimeFrame(7, LocalTime.of(15, 25), LocalTime.of(16, 10)),
+    )
+
     val subjects = mutableListOf(
         Subject("教科1", 0, 0xffff1744),
         Subject("教科2", 1, 0xff2962ff),
@@ -60,71 +70,61 @@ object DemoDataProvider {
     val lessons = mutableListOf(
         Lesson(
             date = LocalDate.now().plusDays(0),
-            start = LocalTime.of(9, 0),
-            end = LocalTime.of(9, 50),
+            timeFrame = 1,
             id = 0,
             subjectId = 0
         ),
         Lesson(
             date = LocalDate.now().plusDays(0),
-            start = LocalTime.of(10, 0),
-            end = LocalTime.of(10, 50),
+            timeFrame = 2,
             id = 1,
             subjectId = 1
         ),
         Lesson(
             date = LocalDate.now().plusDays(0),
-            start = LocalTime.of(10, 0),
-            end = LocalTime.of(10, 50),
+            timeFrame = 3,
             id = 2,
             subjectId = 2
         ),
         Lesson(
             date = LocalDate.now().plusDays(0),
-            start = LocalTime.of(10, 0),
-            end = LocalTime.of(10, 50),
+            timeFrame = 4,
             id = 3,
             subjectId = 3
         ),
         Lesson(
             date = LocalDate.now().plusDays(0),
-            start = LocalTime.of(10, 0),
-            end = LocalTime.of(10, 50),
+            timeFrame = 5,
             id = 4,
             subjectId = 4
         ),
         Lesson(
             date = LocalDate.now().plusDays(1),
-            start = LocalTime.of(9, 0),
-            end = LocalTime.of(9, 50),
+            timeFrame = 1,
             id = 5,
             subjectId = 0
         ),
         Lesson(
             date = LocalDate.now().plusDays(1),
-            start = LocalTime.of(10, 0),
-            end = LocalTime.of(10, 50),
+            timeFrame = 2,
             id = 6,
             subjectId = 1
         ),
         Lesson(
             date = LocalDate.now().plusDays(1),
-            start = LocalTime.of(11, 0),
-            end = LocalTime.of(11, 50),
+            timeFrame = 3,
             id = 7,
             subjectId = 2
         ),
         Lesson(
             date = LocalDate.now().plusDays(1),
-            start = LocalTime.of(12, 0),
-            end = LocalTime.of(12, 50),
+            timeFrame = 4,
             id = 8,
             subjectId = 3
         ),
         Lesson(
             date = LocalDate.now().plusDays(1),
-            start = LocalTime.of(13, 0),
-            end = LocalTime.of(13, 50),
+            timeFrame = 5,
             id = 9,
             subjectId = 4
         ),
@@ -248,6 +248,8 @@ object DemoDataProvider {
         Schoolday(9, LocalDate.now().plusDays(9)),
     )
 
+    var recentlyUsedLesson: Lesson? = null
+
     fun getSchoolday(date: LocalDate): Schoolday {
         return schooldays.first { it.date == date }
     }
@@ -318,7 +320,9 @@ object DemoDataProvider {
             return@firstOrNull if (scd.date >= now) {
                 val lessons = getLessons(scd)
 
-                !lessons.any() || lessons.any { lesson -> !lesson.isCompoleted }
+                !lessons.any() || lessons.any { lesson ->
+                    !(getTimeFrameOrNull(lesson.timeFrame)?.isCompoleted(lesson.date) ?: false)
+                }
             } else {
                 false
             }
@@ -327,6 +331,10 @@ object DemoDataProvider {
 
     fun getSubject(id: Int): Subject {
         return subjects.first { it.id == id }
+    }
+
+    fun getSubjectOrNull(id: Int): Subject? {
+        return subjects.firstOrNull { it.id == id }
     }
 
     // レポート
@@ -353,7 +361,14 @@ object DemoDataProvider {
     fun getLessons(schoolday: Schoolday): List<Lesson> {
         val result = mutableListOf<Lesson>()
         lessons.filterTo(result) { it.date == schoolday.date }
-        result.sortBy { it.start }
+        result.sortBy { it.timeFrame }
+        return result
+    }
+
+    fun getLessons(date: LocalDate): List<Lesson> {
+        val result = mutableListOf<Lesson>()
+        lessons.filterTo(result) { it.date == date }
+        result.sortBy { it.timeFrame }
         return result
     }
 
@@ -370,5 +385,32 @@ object DemoDataProvider {
 
     fun deleteLesson(id: Int) {
         lessons.removeIf { it.id == id }
+    }
+
+    fun getNextLessonId(): Int {
+        var id: Int = -1
+        for (item in schooldays) {
+            id = max(id, item.id)
+        }
+        return ++id
+    }
+
+    fun addLesson(lesson: Lesson) {
+        lessons.add(lesson)
+    }
+
+    fun canAddLesson(lesson: Lesson): Boolean {
+        if (lesson.timeFrame < 1) {
+            return false
+        }
+
+        val items = lessons.filter { it.date == lesson.date }
+
+        return !items.any { it.timeFrame == lesson.timeFrame }
+    }
+
+    // timeframe
+    fun getTimeFrameOrNull(num: Int): TimeFrame? {
+        return timeFrames.firstOrNull { it.number == num }
     }
 }

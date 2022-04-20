@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.TextSnippet
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.data.Schoolday
+import com.example.fukurou.timeformatter
 import com.example.fukurou.ui.DateFormat
 import com.example.fukurou.ui.TimeRange
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -118,7 +117,16 @@ fun SchooldayDetailBody(
                                         .weight(1f)
                                         .padding(8.dp, 0.dp)
                                 ) {
-                                    TimeRange(start = it.start, end = it.end)
+                                    val tf = DemoDataProvider.getTimeFrameOrNull(it.timeFrame)
+                                    if (tf != null) {
+                                        TimeRange(start = tf.start, end = tf.end)
+                                    }
+                                    else{
+                                        Text(
+                                            text = "${it.timeFrame}時限目",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                    }
                                 }
                             }
 
@@ -240,7 +248,7 @@ fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Outlined.ArrowBack,
-                            contentDescription = stringResource(id = R.string.cd_back)
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
 
@@ -249,7 +257,7 @@ fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Outlined.Archive,
-                            contentDescription = stringResource(id = R.string.cd_back)
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
                     IconButton(onClick = {}) {

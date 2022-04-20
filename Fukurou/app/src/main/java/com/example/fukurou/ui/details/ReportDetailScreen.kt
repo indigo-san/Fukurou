@@ -28,11 +28,9 @@ import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.*
 import com.example.fukurou.dateformatter
-import com.example.fukurou.timeformatter
 import com.example.fukurou.ui.SettingsSection
 import com.example.fukurou.ui.TextInputDialog
 import com.example.fukurou.ui.showDatePicker
-import com.example.fukurou.ui.showTimePicker
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -49,7 +47,7 @@ fun ReportDetailScreen(navController: NavHostController, id: Int) {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Outlined.ArrowBack,
-                            contentDescription = stringResource(id = R.string.cd_back)
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
                 },

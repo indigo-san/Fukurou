@@ -69,6 +69,8 @@ dependencies {
     // If using indicators, also depend on
     implementation "com.google.accompanist:accompanist-pager-indicators:0.24.4-alpha"
 
+    implementation 'de.charlex.compose:speeddial:1.0.0-beta03'
+
     implementation "com.google.android.material:material:1.6.0-alpha03"
     implementation 'androidx.appcompat:appcompat:1.4.1'
 

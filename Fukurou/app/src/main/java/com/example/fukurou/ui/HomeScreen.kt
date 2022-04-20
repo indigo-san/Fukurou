@@ -1,14 +1,11 @@
 package com.example.fukurou.ui
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Dashboard
 import androidx.compose.material.icons.outlined.Description
@@ -18,15 +15,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.fukurou.R
-import com.example.fukurou.data.DemoDataProvider
 import java.time.LocalDate
+
+private fun getThisWeek(): LocalDate {
+    val now = LocalDate.now()
+    return now.minusDays(now.dayOfWeek.ordinal.toLong())
+}
 
 @Preview
 @Composable
@@ -42,7 +41,7 @@ fun HomeScreen(navController: NavHostController) {
     val showUserDialog = remember { mutableStateOf(false) }
     val bottomNavState = rememberSaveable { mutableStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
-    val activity = LocalContext.current as? FragmentActivity
+    val weekStart = remember { mutableStateOf(getThisWeek()) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -51,22 +50,7 @@ fun HomeScreen(navController: NavHostController) {
         Scaffold(
             floatingActionButton = {
                 if (bottomNavState.value == 1) {
-                    ExtendedFloatingActionButton(
-                        text = { Text("授業日を追加") },
-                        icon = {
-                            Icon(
-                                Icons.Outlined.Add,
-                                contentDescription = null
-                            )
-                        },
-                        onClick = {
-                            if (activity != null) {
-                                showDatePicker(LocalDate.now(), activity) {
-                                    val item = DemoDataProvider.createOrGetSchoolday(it)
-                                    navController.navigate("schoolday-detail/${item.id}")
-                                }
-                            }
-                        })
+
                 }
             },
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -119,7 +103,7 @@ fun HomeScreen(navController: NavHostController) {
                 }
             },
             topBar = {
-                SearchLayout(drawerState, showUserDialog)
+                HomeTopBar(drawerState, showUserDialog, bottomNavState, weekStart)
             }
         ) {
             AnimatedContent(
@@ -141,7 +125,7 @@ fun HomeScreen(navController: NavHostController) {
                     }
                     1 -> {
                         //LessonsContent(navController, snackbarHostState)
-                        TimetableContent(navController)
+                        TimetableContent(navController, weekStart)
                     }
                     2 -> {
                         ReportsContent(navController, snackbarHostState)

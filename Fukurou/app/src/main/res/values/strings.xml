@@ -2,7 +2,7 @@
     <string name="app_name">Fukurou</string>
 
     <string name="title_activity_gmail">Gmail</string>
-    <string name="cd_back">Back</string>
+    <string name="back">戻る</string>
     <string name="cd_gmail_menu">Menu</string>
     <string name="cd_gmail_profile">My profile</string>
     <string name="cd_create_new_email">Create new email</string>
@@ -15,4 +15,8 @@
     <string name="search">検索</string>
     <string name="item_was_deleted">アイテムが削除されました</string>
     <string name="restore">元に戻す</string>
+    <string name="move_to_this_week">今週に移動</string>
+    <string name="add_lesson">授業を追加</string>
+    <string name="create">作成</string>
+    <string name="unknown_subject">不明な教科</string>
 </resources>
