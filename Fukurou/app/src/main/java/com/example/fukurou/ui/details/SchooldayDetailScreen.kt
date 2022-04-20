@@ -29,6 +29,7 @@ import com.example.fukurou.ui.DateFormat
 import com.example.fukurou.ui.TimeRange
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import java.time.LocalDate
 
 @Preview(showBackground = true)
 @Composable
@@ -36,13 +37,13 @@ fun PreviewBody() {
     val scd = DemoDataProvider.getNextSchoolday()
     val selectedIndex = remember { mutableStateOf(0) }
     if (scd != null) {
-        SchooldayDetailBody(scd, selectedIndex, rememberNavController())
+        SchooldayDetailBody(LocalDate.now(), selectedIndex, rememberNavController())
     }
 }
 
 @Composable
 fun SchooldayDetailBody(
-    item: Schoolday,
+    date: LocalDate,
     selectedIndex: MutableState<Int>,
     navController: NavHostController
 ) {
@@ -82,7 +83,7 @@ fun SchooldayDetailBody(
                 onRefresh = { isRefreshing = true },
             ) {
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                    items(DemoDataProvider.getLessons(item)) {
+                    items(DemoDataProvider.getLessons(date)) {
                         val subject = DemoDataProvider.getSubject(it.subjectId)
                         Column {
                             Row(
@@ -147,7 +148,7 @@ fun SchooldayDetailBody(
                 onRefresh = { isRefreshing = true },
             ) {
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                    items(DemoDataProvider.getReports(item)) {
+                    items(DemoDataProvider.getReports(date)) {
                         val subject = DemoDataProvider.getSubject(it.subjectId)
                         Column {
                             Row(
@@ -221,8 +222,7 @@ private fun DividerItem(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
-    val item = DemoDataProvider.getSchoolday(id)
+fun SchooldayDetailScreen(navController: NavHostController, date: LocalDate) {
     val selectedIndex = rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
@@ -243,7 +243,7 @@ fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
         },
         topBar = {
             MediumTopAppBar(
-                title = { DateFormat(item.date) },
+                title = { DateFormat(date) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -270,6 +270,6 @@ fun SchooldayDetailScreen(navController: NavHostController, id: Int) {
                 }
             )
         },
-        content = { SchooldayDetailBody(item, selectedIndex, navController) }
+        content = { SchooldayDetailBody(date, selectedIndex, navController) }
     )
 }

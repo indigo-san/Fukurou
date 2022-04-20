@@ -303,6 +303,7 @@ fun LessonDetailBody(
                 exit = slideOutVertically() + shrinkVertically() + fadeOut()
             ) {
                 Column {
+                    val lessons = DemoDataProvider.getLessons(lesson.value.date)
                     for (item in DemoDataProvider.timeFrames.sortedBy { it.number }) {
                         val select = {
                             lesson.value = lesson.value.copy(timeFrame = item.number)

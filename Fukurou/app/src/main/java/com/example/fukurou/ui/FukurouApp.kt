@@ -27,6 +27,10 @@ import com.example.fukurou.ui.details.SchooldayDetailScreen
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import java.time.LocalDate
+import java.time.temporal.ChronoField
+import java.time.temporal.TemporalAccessor
+import java.time.temporal.TemporalField
 import kotlin.math.ln
 
 @Composable
@@ -51,11 +55,15 @@ fun FukurouApp() {
         }
 
         composable(
-            "schoolday-detail/{id}", listOf(navArgument("id") { type = NavType.IntType })
+            "schoolday-detail/{epochDay}",
+            listOf(navArgument("epochDay") { type = NavType.LongType })
         ) { backStackEntry ->
+            val epochDay =
+                backStackEntry.arguments?.getLong("epochDay") ?: LocalDate.now().toEpochDay()
+
             SchooldayDetailScreen(
                 navController = navController,
-                id = backStackEntry.arguments?.getInt("id") ?: -1
+                date = LocalDate.ofEpochDay(epochDay)
             )
         }
 

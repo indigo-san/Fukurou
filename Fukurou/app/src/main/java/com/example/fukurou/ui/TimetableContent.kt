@@ -185,7 +185,10 @@ private fun Timetable(
                 val d = date.plusDays(offset.toLong())
                 TimetableHeader(
                     week = d.dayOfWeek,
-                    date = d
+                    date = d,
+                    onClick = {
+                        navController.navigate("schoolday-detail/${d.toEpochDay()}")
+                    }
                 )
             }
         }
@@ -269,36 +272,33 @@ private fun RowScope.TimetableList(
     date: LocalDate,
     navController: NavHostController
 ) {
-    val scd = DemoDataProvider.getSchooldayOrNull(date)
     Column(
         Modifier
             .width(DayWidth)
             .fillMaxHeight()
             .padding(2.dp, 0.dp)
     ) {
-        if (scd != null) {
-            val lessons = DemoDataProvider.getLessons(scd)
+        val lessons = DemoDataProvider.getLessons(date)
 
-            for (tf in DemoDataProvider.timeFrames.sortedBy { it.number }) {
-                val it = lessons.firstOrNull { it.timeFrame == tf.number }
-                if (it != null) {
-                    LessonItem(
-                        lesson = it,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(0.dp, 2.dp)
-                            .clickable {
-                                navController.navigate("lesson-detail/${it.id}")
-                            }
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(0.dp, 2.dp)
-                    )
-                }
+        for (tf in DemoDataProvider.timeFrames.sortedBy { it.number }) {
+            val it = lessons.firstOrNull { it.timeFrame == tf.number }
+            if (it != null) {
+                LessonItem(
+                    lesson = it,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(0.dp, 2.dp)
+                        .clickable {
+                            navController.navigate("lesson-detail/${it.id}")
+                        }
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(0.dp, 2.dp)
+                )
             }
         }
     }

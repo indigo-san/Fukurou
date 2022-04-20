@@ -229,104 +229,25 @@ object DemoDataProvider {
         )
     )
 
-    val schooldays = mutableListOf(
-        Schoolday(15, LocalDate.now().minusDays(6)),
-        Schoolday(14, LocalDate.now().minusDays(5)),
-        Schoolday(13, LocalDate.now().minusDays(4)),
-//        Schoolday(12, LocalDate.now().minusDays(3)),
-//        Schoolday(11, LocalDate.now().minusDays(2)),
-//        Schoolday(10, LocalDate.now().minusDays(1)),
-        Schoolday(0, LocalDate.now().plusDays(0)),
-        Schoolday(1, LocalDate.now().plusDays(1)),
-        Schoolday(2, LocalDate.now().plusDays(2)),
-        Schoolday(3, LocalDate.now().plusDays(3)),
-        Schoolday(4, LocalDate.now().plusDays(4)),
-        Schoolday(5, LocalDate.now().plusDays(5)),
-        Schoolday(6, LocalDate.now().plusDays(6)),
-        Schoolday(7, LocalDate.now().plusDays(7)),
-        Schoolday(8, LocalDate.now().plusDays(8)),
-        Schoolday(9, LocalDate.now().plusDays(9)),
-    )
-
     var recentlyUsedLesson: Lesson? = null
 
-    fun getSchoolday(date: LocalDate): Schoolday {
-        return schooldays.first { it.date == date }
-    }
+    fun getNextSchoolday(): LocalDate? {
+        var now = LocalDate.now()
+        val max = lessons.maxOf { it.date }
 
-    fun getSchooldayOrNull(date: LocalDate): Schoolday? {
-        return schooldays.firstOrNull { it.date == date }
-    }
-
-    fun createOrGetSchoolday(date: LocalDate): Schoolday {
-        var id: Int = -1
-        for (item in schooldays) {
-            if (item.date == date) {
-                return item
-            }
-
-            id = max(id, item.id)
-        }
-        id++
-
-        val item = Schoolday(id, date)
-        schooldays.add(item)
-        schooldays.sortBy { it.date }
-        return item
-    }
-
-    fun getSchoolday(id: Int): Schoolday {
-        return schooldays.first { it.id == id }
-    }
-
-    fun deleteSchoolday(id: Int) {
-        schooldays.removeIf { it.id == id }
-    }
-
-    fun chunkSchooldays(): List<Week> {
-        val startSunday = false
-        val field = if (startSunday)
-            WeekFields.SUNDAY_START.dayOfWeek()
-        else
-            ChronoField.DAY_OF_WEEK
-
-        val tmp: MutableList<Schoolday?> = mutableListOf()
-        val result: MutableList<Week> = mutableListOf()
-
-        for (index in 0..schooldays.size - 2) {
-            val item = schooldays[index]
-            val next = schooldays[index + 1]
-            val itemValue = item.date.dayOfWeek.get(field)
-            val nextValue = next.date.dayOfWeek.get(field)
-
-            if (itemValue < nextValue) {
-                tmp.add(item)
-            } else if (itemValue > nextValue) {
-                tmp.add(item)
-                result.add(Week.create(tmp))
-                tmp.clear()
-            }
-        }
-        if (tmp.any()) {
-            result.add(Week.create(tmp))
-        }
-
-        return result
-    }
-
-    fun getNextSchoolday(): Schoolday? {
-        val now = LocalDate.now()
-        return schooldays.firstOrNull { scd ->
-            return@firstOrNull if (scd.date >= now) {
-                val lessons = getLessons(scd)
-
-                !lessons.any() || lessons.any { lesson ->
-                    !(getTimeFrameOrNull(lesson.timeFrame)?.isCompoleted(lesson.date) ?: false)
+        while (now <= max) {
+            val items = lessons.filter { it.date == now }
+            if (!items.any() || items.any { lesson ->
+                    getTimeFrameOrNull(lesson.timeFrame)?.isCompoleted(lesson.date) != true
                 }
+            ) {
+                return now
             } else {
-                false
+                now = now.plusDays(1)
             }
         }
+
+        return null
     }
 
     fun getSubject(id: Int): Subject {
@@ -340,6 +261,10 @@ object DemoDataProvider {
     // レポート
     fun getReports(schoolday: Schoolday): List<Report> {
         return reports.filter { it.date == schoolday.date }
+    }
+
+    fun getReports(date: LocalDate): List<Report> {
+        return reports.filter { it.date == date }
     }
 
     fun getReport(id: Int): Report {
@@ -379,6 +304,13 @@ object DemoDataProvider {
     fun updateLesson(lesson: Lesson) {
         val index = lessons.indexOfFirst { it.id == lesson.id }
         if (index >= 0) {
+            val near = lessons.indexOfFirst {
+                it.date == lesson.date && it.timeFrame == lesson.timeFrame
+            }
+            if (near != -1) {
+                lessons[near] = lessons[near].copy(timeFrame = lessons[index].timeFrame)
+            }
+
             lessons[index] = lesson
         }
     }
@@ -389,7 +321,7 @@ object DemoDataProvider {
 
     fun getNextLessonId(): Int {
         var id: Int = -1
-        for (item in schooldays) {
+        for (item in lessons) {
             id = max(id, item.id)
         }
         return ++id

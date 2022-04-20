@@ -15,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,9 +28,7 @@ import com.example.fukurou.dateformatter
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlin.math.abs
-import kotlin.math.absoluteValue
 
 @Composable
 fun DashboardContent(
@@ -73,9 +69,9 @@ fun NextCard(navController: NavHostController) {
     val searchLayoutHeightDp = 64.dp
     //val background = if (AppThemeState.darkTheme) graySurface else Color.White.copy(alpha = 0.8f)
 
-    val schoolday = remember { DemoDataProvider.getNextSchoolday() }
+    val date = remember { DemoDataProvider.getNextSchoolday() }
 
-    if (schoolday == null) {
+    if (date == null) {
 
     } else {
         SecondaryCardScaffold(
@@ -88,11 +84,11 @@ fun NextCard(navController: NavHostController) {
             },
             isClickable = true,
             onClick = {
-                navController.navigate("schoolday-detail/${schoolday.id}")
+                navController.navigate("schoolday-detail/${date.toEpochDay()}")
             }
         ) {
             Row {
-                DateFormat(schoolday.date)
+                DateFormat(date)
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -102,7 +98,7 @@ fun NextCard(navController: NavHostController) {
                         .fillMaxWidth()
                 ) {
                     var x = 0
-                    for (item in DemoDataProvider.getLessons(schoolday)
+                    for (item in DemoDataProvider.getLessons(date)
                         .map { DemoDataProvider.getSubject(it.subjectId) }) {
 
                         Box(
