@@ -1,16 +1,42 @@
 package com.example.fukurou.ui
 
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,10 +47,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
-import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.dateformatter
+import com.example.fukurou.viewmodel.DashboardViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import java.time.LocalDate
@@ -32,17 +59,20 @@ import kotlin.math.abs
 
 @Composable
 fun DashboardContent(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: DashboardViewModel = viewModel(factory = DashboardViewModel.Factory)
 ) {
     val lazyListState = rememberLazyListState()
 
     println("${lazyListState.firstVisibleItemIndex}  ${lazyListState.firstVisibleItemScrollOffset}")
 
-    var isRefreshing by remember { mutableStateOf(false) }
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
-        onRefresh = { isRefreshing = true },
+        onRefresh = {
+            viewModel.refresh()
+        },
     ) {
         LazyColumn(
             state = lazyListState,
@@ -56,20 +86,18 @@ fun DashboardContent(
                 Spacer(modifier = Modifier.height(88.dp))
             }
         }
-
-        if (isRefreshing) {
-            Text("Refreshing")
-        }
-        isRefreshing = false
     }
 }
 
 @Composable
-fun NextCard(navController: NavHostController) {
+fun NextCard(
+    navController: NavHostController,
+    viewModel: DashboardViewModel = viewModel(factory = DashboardViewModel.Factory)
+) {
     val searchLayoutHeightDp = 64.dp
     //val background = if (AppThemeState.darkTheme) graySurface else Color.White.copy(alpha = 0.8f)
 
-    val date = remember { DemoDataProvider.getNextSchoolday() }
+    val date by viewModel.nextDay.collectAsState()
 
     if (date == null) {
 
@@ -84,11 +112,11 @@ fun NextCard(navController: NavHostController) {
             },
             isClickable = true,
             onClick = {
-                navController.navigate("schoolday-detail/${date.toEpochDay()}")
+                navController.navigate("schoolday-detail/${date!!.toEpochDay()}")
             }
         ) {
             Row {
-                DateFormat(date)
+                DateFormat(date!!)
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -97,9 +125,9 @@ fun NextCard(navController: NavHostController) {
                         .align(Alignment.Bottom)
                         .fillMaxWidth()
                 ) {
+                    val dotColors by viewModel.dotColors.collectAsState()
                     var x = 0
-                    for (item in DemoDataProvider.getLessons(date)
-                        .map { DemoDataProvider.getSubject(it.subjectId) }) {
+                    for (item in dotColors) {
 
                         Box(
                             modifier = Modifier
@@ -110,7 +138,7 @@ fun NextCard(navController: NavHostController) {
                                     LocalContentColor.current,
                                     CircleShape
                                 )
-                                .background(Color(item.color), shape = CircleShape)
+                                .background(Color(item), shape = CircleShape)
                         )
 
                         x += 12
@@ -137,6 +165,7 @@ fun DateFormat(date: LocalDate, modifier: Modifier = Modifier) {
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
+
                 date == now -> Text("本日", fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 else -> Text("${subAbs}日後", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }

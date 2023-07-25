@@ -25,15 +25,20 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.data.Lesson
+import com.example.fukurou.data.TimeFrame
 import com.example.fukurou.dateformatter
 import com.example.fukurou.totalHour
+import com.example.fukurou.viewmodel.ReportsContentViewModel
+import com.example.fukurou.viewmodel.TimetableContentViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import de.charlex.compose.SpeedDialData
 import de.charlex.compose.SpeedDialFloatingActionButton
+import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -61,7 +66,10 @@ private val DayWidth = 64.dp
     ExperimentalAnimationApi::class
 )
 @Composable
-fun TimetableContent(navController: NavHostController, weekStart: MutableState<LocalDate>) {
+fun TimetableContent(
+    navController: NavHostController, weekStart: MutableState<LocalDate>,
+    viewModel: TimetableContentViewModel = viewModel(factory = TimetableContentViewModel.Factory)
+) {
     val px = with(LocalDensity.current) { 80.dp.toPx() }
 
     val horizontalScrollState = rememberScrollState()
@@ -82,6 +90,8 @@ fun TimetableContent(navController: NavHostController, weekStart: MutableState<L
         px to SwipeDirection.LeftToRight
     )
 
+    val frames = viewModel.getTimeFrames().collectAsState(emptyList())
+
     Box(Modifier.fillMaxHeight()) {
         Row {
             Column(
@@ -89,7 +99,7 @@ fun TimetableContent(navController: NavHostController, weekStart: MutableState<L
                     .zIndex(5f)
                     .padding(0.dp, 40.dp, 0.dp, 0.dp)
             ) {
-                for (item in DemoDataProvider.timeFrames) {
+                for (item in frames.value) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
@@ -123,6 +133,7 @@ fun TimetableContent(navController: NavHostController, weekStart: MutableState<L
                     horizontalScrollState = horizontalScrollState,
                     navController = navController,
                     date = date,
+                    frames = frames,
                     headerModifier = Modifier
                         .swipeable(
                             state = state,
@@ -173,7 +184,8 @@ private fun Timetable(
     horizontalScrollState: ScrollState,
     date: LocalDate,
     navController: NavHostController,
-    headerModifier: Modifier = Modifier
+    headerModifier: Modifier = Modifier,
+    frames: State<List<TimeFrame>>
 ) {
     Column {
         Row(
@@ -210,12 +222,12 @@ private fun Timetable(
             ) {
                 val canvasWidth = size.width
                 val canvasHeight = size.height
-                val hourHeightPx = canvasHeight / DemoDataProvider.timeFrames.size
+                val hourHeightPx = canvasHeight / frames.value.size
                 val dayWidthPx = DayWidth.toPx()
                 val strokePx = 1.dp.toPx()
 
                 //横線を描画
-                for (index in 1..DemoDataProvider.timeFrames.size) {
+                for (index in 1..frames.value.size) {
                     val posY = hourHeightPx * index
 
                     drawLine(
@@ -250,7 +262,7 @@ private fun Timetable(
             Row {
                 for (offset in 0..6) {
                     val d = date.plusDays(offset.toLong())
-                    TimetableList(date = d, navController = navController)
+                    TimetableList(date = d, frames = frames, navController = navController)
                 }
             }
         }
@@ -268,9 +280,11 @@ private fun HorizontalDividerItem() {
 }
 
 @Composable
-private fun RowScope.TimetableList(
+private fun TimetableList(
     date: LocalDate,
-    navController: NavHostController
+    navController: NavHostController,
+    frames: State<List<TimeFrame>>,
+    viewModel: TimetableContentViewModel = viewModel(factory = TimetableContentViewModel.Factory)
 ) {
     Column(
         Modifier
@@ -278,9 +292,9 @@ private fun RowScope.TimetableList(
             .fillMaxHeight()
             .padding(2.dp, 0.dp)
     ) {
-        val lessons = DemoDataProvider.getLessons(date)
+        val lessons by viewModel.getLessons(date).collectAsState(emptyList())
 
-        for (tf in DemoDataProvider.timeFrames.sortedBy { it.number }) {
+        for (tf in frames.value) {
             val it = lessons.firstOrNull { it.timeFrame == tf.number }
             if (it != null) {
                 LessonItem(
@@ -305,15 +319,19 @@ private fun RowScope.TimetableList(
 }
 
 @Composable
-private fun LessonItem(lesson: Lesson, modifier: Modifier = Modifier) {
-    val subject = DemoDataProvider.getSubject(lesson.subjectId)
+private fun LessonItem(
+    lesson: Lesson, modifier: Modifier = Modifier,
+    viewModel: TimetableContentViewModel = viewModel(factory = TimetableContentViewModel.Factory)
+) {
+    val subject by viewModel.getSubject(lesson.subjectId).collectAsState(null)
     Surface(
-        color = Color(subject.color),
+        color = subject?.let { it -> Color(it.color) }
+            ?: Color.Gray,
         modifier = modifier,
         shape = RoundedCornerShape(4.dp)
     ) {
         Text(
-            text = subject.name,
+            text = subject?.name ?: stringResource(R.string.unknown_subject),
             modifier = Modifier.padding(4.dp)
         )
     }

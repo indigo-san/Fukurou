@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.TableRows
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,35 +18,54 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.google.accompanist.insets.statusBarsHeight
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ColumnScope.FukurouDrawer(navController: NavHostController, modifier: Modifier = Modifier) {
-    Spacer(Modifier.statusBarsHeight())
-    DrawerHeader()
-    VerticalDividerItem()
-    DrawerItemHeader("Fukurou")
+fun FukurouDrawer(navController: NavHostController, modifier: Modifier = Modifier) {
+    ModalDrawerSheet {
+        Spacer(Modifier.statusBarsHeight())
+        DrawerHeader()
+        VerticalDividerItem()
+        DrawerItemHeader("Fukurou")
 
-    DrawerItem(
-        icon = Icons.Filled.Home,
-        text = "ホーム",
-        onClick = {
-            navController.navigate("home")
-        },
-        selected = navController.currentDestination?.route == "home"
-    )
+        DrawerItem(
+            icon = Icons.Filled.Home,
+            text = "ホーム",
+            onClick = {
+                navController.navigate("home")
+            },
+            selected = navController.currentDestination?.route == "home"
+        )
 
-    DrawerItem(
-        icon = Icons.Filled.Assignment,
-        text = "レポート",
-        onClick = {
-            //navController.navigate("home")
-        },
-        selected = navController.currentDestination?.route == "report"
-    )
+        DrawerItem(
+            icon = Icons.Filled.Assignment,
+            text = "レポート",
+            onClick = {
+                //navController.navigate("home")
+            },
+            selected = navController.currentDestination?.route == "report"
+        )
 
-    VerticalDividerItem(modifier = Modifier.padding(horizontal = 28.dp))
-    DrawerItemHeader("Recent Profiles")
+        DrawerItem(
+            icon = Icons.Filled.Assignment,
+            text = "教科",
+            onClick = {
+                navController.navigate("subjects")
+            },
+            selected = navController.currentDestination?.route == "subjects"
+        )
 
+        DrawerItem(
+            icon = Icons.Filled.TableRows,
+            text = "校時表",
+            onClick = {
+                navController.navigate("time-frame-settings")
+            },
+            selected = navController.currentDestination?.route == "time-frame-settings"
+        )
 
+        VerticalDividerItem(modifier = Modifier.padding(horizontal = 28.dp))
+        DrawerItemHeader("Recent Profiles")
+    }
 }
 
 @Composable

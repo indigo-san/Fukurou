@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.*
@@ -31,18 +33,37 @@ import com.example.fukurou.dateformatter
 import com.example.fukurou.ui.SettingsSection
 import com.example.fukurou.ui.TextInputDialog
 import com.example.fukurou.ui.showDatePicker
+import com.example.fukurou.viewmodel.ReportDetailViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ReportDetailScreen(navController: NavHostController, id: Int) {
-    val item = remember { mutableStateOf(DemoDataProvider.getReport(id)) };
-    val subject = DemoDataProvider.getSubject(item.value.subjectId)
+fun ReportDetailScreen(
+    navController: NavHostController,
+    id: Int = -1,
+    viewModel: ReportDetailViewModel = viewModel(factory = ReportDetailViewModel.Factory)
+) {
+    val item = remember { mutableStateOf<Report?>(null) }
+    val subject = remember { mutableStateOf<Subject?>(null) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        item.value = viewModel.getReport(id).first()
+    }
+
+    LaunchedEffect(item.value) {
+        if (item.value != null) {
+            subject.value = viewModel.getSubject(item.value!!.subjectId).first()
+        } else {
+            subject.value = null
+        }
+    }
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(
-                title = { Text("${subject.name} ${item.value.name}") },
+            TopAppBar(
+                title = { Text("${subject.value?.name ?: stringResource(id = R.string.unknown_subject)} ${item.value?.name ?: "N/A"}") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -54,19 +75,26 @@ fun ReportDetailScreen(navController: NavHostController, id: Int) {
                 actions = { }
             )
         },
-        content = {
+        content = { padding ->
             val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-            val scope = rememberCoroutineScope()
+
+            val update: (modify: (item: Report) -> Report) -> Unit = { modify ->
+                if (item.value != null) {
+                    item.value = modify(item.value!!)
+                    scope.launch {
+                        viewModel.updateReport(item.value!!)
+                        sheetState.hide()
+                    }
+                }
+            }
 
             ModalBottomSheetLayout(
                 sheetContent = {
                     SettingsSection(
                         icon = Icons.Outlined.CheckCircleOutline,
                         onClick = {
-                            item.value = item.value.copy(state = ReportState.Submitted)
-                            DemoDataProvider.updateReport(item.value)
-                            scope.launch {
-                                sheetState.hide()
+                            update {
+                                it.copy(state = ReportState.Submitted)
                             }
                         }
                     ) {
@@ -76,10 +104,8 @@ fun ReportDetailScreen(navController: NavHostController, id: Int) {
                     SettingsSection(
                         icon = Icons.Outlined.Unpublished,
                         onClick = {
-                            item.value = item.value.copy(state = ReportState.NotSubmitted)
-                            DemoDataProvider.updateReport(item.value)
-                            scope.launch {
-                                sheetState.hide()
+                            update {
+                                it.copy(state = ReportState.NotSubmitted)
                             }
                         }
                     ) {
@@ -89,8 +115,12 @@ fun ReportDetailScreen(navController: NavHostController, id: Int) {
                     SettingsSection(
                         icon = Icons.Outlined.DeleteOutline,
                         onClick = {
-                            DemoDataProvider.deleteReport(item.value.id)
-                            navController.popBackStack()
+                            if (item.value != null) {
+                                scope.launch {
+                                    viewModel.deleteReport(item.value!!)
+                                }
+                                navController.popBackStack()
+                            }
                         }
                     ) {
                         Text(stringResource(id = R.string.delete))
@@ -98,13 +128,14 @@ fun ReportDetailScreen(navController: NavHostController, id: Int) {
                 },
                 sheetState = sheetState,
                 sheetBackgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                sheetContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                sheetContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(padding)
             ) {
-                ReportDetailBody(item) {
+                ReportDetailBody(item, subject, {
                     scope.launch {
                         sheetState.show()
                     }
-                }
+                })
             }
         }
     )
@@ -115,13 +146,27 @@ fun ReportDetailScreen(navController: NavHostController, id: Int) {
 private fun ReportDetailBodyPreview() {
     ReportDetailBody(
         report = remember { mutableStateOf(DemoDataProvider.reports[0]) },
+        subject = remember { mutableStateOf(DemoDataProvider.subjects[0]) },
         onRequestMenu = {})
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
-    var subject = DemoDataProvider.getSubject(report.value.subjectId)
+fun ReportDetailBody(
+    report: MutableState<Report?>,
+    subject: MutableState<Subject?>,
+    onRequestMenu: () -> Unit,
+    viewModel: ReportDetailViewModel = viewModel(factory = ReportDetailViewModel.Factory)
+) {
+    val scope = rememberCoroutineScope()
+    val update: (modify: (item: Report) -> Report) -> Unit = { modify ->
+        if (report.value != null) {
+            report.value = modify(report.value!!)
+            scope.launch {
+                viewModel.updateReport(report.value!!)
+            }
+        }
+    }
 
     Column {
         Column(
@@ -135,24 +180,35 @@ fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
             SettingsSection(
                 icon = Icons.Outlined.Label,
                 title = { Text("名前") },
-                content = { Text(report.value.name, style = MaterialTheme.typography.titleLarge) },
+                content = {
+                    Text(
+                        report.value?.name ?: "N/A",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 onClick = { nameInputShow.value = true }
             )
 
             TextInputDialog(
                 showDialog = nameInputShow,
-                text = report.value.name,
+                text = report.value?.name ?: "",
                 title = "名前を入力",
                 label = "名前"
-            ) {
-                report.value = report.value.copy(name = it)
-                DemoDataProvider.updateReport(report.value)
+            ) { str ->
+                update {
+                    it.copy(name = str)
+                }
             }
 
             SettingsSection(
                 icon = Icons.Outlined.Book,
                 title = { Text("教科") },
-                content = { Text(subject.name, style = MaterialTheme.typography.titleLarge) },
+                content = {
+                    Text(
+                        subject.value?.name ?: stringResource(R.string.unknown_subject),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 onClick = {
                     subjectsVisible.value = !subjectsVisible.value
                 }
@@ -174,11 +230,17 @@ fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
                 exit = slideOutVertically() + shrinkVertically() + fadeOut()
             ) {
                 Column {
-                    for (item in DemoDataProvider.subjects) {
-                        val select = {
-                            report.value = report.value.copy(subjectId = item.id)
-                            subject = item
-                            DemoDataProvider.updateReport(report.value)
+                    var subjects by remember { mutableStateOf(emptyList<Subject>()) }
+
+                    LaunchedEffect(Unit) {
+                        subjects = viewModel.getSubjects().first()
+                    }
+                    for (item in subjects) {
+                        val select: () -> Unit = {
+                            update {
+                                subject.value = item
+                                it.copy(subjectId = item.id)
+                            }
                         }
 
                         Row(
@@ -188,7 +250,7 @@ fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = item.id == subject.id,
+                                selected = item.id == subject.value?.id,
                                 onClick = select
                             )
 
@@ -205,16 +267,17 @@ fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
                 title = { Text("日付") },
                 content = {
                     Text(
-                        report.value.date.format(dateformatter),
+                        report.value?.date?.format(dateformatter) ?: "N/A",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 onClick = {
-                    if (activity != null) {
-                        showDatePicker(report.value.date, activity) {
-                            report.value = report.value.copy(date = it)
-                            DemoDataProvider.updateReport(report.value)
+                    if (activity != null&&report.value!=null) {
+                        showDatePicker(report.value!!.date, activity) { date ->
+                            update {
+                                it.copy(date = date)
+                            }
                         }
                     }
                 }
@@ -231,9 +294,9 @@ fun ReportDetailBody(report: MutableState<Report>, onRequestMenu: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     text = when {
-                        report.value.isExpired -> "状態: 期限切れ"
-                        report.value.isSubmitted -> "状態: 提出済み"
-                        report.value.isNotSubmitted -> "状態: 未提出"
+                        report.value?.isExpired==true -> "状態: 期限切れ"
+                        report.value?.isSubmitted==true -> "状態: 提出済み"
+                        report.value?.isNotSubmitted==true -> "状態: 未提出"
                         else -> "状態: 不明"
                     }
                 )

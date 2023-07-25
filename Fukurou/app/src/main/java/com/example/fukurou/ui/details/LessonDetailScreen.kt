@@ -9,7 +9,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,60 +24,70 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
-import com.example.fukurou.data.DemoDataProvider
-import com.example.fukurou.data.Lesson
-import com.example.fukurou.data.LessonState
+import com.example.fukurou.data.*
 import com.example.fukurou.dateformatter
-import com.example.fukurou.timeformatter
 import com.example.fukurou.ui.SettingsSection
 import com.example.fukurou.ui.TextInputDialog
 import com.example.fukurou.ui.showDatePicker
-import com.example.fukurou.ui.showTimePicker
+import com.example.fukurou.viewmodel.LessonDetailViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalTime
 
 @OptIn(
     ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class,
-    androidx.compose.animation.ExperimentalAnimationApi::class
+    ExperimentalAnimationApi::class
 )
 @Composable
 fun LessonDetailScreen(
     navController: NavHostController,
-    id: Int,
-    isCreating: MutableState<Boolean> = remember { mutableStateOf(false) }
+    id: Int = -1,
+    isCreating: MutableState<Boolean> = remember { mutableStateOf(false) },
+    date: LocalDate = LocalDate.now(),
+    viewModel: LessonDetailViewModel = viewModel(factory = LessonDetailViewModel.Factory)
 ) {
+    val scope = rememberCoroutineScope()
     val canCreate = remember { mutableStateOf(false) }
-    val item = remember {
+    val item = remember { mutableStateOf<Lesson?>(null) }
+
+    LaunchedEffect(Unit) {
         if (isCreating.value) {
-            val recently = DemoDataProvider.recentlyUsedLesson
-            mutableStateOf(
-                recently?.copy(id = DemoDataProvider.getNextLessonId())
-                    ?: Lesson(
-                        id = DemoDataProvider.getNextLessonId(),
-                        date = LocalDate.now(),
-                        timeFrame = 0,
-                        subjectId = DemoDataProvider.subjects.firstOrNull()?.id ?: -1
-                    )
-            )
+            isCreating.value = true
+            item.value =
+                viewModel.recentlyUsedLesson?.copy(id = 0, date = date)
+                    ?: viewModel.getNewItemEntry(date = date, timeFrame = 1)
         } else {
-            mutableStateOf(DemoDataProvider.getLesson(id))
+            item.value = viewModel.getLesson(id).first()
         }
     }
-    canCreate.value = DemoDataProvider.canAddLesson(item.value)
-    val subject = DemoDataProvider.getSubjectOrNull(item.value.subjectId)
+
+    val subject = remember { mutableStateOf<Subject?>(null) }
+
+    LaunchedEffect(item.value) {
+        val lesson = item.value
+        canCreate.value = lesson != null && viewModel.canAddLesson(lesson)
+
+        if (lesson != null
+            && lesson.subjectId != subject.value?.id
+        ) {
+            subject.value = viewModel.getSubject(lesson.subjectId).first()
+        }
+    }
 
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            TopAppBar(
                 title = {
                     AnimatedContent(targetState = isCreating.value) { state ->
                         if (state) {
                             Text(stringResource(id = R.string.add_lesson))
                         } else {
-                            Text(subject?.name ?: stringResource(id = R.string.unknown_subject))
+                            Text(
+                                subject.value?.name ?: stringResource(id = R.string.unknown_subject)
+                            )
                         }
                     }
                 },
@@ -95,7 +104,9 @@ fun LessonDetailScreen(
                         TextButton(
                             onClick = {
                                 isCreating.value = false
-                                DemoDataProvider.addLesson(item.value)
+                                if (item.value != null) {
+                                    viewModel.addLesson(item.value!!)
+                                }
                             },
                             enabled = canCreate.value
                         ) {
@@ -105,19 +116,21 @@ fun LessonDetailScreen(
                 }
             )
         },
-        content = {
+        content = { innerPadding ->
             val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-            val scope = rememberCoroutineScope()
 
             ModalBottomSheetLayout(
+                modifier = Modifier.padding(innerPadding),
                 sheetContent = {
                     SettingsSection(
                         icon = Icons.Outlined.CheckCircleOutline,
                         onClick = {
-                            item.value = item.value.copy(state = LessonState.Attend)
-                            DemoDataProvider.updateLesson(item.value)
-                            scope.launch {
-                                sheetState.hide()
+                            if (item.value != null) {
+                                item.value = item.value!!.copy(state = LessonState.Attend)
+                                scope.launch {
+                                    viewModel.updateLesson(item.value!!)
+                                    sheetState.hide()
+                                }
                             }
                         }
                     ) {
@@ -127,10 +140,12 @@ fun LessonDetailScreen(
                     SettingsSection(
                         icon = Icons.Outlined.Unpublished,
                         onClick = {
-                            item.value = item.value.copy(state = LessonState.Absent)
-                            DemoDataProvider.updateLesson(item.value)
-                            scope.launch {
-                                sheetState.hide()
+                            if (item.value != null) {
+                                item.value = item.value!!.copy(state = LessonState.Absent)
+                                scope.launch {
+                                    viewModel.updateLesson(item.value!!)
+                                    sheetState.hide()
+                                }
                             }
                         }
                     ) {
@@ -140,10 +155,12 @@ fun LessonDetailScreen(
                     SettingsSection(
                         icon = Icons.Outlined.HelpOutline,
                         onClick = {
-                            item.value = item.value.copy(state = LessonState.None)
-                            DemoDataProvider.updateLesson(item.value)
-                            scope.launch {
-                                sheetState.hide()
+                            if (item.value != null) {
+                                item.value = item.value!!.copy(state = LessonState.None)
+                                scope.launch {
+                                    viewModel.updateLesson(item.value!!)
+                                    sheetState.hide()
+                                }
                             }
                         }
                     ) {
@@ -153,8 +170,12 @@ fun LessonDetailScreen(
                     SettingsSection(
                         icon = Icons.Outlined.DeleteOutline,
                         onClick = {
-                            DemoDataProvider.deleteLesson(item.value.id)
-                            navController.popBackStack()
+                            if (item.value != null) {
+                                scope.launch {
+                                    viewModel.deleteLesson(item.value!!)
+                                }
+                                navController.popBackStack()
+                            }
                         }
                     ) {
                         Text(stringResource(id = R.string.delete))
@@ -164,11 +185,11 @@ fun LessonDetailScreen(
                 sheetBackgroundColor = MaterialTheme.colorScheme.surfaceVariant,
                 sheetContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ) {
-                LessonDetailBody(item, isCreating) {
+                LessonDetailBody(item, subject, isCreating, {
                     scope.launch {
                         sheetState.show()
                     }
-                }
+                })
             }
         }
     )
@@ -178,7 +199,25 @@ fun LessonDetailScreen(
 @Composable
 private fun LessonDetailBodyPreview() {
     LessonDetailBody(
-        lesson = remember { mutableStateOf(DemoDataProvider.lessons[0]) },
+        lesson = remember {
+            mutableStateOf(
+                Lesson(
+                    id = 0,
+                    date = LocalDate.now(),
+                    timeFrame = 1,
+                    subjectId = 0,
+                )
+            )
+        },
+        subject = remember {
+            mutableStateOf(
+                Subject(
+                    id = 0,
+                    name = "AAA",
+                    color = 0xffff1744
+                )
+            )
+        },
         onRequestMenu = {},
         isCreating = remember { mutableStateOf(false) })
 }
@@ -186,11 +225,20 @@ private fun LessonDetailBodyPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonDetailBody(
-    lesson: MutableState<Lesson>,
+    lesson: MutableState<Lesson?>,
+    subject: MutableState<Subject?>,
     isCreating: MutableState<Boolean>,
-    onRequestMenu: () -> Unit
+    onRequestMenu: () -> Unit,
+    viewModel: LessonDetailViewModel = viewModel(factory = LessonDetailViewModel.Factory)
 ) {
-    var subject = DemoDataProvider.getSubject(lesson.value.subjectId)
+    val coroutineScope = rememberCoroutineScope()
+    val updateLesson = {
+        if (!isCreating.value && lesson.value != null) {
+            coroutineScope.launch {
+                viewModel.updateLesson(lesson.value!!)
+            }
+        }
+    }
 
     Column {
         Column(
@@ -199,11 +247,21 @@ fun LessonDetailBody(
                 .verticalScroll(rememberScrollState())
         ) {
             val subjectsVisible = remember { mutableStateOf(false) }
+            var subjects by remember { mutableStateOf(emptyList<Subject>()) }
+
+            LaunchedEffect(Unit) {
+                subjects = viewModel.getSubjects().first()
+            }
 
             SettingsSection(
                 icon = Icons.Outlined.Book,
                 title = { Text("教科") },
-                content = { Text(subject.name, style = MaterialTheme.typography.titleLarge) },
+                content = {
+                    Text(
+                        subject.value?.name ?: stringResource(id = R.string.unknown_subject),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 onClick = {
                     subjectsVisible.value = !subjectsVisible.value
                 }
@@ -225,12 +283,14 @@ fun LessonDetailBody(
                 exit = slideOutVertically() + shrinkVertically() + fadeOut()
             ) {
                 Column {
-                    for (item in DemoDataProvider.subjects) {
+
+                    for (item in subjects) {
                         val select = {
-                            lesson.value = lesson.value.copy(subjectId = item.id)
-                            subject = item
-                            if (!isCreating.value)
-                                DemoDataProvider.updateLesson(lesson.value)
+                            if (lesson.value != null) {
+                                lesson.value = lesson.value!!.copy(subjectId = item.id)
+                                subject.value = item
+                                updateLesson()
+                            }
                         }
 
                         Row(
@@ -240,7 +300,7 @@ fun LessonDetailBody(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = item.id == subject.id,
+                                selected = item.id == subject.value?.id,
                                 onClick = select
                             )
 
@@ -257,17 +317,16 @@ fun LessonDetailBody(
                 title = { Text("日付") },
                 content = {
                     Text(
-                        lesson.value.date.format(dateformatter),
+                        lesson.value?.date?.format(dateformatter) ?: "N/A",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 onClick = {
-                    if (activity != null) {
-                        showDatePicker(lesson.value.date, activity) {
-                            lesson.value = lesson.value.copy(date = it)
-                            if (!isCreating.value)
-                                DemoDataProvider.updateLesson(lesson.value)
+                    if (activity != null && lesson.value != null) {
+                        showDatePicker(lesson.value!!.date, activity) {
+                            lesson.value = lesson.value!!.copy(date = it)
+                            updateLesson()
                         }
                     }
                 }
@@ -280,13 +339,24 @@ fun LessonDetailBody(
                 title = { Text("時間") },
                 content = {
                     Text(
-                        text = "${lesson.value.timeFrame}時限目",
+                        text = "${lesson.value?.timeFrame ?: 0}時限目",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 onClick = { timeFramesVisible.value = !timeFramesVisible.value }
             )
+
+            var lessons by remember { mutableStateOf(emptyList<Lesson>()) }
+            var timeFrames by remember { mutableStateOf(emptyList<TimeFrame>()) }
+            LaunchedEffect(lesson.value) {
+                if (lesson.value != null) {
+                    lessons = viewModel.getLessons(lesson.value!!.date).first()
+                }
+            }
+            LaunchedEffect(Unit) {
+                timeFrames = viewModel.getFrames().first()
+            }
 
             AnimatedVisibility(
                 visible = timeFramesVisible.value,
@@ -303,12 +373,12 @@ fun LessonDetailBody(
                 exit = slideOutVertically() + shrinkVertically() + fadeOut()
             ) {
                 Column {
-                    val lessons = DemoDataProvider.getLessons(lesson.value.date)
-                    for (item in DemoDataProvider.timeFrames.sortedBy { it.number }) {
+                    for (item in timeFrames) {
                         val select = {
-                            lesson.value = lesson.value.copy(timeFrame = item.number)
-                            if (!isCreating.value)
-                                DemoDataProvider.updateLesson(lesson.value)
+                            if (lesson.value != null) {
+                                lesson.value = lesson.value!!.copy(timeFrame = item.number)
+                                updateLesson()
+                            }
                         }
 
                         Row(
@@ -318,7 +388,7 @@ fun LessonDetailBody(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = item.number == lesson.value.timeFrame,
+                                selected = item.number == lesson.value?.timeFrame,
                                 onClick = select
                             )
 
@@ -335,9 +405,9 @@ fun LessonDetailBody(
                 icon = Icons.Outlined.Room,
                 title = { Text("教室") },
                 content = {
-                    if (lesson.value.room.isNotBlank()) {
+                    if (lesson.value?.room?.isNotBlank() == true) {
                         Text(
-                            lesson.value.room,
+                            lesson.value?.room ?: "N/A",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -350,13 +420,14 @@ fun LessonDetailBody(
 
             TextInputDialog(
                 showDialog = roomInputShow,
-                text = lesson.value.room,
+                text = lesson.value?.room ?: "N/A",
                 title = "教室名を入力",
                 label = "教室名"
             ) {
-                lesson.value = lesson.value.copy(room = it)
-                if (!isCreating.value)
-                    DemoDataProvider.updateLesson(lesson.value)
+                if (lesson.value != null) {
+                    lesson.value = lesson.value!!.copy(room = it)
+                    updateLesson()
+                }
             }
 
             val tagInputShow = remember { mutableStateOf(false) }
@@ -364,9 +435,9 @@ fun LessonDetailBody(
                 icon = Icons.Outlined.Tag,
                 title = { Text("タグ") },
                 content = {
-                    if (lesson.value.tag.isNotBlank()) {
+                    if (lesson.value?.tag?.isNotBlank() == true) {
                         Text(
-                            lesson.value.tag,
+                            lesson.value!!.tag,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -379,16 +450,15 @@ fun LessonDetailBody(
 
             TextInputDialog(
                 showDialog = tagInputShow,
-                text = lesson.value.tag,
+                text = lesson.value?.tag ?: "",
                 title = "タグを入力",
                 label = "タグ"
             ) {
-                lesson.value = lesson.value.copy(tag = it)
-                if (!isCreating.value)
-                    DemoDataProvider.updateLesson(lesson.value)
+                if (lesson.value != null) {
+                    lesson.value = lesson.value!!.copy(tag = it)
+                    updateLesson()
+                }
             }
-
-
         }
 
         if (!isCreating.value) {
@@ -401,10 +471,11 @@ fun LessonDetailBody(
                         modifier = Modifier.align(Alignment.Center),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        text = when (lesson.value.state) {
+                        text = when (lesson.value?.state) {
                             LessonState.None -> "状態: 未指定"
                             LessonState.Attend -> "状態: 出席"
                             LessonState.Absent -> "状態: 欠席"
+                            null -> "状態: N/A"
                         }
                     )
 

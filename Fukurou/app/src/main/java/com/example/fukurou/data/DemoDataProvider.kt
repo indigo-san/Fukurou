@@ -1,77 +1,33 @@
 package com.example.fukurou.data
 
 import java.lang.Integer.max
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.temporal.ChronoField
-import java.time.temporal.WeekFields
-
-data class Week(
-    val monday: Schoolday?,
-    val tuesday: Schoolday?,
-    val wednesday: Schoolday?,
-    val thursday: Schoolday?,
-    val friday: Schoolday?,
-    val saturday: Schoolday?,
-    val sunday: Schoolday?
-) {
-    companion object {
-        fun create(items: List<Schoolday?>): Week {
-            var monday: Schoolday? = null
-            var tuesday: Schoolday? = null
-            var wednesday: Schoolday? = null
-            var thursday: Schoolday? = null
-            var friday: Schoolday? = null
-            var saturday: Schoolday? = null
-            var sunday: Schoolday? = null
-
-            for (item in items) {
-                if (item != null) {
-                    when (item.date.dayOfWeek) {
-                        DayOfWeek.MONDAY -> monday = item
-                        DayOfWeek.TUESDAY -> tuesday = item
-                        DayOfWeek.WEDNESDAY -> wednesday = item
-                        DayOfWeek.THURSDAY -> thursday = item
-                        DayOfWeek.FRIDAY -> friday = item
-                        DayOfWeek.SATURDAY -> saturday = item
-                        DayOfWeek.SUNDAY -> sunday = item
-                        else -> {}
-                    }
-                }
-            }
-
-            return Week(
-                monday, tuesday, wednesday, thursday, friday, saturday, sunday
-            )
-        }
-    }
-}
 
 object DemoDataProvider {
     val timeFrames = mutableListOf(
-        TimeFrame(1, LocalTime.of(9, 0), LocalTime.of(9, 45)),
-        TimeFrame(2, LocalTime.of(9, 55), LocalTime.of(10, 40)),
-        TimeFrame(3, LocalTime.of(10, 50), LocalTime.of(11, 35)),
-        TimeFrame(4, LocalTime.of(11, 45), LocalTime.of(12, 30)),
-        TimeFrame(5, LocalTime.of(13, 35), LocalTime.of(14, 20)),
-        TimeFrame(6, LocalTime.of(14, 30), LocalTime.of(15, 15)),
-        TimeFrame(7, LocalTime.of(15, 25), LocalTime.of(16, 10)),
+        TimeFrame(1, 1, LocalTime.of(9, 0), LocalTime.of(9, 45)),
+        TimeFrame(2, 2, LocalTime.of(9, 55), LocalTime.of(10, 40)),
+        TimeFrame(3, 3, LocalTime.of(10, 50), LocalTime.of(11, 35)),
+        TimeFrame(4, 4, LocalTime.of(11, 45), LocalTime.of(12, 30)),
+        TimeFrame(5, 5, LocalTime.of(13, 35), LocalTime.of(14, 20)),
+        TimeFrame(6, 6, LocalTime.of(14, 30), LocalTime.of(15, 15)),
+        TimeFrame(7, 7, LocalTime.of(15, 25), LocalTime.of(16, 10)),
     )
 
     val subjects = mutableListOf(
-        Subject("教科1", 0, 0xffff1744),
-        Subject("教科2", 1, 0xff2962ff),
-        Subject("教科3", 2, 0xff00c853),
-        Subject("教科4", 3, 0xff00bfa5),
-        Subject("教科5", 4, 0xffffab00),
+        Subject(1, "教科1", 0xffff1744),
+        Subject(2, "教科2", 0xff2962ff),
+        Subject(3, "教科3", 0xff00c853),
+        Subject(4, "教科4", 0xff00bfa5),
+        Subject(5, "教科5", 0xffffab00),
     )
 
     val lessons = mutableListOf(
         Lesson(
             date = LocalDate.now().plusDays(0),
             timeFrame = 1,
-            id = 0,
+            id = 10,
             subjectId = 0
         ),
         Lesson(
@@ -134,7 +90,7 @@ object DemoDataProvider {
         Report(
             name = "レポート1",
             date = LocalDate.now().plusDays(0),
-            id = 0,
+            id = 17,
             subjectId = 0
         ),
         Report(
@@ -238,7 +194,7 @@ object DemoDataProvider {
         while (now <= max) {
             val items = lessons.filter { it.date == now }
             if (!items.any() || items.any { lesson ->
-                    getTimeFrameOrNull(lesson.timeFrame)?.isCompoleted(lesson.date) != true
+                    getTimeFrameOrNull(lesson.timeFrame)?.isCompleted(lesson.date) != true
                 }
             ) {
                 return now
@@ -259,10 +215,6 @@ object DemoDataProvider {
     }
 
     // レポート
-    fun getReports(schoolday: Schoolday): List<Report> {
-        return reports.filter { it.date == schoolday.date }
-    }
-
     fun getReports(date: LocalDate): List<Report> {
         return reports.filter { it.date == date }
     }
@@ -283,13 +235,6 @@ object DemoDataProvider {
     }
 
     // 授業
-    fun getLessons(schoolday: Schoolday): List<Lesson> {
-        val result = mutableListOf<Lesson>()
-        lessons.filterTo(result) { it.date == schoolday.date }
-        result.sortBy { it.timeFrame }
-        return result
-    }
-
     fun getLessons(date: LocalDate): List<Lesson> {
         val result = mutableListOf<Lesson>()
         lessons.filterTo(result) { it.date == date }

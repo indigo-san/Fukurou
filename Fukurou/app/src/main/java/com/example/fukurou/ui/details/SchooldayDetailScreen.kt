@@ -19,16 +19,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
-import com.example.fukurou.data.Schoolday
-import com.example.fukurou.timeformatter
+import com.example.fukurou.data.Lesson
+import com.example.fukurou.data.Report
 import com.example.fukurou.ui.DateFormat
 import com.example.fukurou.ui.TimeRange
+import com.example.fukurou.viewmodel.SchooldayDetailViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @Preview(showBackground = true)
@@ -37,18 +41,23 @@ fun PreviewBody() {
     val scd = DemoDataProvider.getNextSchoolday()
     val selectedIndex = remember { mutableStateOf(0) }
     if (scd != null) {
-        SchooldayDetailBody(LocalDate.now(), selectedIndex, rememberNavController())
+        SchooldayDetailBody(Modifier, LocalDate.now(), selectedIndex, rememberNavController())
     }
 }
 
 @Composable
 fun SchooldayDetailBody(
+    modifier: Modifier,
     date: LocalDate,
     selectedIndex: MutableState<Int>,
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: SchooldayDetailViewModel = viewModel(factory = SchooldayDetailViewModel.Factory)
 ) {
-    Column {
-        NavigationBar(modifier = Modifier.height(48.dp), containerColor = Color.Transparent) {
+    val scope = rememberCoroutineScope()
+    Column(modifier = modifier) {
+        NavigationBar(
+            modifier = Modifier.height(48.dp), containerColor = Color.Transparent
+        ) {
             NavigationBarItem(
                 icon = {
                     Icon(
@@ -77,14 +86,23 @@ fun SchooldayDetailBody(
             // 授業
             var isRefreshing by remember { mutableStateOf(false) }
             val refreshState = rememberSwipeRefreshState(isRefreshing)
+            val lessons = remember { mutableStateOf(emptyList<Lesson>()) }
+            LaunchedEffect(Unit) {
+                lessons.value = viewModel.getLessons(date).first()
+            }
 
             SwipeRefresh(
                 state = refreshState,
-                onRefresh = { isRefreshing = true },
+                onRefresh = {
+                    isRefreshing = true
+                    scope.launch {
+                        lessons.value = viewModel.getLessons(date).first()
+                    }
+                },
             ) {
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                    items(DemoDataProvider.getLessons(date)) {
-                        val subject = DemoDataProvider.getSubject(it.subjectId)
+                    items(lessons.value) {
+                        val subject by viewModel.getSubject(it.subjectId).collectAsState(null)
                         Column {
                             Row(
                                 modifier = Modifier
@@ -99,14 +117,16 @@ fun SchooldayDetailBody(
                                     modifier = Modifier
                                         .padding(8.dp, 0.dp)
                                         .background(
-                                            Color(subject.color),
+                                            color = subject?.let { it -> Color(it.color) }
+                                                ?: Color.Gray,
                                             shape = CircleShape
                                         )
                                         .size(24.dp)
                                 )
 
                                 Text(
-                                    text = subject.name,
+                                    text = subject?.name
+                                        ?: stringResource(R.string.unknown_subject),
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
@@ -118,11 +138,10 @@ fun SchooldayDetailBody(
                                         .weight(1f)
                                         .padding(8.dp, 0.dp)
                                 ) {
-                                    val tf = DemoDataProvider.getTimeFrameOrNull(it.timeFrame)
+                                    val tf by viewModel.getTimeFrameOrNull(it.timeFrame).collectAsState(null)
                                     if (tf != null) {
-                                        TimeRange(start = tf.start, end = tf.end)
-                                    }
-                                    else{
+                                        TimeRange(start = tf!!.start, end = tf!!.end)
+                                    } else {
                                         Text(
                                             text = "${it.timeFrame}時限目",
                                             style = MaterialTheme.typography.bodyLarge
@@ -141,15 +160,19 @@ fun SchooldayDetailBody(
         } else {
             // レポート
             var isRefreshing by remember { mutableStateOf(false) }
-            val refreshState = rememberSwipeRefreshState(isRefreshing);
+            val refreshState = rememberSwipeRefreshState(isRefreshing)
+            val reports = remember { mutableStateOf(emptyList<Report>()) }
+            LaunchedEffect(Unit) {
+                reports.value = viewModel.getReports(date).first()
+            }
 
             SwipeRefresh(
                 state = refreshState,
                 onRefresh = { isRefreshing = true },
             ) {
                 LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                    items(DemoDataProvider.getReports(date)) {
-                        val subject = DemoDataProvider.getSubject(it.subjectId)
+                    items(reports.value) {
+                        val subject by viewModel.getSubject(it.subjectId).collectAsState(null)
                         Column {
                             Row(
                                 modifier = Modifier
@@ -164,14 +187,16 @@ fun SchooldayDetailBody(
                                     modifier = Modifier
                                         .padding(8.dp, 0.dp)
                                         .background(
-                                            Color(subject.color),
+                                            color = subject?.let { it -> Color(it.color) }
+                                                ?: Color.Gray,
                                             shape = CircleShape
                                         )
                                         .size(24.dp)
                                 )
 
                                 Text(
-                                    text = subject.name,
+                                    text = subject?.name
+                                        ?: stringResource(R.string.unknown_subject),
                                     style = MaterialTheme.typography.titleMedium
                                 )
 
@@ -193,6 +218,7 @@ fun SchooldayDetailBody(
                                                 "期限切れ",
                                                 color = MaterialTheme.colorScheme.error
                                             )
+
                                             it.isNotSubmitted -> Text("未提出")
                                             it.isSubmitted -> Text("提出済み")
                                         }
@@ -222,7 +248,10 @@ private fun DividerItem(modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SchooldayDetailScreen(navController: NavHostController, date: LocalDate) {
+fun SchooldayDetailScreen(
+    navController: NavHostController, date: LocalDate,
+    viewModel: SchooldayDetailViewModel = viewModel(factory = SchooldayDetailViewModel.Factory)
+) {
     val selectedIndex = rememberSaveable { mutableStateOf(0) }
 
     Scaffold(
@@ -231,7 +260,7 @@ fun SchooldayDetailScreen(navController: NavHostController, date: LocalDate) {
                 ExtendedFloatingActionButton(
                     icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
                     text = { Text("授業を追加") },
-                    onClick = { /*TODO*/ }
+                    onClick = { navController.navigate("create-lesson") }
                 )
             } else if (selectedIndex.value == 1) {
                 ExtendedFloatingActionButton(
@@ -270,6 +299,14 @@ fun SchooldayDetailScreen(navController: NavHostController, date: LocalDate) {
                 }
             )
         },
-        content = { SchooldayDetailBody(date, selectedIndex, navController) }
+        content = { padding ->
+            SchooldayDetailBody(
+                Modifier.padding(padding),
+                date,
+                selectedIndex,
+                navController,
+                viewModel
+            )
+        }
     )
 }

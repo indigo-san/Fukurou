@@ -6,11 +6,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,35 +31,50 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.fukurou.R
 import com.example.fukurou.data.DemoDataProvider
 import com.example.fukurou.data.Report
 import com.example.fukurou.data.ReportState
 import com.example.fukurou.dateformatter
+import com.example.fukurou.viewmodel.ReportDetailViewModel
+import com.example.fukurou.viewmodel.ReportsContentViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun ReportsContent(navController: NavHostController, snackbarHostState: SnackbarHostState) {
+fun ReportsContent(
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    viewModel: ReportsContentViewModel = viewModel(factory = ReportsContentViewModel.Factory)
+) {
+    val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     var isRefreshing by remember { mutableStateOf(false) }
-    val items = remember {
-        DemoDataProvider.reports
-            .sortedBy { it.date }
-            .toMutableStateList()
+    val items = remember { mutableStateListOf<Report>() }
+    LaunchedEffect(Unit) {
+        items.clear()
+        items.addAll(viewModel.getReports().first())
     }
+
     val context = LocalContext.current
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
-        onRefresh = { isRefreshing = true },
+        onRefresh = {
+            isRefreshing = true
+            scope.launch {
+                items.clear()
+                items.addAll(viewModel.getReports().first())
+            }
+        },
     ) {
         LazyColumn(
             state = lazyListState,
@@ -105,17 +118,17 @@ fun ReportsContent(navController: NavHostController, snackbarHostState: Snackbar
                                         dismissState.snapTo(DismissValue.Default)
                                         deleting = false
                                     } else {
-                                        DemoDataProvider.deleteReport(it.id)
+                                        viewModel.deleteReport(it)
                                         items.remove(it)
                                     }
                                 } catch (e: CancellationException) {
-                                    DemoDataProvider.deleteReport(it.id)
+                                    viewModel.deleteReport(it)
                                     items.remove(it)
                                 }
                             } else if (dismissState.currentValue == DismissValue.DismissedToEnd) {
                                 val report =
                                     it.copy(state = if (it.isSubmitted) ReportState.NotSubmitted else ReportState.Submitted)
-                                DemoDataProvider.updateReport(report)
+                                viewModel.updateReport(it)
                                 val index = items.indexOfFirst { it.id == report.id }
                                 if (index >= 0) {
                                     items[index] = report
@@ -142,6 +155,7 @@ fun ReportsContent(navController: NavHostController, snackbarHostState: Snackbar
                                         else
                                             Color.Green
                                     }
+
                                     DismissDirection.EndToStart -> MaterialTheme.colorScheme.error
                                 }
                             )
@@ -156,6 +170,7 @@ fun ReportsContent(navController: NavHostController, snackbarHostState: Snackbar
                                     else
                                         Icons.Outlined.CheckCircleOutline
                                 }
+
                                 DismissDirection.EndToStart -> Icons.Outlined.Delete
                             }
                             val scale by animateFloatAsState(
@@ -209,8 +224,11 @@ fun ReportsContent(navController: NavHostController, snackbarHostState: Snackbar
 }
 
 @Composable
-private fun Item(report: Report, navController: NavHostController) {
-    val subject = DemoDataProvider.getSubject(report.subjectId)
+private fun Item(
+    report: Report, navController: NavHostController,
+    viewModel: ReportsContentViewModel = viewModel(factory = ReportsContentViewModel.Factory)
+) {
+    val subject by viewModel.getSubject(report.subjectId).collectAsState(null)
 
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -231,14 +249,15 @@ private fun Item(report: Report, navController: NavHostController) {
                 modifier = Modifier
                     .padding(8.dp, 0.dp)
                     .background(
-                        Color(subject.color),
+                        color = subject?.let { it -> Color(it.color) }
+                            ?: Color.Gray,
                         shape = CircleShape
                     )
                     .size(24.dp)
             )
 
             Text(
-                text = subject.name,
+                text = subject?.name ?: stringResource(R.string.unknown_subject),
                 style = MaterialTheme.typography.titleMedium
             )
 
@@ -260,6 +279,7 @@ private fun Item(report: Report, navController: NavHostController) {
                             "期限切れ",
                             color = MaterialTheme.colorScheme.error
                         )
+
                         report.isNotSubmitted -> Text("未提出")
                         report.isSubmitted -> Text("提出済み")
                     }

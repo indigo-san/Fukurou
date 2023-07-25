@@ -29,10 +29,11 @@ fun showDatePicker(date: LocalDate, activity: FragmentActivity, onClick: (LocalD
         }
 }
 
-fun showTimePicker(time: LocalTime, activity: FragmentActivity, onClick: (LocalTime) -> Unit) {
+fun showTimePicker(time: LocalTime, activity: FragmentActivity, onClick: (LocalTime) -> Unit, title: String) {
     MaterialTimePicker.Builder()
         .setHour(time.hour)
         .setMinute(time.minute)
+        .setTitleText(title)
         .build().apply {
             show(activity.supportFragmentManager, "Tag")
             addOnPositiveButtonClickListener {

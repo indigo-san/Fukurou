@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -73,8 +75,10 @@ fun CardScaffold(
     content: @Composable () -> Unit
 ) {
     Card(
-        containerColor = containerColor(),
-        contentColor = contentColor(),
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor(),
+            contentColor = contentColor(),
+        ),
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier
             .padding(8.dp)

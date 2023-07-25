@@ -36,17 +36,17 @@ fun HomeTopBar(
 
     val roundSize by animateDpAsState(
         if (bottomNavState.value == 0) searchLayoutHeightDp / 2 else 0.dp,
-//        animationSpec = tween()
+        animationSpec = tween()
     )
 
     val paddingOut by animateDpAsState(
         if (bottomNavState.value == 0) 8.dp else 0.dp,
-//        animationSpec = tween()
+        animationSpec = tween()
     )
 
     val paddingIn by animateDpAsState(
         if (bottomNavState.value == 0) 0.dp else 4.dp,
-//        animationSpec = tween()
+        animationSpec = tween()
     )
 
     Card(

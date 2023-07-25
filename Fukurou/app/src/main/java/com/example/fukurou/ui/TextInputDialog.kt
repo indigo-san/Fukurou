@@ -1,6 +1,7 @@
 package com.example.fukurou.ui
 
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TextField
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,7 +22,8 @@ fun TextInputDialog(
     text: String,
     title: String,
     label: String,
-    callback: (String) -> Unit
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    callback: (String) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() };
     val value = remember { mutableStateOf(text) }
@@ -47,6 +49,7 @@ fun TextInputDialog(
             },
             text = {
                 TextField(
+                    keyboardOptions = keyboardOptions,
                     modifier = Modifier.focusRequester(focusRequester),
                     value = value.value,
                     onValueChange = { value.value = it },
